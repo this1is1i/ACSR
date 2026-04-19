@@ -90,18 +90,3 @@ class Actor(nn.Module):
             probs = F.softmax(logits, dim=-1)
             top_k_probs, top_k_indices = torch.topk(probs, k)
         return top_k_indices, top_k_probs
-
-    # ── 知识图谱 embedding 融合接口（预留）───────────────────────
-
-    def forward_with_kg(
-        self,
-        state: torch.Tensor,
-        kg_embedding: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        """
-        将知识图谱 embedding 拼接到状态后再推断（预留接口）。
-        使用时需同步调整 state_dim。
-        """
-        if kg_embedding is not None:
-            state = torch.cat([state, kg_embedding], dim=-1)
-        return self.forward(state)

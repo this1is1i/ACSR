@@ -7,10 +7,14 @@ from typing import Dict
 
 @dataclass
 class Config:
-    # ── 状态 / 动作空间 ──────────────────────────────────────────
-    state_dim: int = 64          # 状态向量维度
+    # ── 基础维度 ──────────────────────────────────────────────────
+    base_state_dim: int = 64     # 基础状态维度 = interest(32) + history(32)
     action_num: int = 20         # 候选科研内容数量（离散动作空间大小）
     top_k: int = 5               # Top-K 推荐数量
+
+    # ── 知识图谱 ──────────────────────────────────────────────────
+    kg_embedding_dim: int = 32   # 知识图谱 embedding 维度
+    use_kg: bool = True          # 启用知识图谱特征
 
     # ── 网络结构 ──────────────────────────────────────────────────
     actor_hidden: int = 128
@@ -31,15 +35,18 @@ class Config:
         "gamma": 0.5,   # 阅读时长权重
         "delta": 3.0,   # 研究方向匹配度权重
         "eta":   1.5,   # 长期科研价值权重
+        "zeta":  2.0,   # 知识图谱拓扑相关度权重
     })
 
     # ── 持久化 ────────────────────────────────────────────────────
     model_save_path: str = "checkpoints/ac_model.pth"
     log_dir: str = "logs/"
 
-    # ── 知识图谱预留 ──────────────────────────────────────────────
-    kg_embedding_dim: int = 32   # 知识图谱 embedding 维度（预留）
-    use_kg: bool = False         # 是否启用知识图谱特征
+    def __post_init__(self):
+        """state_dim 根据是否启用 KG 动态计算。"""
+        self.state_dim: int = self.base_state_dim + (
+            self.kg_embedding_dim if self.use_kg else 0
+        )
 
 
 # 全局默认配置实例

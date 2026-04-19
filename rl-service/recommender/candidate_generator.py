@@ -40,7 +40,7 @@ class CandidateGenerator:
 
     def __init__(
         self,
-        pool_size: int = 200,
+        pool_size: int = 500,
         state_dim: int = 64,
         seed: int = 42,
     ):

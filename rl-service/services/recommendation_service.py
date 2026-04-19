@@ -67,20 +67,32 @@ class RecommendationService:
         - 对 REST API 层（FastAPI）透明暴露
     """
 
-    MODEL_VERSION = "v1.0.0-actor-critic"
+    MODEL_VERSION = "v1.1.0-actor-critic-kg"
 
     def __init__(self, config: Config = default_config):
         self.config = config
         self._agent: Optional[ActorCriticAgent] = None
         self._ranker: Optional[RLRanker] = None
+        self._kg_embedder = None
+
+        # 初始化 KG（可选）
+        self._init_kg(config)
 
         # 初始化各子模块
-        self.feature_builder    = FeatureBuilder(state_dim=config.state_dim)
-        self.candidate_gen      = CandidateGenerator(state_dim=config.state_dim)
-        self.explain_gen        = ExplanationGenerator()
+        kg_dim = config.kg_embedding_dim if config.use_kg else 0
+        self.feature_builder = FeatureBuilder(
+            base_state_dim=config.base_state_dim,
+            kg_dim=kg_dim,
+            kg_embedder=self._kg_embedder,
+        )
+        self.candidate_gen = CandidateGenerator(state_dim=config.base_state_dim)
+        self.explain_gen   = ExplanationGenerator()
 
         self._load_agent()
-        logger.info(f"RecommendationService 初始化完成，模型版本: {self.MODEL_VERSION}")
+        logger.info(
+            f"RecommendationService 初始化完成，模型版本: {self.MODEL_VERSION}, "
+            f"use_kg={config.use_kg}"
+        )
 
     # ── 主推荐接口 ────────────────────────────────────────────────
 
@@ -121,7 +133,8 @@ class RecommendationService:
         logger.debug(f"[{user_id}] Step2 候选集生成: {len(candidates)} 篇")
 
         # ── Step 3: 强化学习排序 ──────────────────────────────────
-        ranked_items = self._ranker.recommend_top_k(user_state, candidates, k=k)
+        user_history = user_features.history_paper_ids if hasattr(user_features, 'history_paper_ids') else None
+        ranked_items = self._ranker.recommend_top_k(user_state, candidates, k=k, user_history=user_history)
         logger.debug(f"[{user_id}] Step3 RL排序完成: Top-{len(ranked_items)}")
 
         # ── Step 4: 生成推荐解释 ──────────────────────────────────
@@ -192,23 +205,46 @@ class RecommendationService:
         """返回当前模型状态信息（供 /model/info 接口使用）。"""
         agent = self._agent
         return {
-            "model_version":  self.MODEL_VERSION,
-            "train_step":     agent.train_step if agent else 0,
-            "episode_count":  agent.episode_count if agent else 0,
-            "model_path":     self.config.model_save_path,
-            "state_dim":      self.config.state_dim,
-            "action_num":     self.config.action_num,
-            "top_k":          self.config.top_k,
-            "device":         str(next(agent.actor.parameters()).device) if agent else "cpu",
+            "model_version":    self.MODEL_VERSION,
+            "train_step":       agent.train_step if agent else 0,
+            "episode_count":    agent.episode_count if agent else 0,
+            "model_path":       self.config.model_save_path,
+            "state_dim":        self.config.state_dim,
+            "base_state_dim":   self.config.base_state_dim,
+            "action_num":       self.config.action_num,
+            "top_k":            self.config.top_k,
+            "use_kg":           self.config.use_kg,
+            "kg_embedding_dim": self.config.kg_embedding_dim if self.config.use_kg else 0,
+            "device":           str(next(agent.actor.parameters()).device) if agent else "cpu",
         }
 
     def reload_model(self) -> None:
         """热重载模型权重（训练完成后无需重启服务）。"""
         self._load_agent()
-        self._ranker = RLRanker(self._agent, self.config)
         logger.info("模型已热重载")
 
     # ── 内部方法 ──────────────────────────────────────────────────
+
+    def _init_kg(self, config: Config) -> None:
+        """初始化知识图谱及 Embedder。"""
+        if not config.use_kg:
+            return
+        try:
+            from dataset.aminer_loader import AMinerLoader
+            from knowledge_graph.kg_builder import KGBuilder
+            from knowledge_graph.kg_embedder import KGEmbedder
+
+            loader = AMinerLoader()
+            papers = loader.load_papers(limit=500)
+            authors = loader.load_authors(limit=200)
+            citations = loader.load_citations(papers)
+
+            kg = KGBuilder(min_keyword_freq=1).build(papers, authors, citations)
+            self._kg_embedder = KGEmbedder(kg, embed_dim=config.kg_embedding_dim)
+            logger.info(f"KG Embedder 构建完成：{len(papers)} 篇论文")
+        except Exception as e:
+            logger.warning(f"KG Embedder 构建失败，回退为无 KG 模式: {e}")
+            self._kg_embedder = None
 
     def _load_agent(self) -> None:
         """加载或初始化 Agent。"""
@@ -222,4 +258,4 @@ class RecommendationService:
                 logger.warning(f"模型加载失败，使用随机初始化权重: {e}")
         else:
             logger.info("未找到预训练模型，使用随机初始化权重（请先运行 train.py）")
-        self._ranker = RLRanker(self._agent, self.config)
+        self._ranker = RLRanker(self._agent, self.config, kg_embedder=self._kg_embedder)

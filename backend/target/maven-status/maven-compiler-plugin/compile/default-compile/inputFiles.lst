@@ -30,6 +30,7 @@ D:\AAWorkSpeace\ACScientificRecommendation\backend\src\main\java\com\example\res
 D:\AAWorkSpeace\ACScientificRecommendation\backend\src\main\java\com\example\research\config\MybatisPlusConfig.java
 D:\AAWorkSpeace\ACScientificRecommendation\backend\src\main\java\com\example\research\client\PythonRecClient.java
 D:\AAWorkSpeace\ACScientificRecommendation\backend\src\main\java\com\example\research\service\impl\PaperServiceImpl.java
+D:\AAWorkSpeace\ACScientificRecommendation\backend\src\main\java\com\example\research\controller\PrivateMessageController.java
 D:\AAWorkSpeace\ACScientificRecommendation\backend\src\main\java\com\example\research\repository\UserMapper.java
 D:\AAWorkSpeace\ACScientificRecommendation\backend\src\main\java\com\example\research\entity\UserContact.java
 D:\AAWorkSpeace\ACScientificRecommendation\backend\src\main\java\com\example\research\controller\BehaviorController.java

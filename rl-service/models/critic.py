@@ -4,7 +4,6 @@
 from __future__ import annotations
 import torch
 import torch.nn as nn
-from typing import Optional
 
 
 class Critic(nn.Module):
@@ -58,15 +57,3 @@ class Critic(nn.Module):
             value: (batch, 1) 或 (1,) 状态价值估计
         """
         return self.net(state)
-
-    # ── 知识图谱 embedding 融合接口（预留）───────────────────────
-
-    def forward_with_kg(
-        self,
-        state: torch.Tensor,
-        kg_embedding: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
-        """知识图谱特征融合接口（预留，与 Actor 对称）。"""
-        if kg_embedding is not None:
-            state = torch.cat([state, kg_embedding], dim=-1)
-        return self.forward(state)

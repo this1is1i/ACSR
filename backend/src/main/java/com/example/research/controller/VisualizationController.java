@@ -76,24 +76,91 @@ public class VisualizationController {
                 Map.of("icon","⚡","title","峰值活跃时段","desc","最高频阅读时间","value","20:00-22:00")
         ));
 
-        // knowledge graph nodes/edges
-        payload.put("knowledge", Map.of(
-                "nodes", Arrays.asList(
-                        Map.of("id",1,"name","Machine Learning","mastery",0.8),
-                        Map.of("id",2,"name","Reinforcement Learning","mastery",0.6),
-                        Map.of("id",3,"name","Actor-Critic","mastery",0.5),
-                        Map.of("id",4,"name","Deep Learning","mastery",0.7),
-                        Map.of("id",5,"name","NLP","mastery",0.3),
-                        Map.of("id",6,"name","Graph Neural Networks","mastery",0.2)
-                ),
-                "edges", Arrays.asList(
-                        Map.of("source",1,"target",2),
-                        Map.of("source",2,"target",3),
-                        Map.of("source",1,"target",4),
-                        Map.of("source",4,"target",5),
-                        Map.of("source",4,"target",6)
-                )
+        // knowledge graph – 3D learning path visualization data
+        // Node types: "keyword"=sphere, "paper"=box; mastery 0→1 maps blue→orange→green
+        List<Map<String, Object>> kgNodes = new java.util.ArrayList<>();
+        // depth 0 – mastered foundations
+        kgNodes.add(Map.of("id","kw_ml","name","Machine Learning","type","keyword","mastery",0.92,"depth",0,"group","foundation"));
+        kgNodes.add(Map.of("id","kw_dl","name","Deep Learning","type","keyword","mastery",0.85,"depth",0,"group","foundation"));
+        kgNodes.add(Map.of("id","kw_prob","name","Probability & Statistics","type","keyword","mastery",0.88,"depth",0,"group","foundation"));
+        kgNodes.add(Map.of("id","kw_optim","name","Optimization","type","keyword","mastery",0.80,"depth",0,"group","foundation"));
+        // depth 1 – intermediate
+        kgNodes.add(Map.of("id","kw_rl","name","Reinforcement Learning","type","keyword","mastery",0.65,"depth",1,"group","intermediate"));
+        kgNodes.add(Map.of("id","kw_nn","name","Neural Networks","type","keyword","mastery",0.70,"depth",1,"group","intermediate"));
+        kgNodes.add(Map.of("id","kw_cnn","name","CNN","type","keyword","mastery",0.68,"depth",1,"group","intermediate"));
+        kgNodes.add(Map.of("id","kw_rnn","name","RNN / LSTM","type","keyword","mastery",0.55,"depth",1,"group","intermediate"));
+        kgNodes.add(Map.of("id","kw_mdp","name","Markov Decision Process","type","keyword","mastery",0.50,"depth",1,"group","intermediate"));
+        // depth 2 – target topics
+        kgNodes.add(Map.of("id","kw_ac","name","Actor-Critic","type","keyword","mastery",0.40,"depth",2,"group","target"));
+        kgNodes.add(Map.of("id","kw_pg","name","Policy Gradient","type","keyword","mastery",0.35,"depth",2,"group","target"));
+        kgNodes.add(Map.of("id","kw_dqn","name","Deep Q-Network","type","keyword","mastery",0.45,"depth",2,"group","target"));
+        kgNodes.add(Map.of("id","kw_trans","name","Transformer","type","keyword","mastery",0.30,"depth",2,"group","target"));
+        kgNodes.add(Map.of("id","kw_gnn","name","Graph Neural Network","type","keyword","mastery",0.20,"depth",2,"group","target"));
+        kgNodes.add(Map.of("id","kw_nlp","name","NLP","type","keyword","mastery",0.25,"depth",2,"group","target"));
+        // depth 3 – paper nodes
+        kgNodes.add(Map.of("id","p_dqn","name","Playing Atari with Deep RL","type","paper","mastery",0.75,"depth",3,"group","paper","year",2013));
+        kgNodes.add(Map.of("id","p_a3c","name","Asynchronous Actor-Critic (A3C)","type","paper","mastery",0.10,"depth",3,"group","paper","year",2016));
+        kgNodes.add(Map.of("id","p_ppo","name","Proximal Policy Optimization","type","paper","mastery",0.05,"depth",3,"group","paper","year",2017));
+        kgNodes.add(Map.of("id","p_sac","name","Soft Actor-Critic","type","paper","mastery",0.0,"depth",3,"group","paper","year",2018));
+        kgNodes.add(Map.of("id","p_att","name","Attention Is All You Need","type","paper","mastery",0.60,"depth",3,"group","paper","year",2017));
+        kgNodes.add(Map.of("id","p_bert","name","BERT: Pre-training of Transformers","type","paper","mastery",0.15,"depth",3,"group","paper","year",2019));
+        kgNodes.add(Map.of("id","p_gcn","name","Semi-Supervised GCN","type","paper","mastery",0.0,"depth",3,"group","paper","year",2017));
+        kgNodes.add(Map.of("id","p_gat","name","Graph Attention Networks","type","paper","mastery",0.0,"depth",3,"group","paper","year",2018));
+
+        List<Map<String, Object>> kgEdges = new java.util.ArrayList<>();
+        // foundation → intermediate
+        kgEdges.add(Map.of("source","kw_ml","target","kw_rl","weight",0.9));
+        kgEdges.add(Map.of("source","kw_ml","target","kw_nn","weight",0.95));
+        kgEdges.add(Map.of("source","kw_dl","target","kw_cnn","weight",0.9));
+        kgEdges.add(Map.of("source","kw_dl","target","kw_rnn","weight",0.85));
+        kgEdges.add(Map.of("source","kw_dl","target","kw_nn","weight",0.9));
+        kgEdges.add(Map.of("source","kw_prob","target","kw_rl","weight",0.7));
+        kgEdges.add(Map.of("source","kw_prob","target","kw_mdp","weight",0.85));
+        kgEdges.add(Map.of("source","kw_optim","target","kw_nn","weight",0.75));
+        kgEdges.add(Map.of("source","kw_optim","target","kw_rl","weight",0.65));
+        // intermediate → target
+        kgEdges.add(Map.of("source","kw_rl","target","kw_ac","weight",0.9));
+        kgEdges.add(Map.of("source","kw_rl","target","kw_pg","weight",0.85));
+        kgEdges.add(Map.of("source","kw_rl","target","kw_dqn","weight",0.88));
+        kgEdges.add(Map.of("source","kw_mdp","target","kw_ac","weight",0.8));
+        kgEdges.add(Map.of("source","kw_mdp","target","kw_dqn","weight",0.8));
+        kgEdges.add(Map.of("source","kw_nn","target","kw_dqn","weight",0.7));
+        kgEdges.add(Map.of("source","kw_nn","target","kw_trans","weight",0.75));
+        kgEdges.add(Map.of("source","kw_nn","target","kw_gnn","weight",0.7));
+        kgEdges.add(Map.of("source","kw_rnn","target","kw_nlp","weight",0.8));
+        kgEdges.add(Map.of("source","kw_cnn","target","kw_gnn","weight",0.5));
+        // target → papers
+        kgEdges.add(Map.of("source","kw_dqn","target","p_dqn","weight",0.95));
+        kgEdges.add(Map.of("source","kw_ac","target","p_a3c","weight",0.9));
+        kgEdges.add(Map.of("source","kw_pg","target","p_ppo","weight",0.9));
+        kgEdges.add(Map.of("source","kw_ac","target","p_sac","weight",0.85));
+        kgEdges.add(Map.of("source","kw_pg","target","p_a3c","weight",0.7));
+        kgEdges.add(Map.of("source","kw_trans","target","p_att","weight",0.95));
+        kgEdges.add(Map.of("source","kw_nlp","target","p_bert","weight",0.9));
+        kgEdges.add(Map.of("source","kw_trans","target","p_bert","weight",0.8));
+        kgEdges.add(Map.of("source","kw_gnn","target","p_gcn","weight",0.95));
+        kgEdges.add(Map.of("source","kw_gnn","target","p_gat","weight",0.9));
+        // cross-paper citations
+        kgEdges.add(Map.of("source","p_dqn","target","p_a3c","weight",0.6));
+        kgEdges.add(Map.of("source","p_a3c","target","p_ppo","weight",0.5));
+        kgEdges.add(Map.of("source","p_ppo","target","p_sac","weight",0.5));
+        kgEdges.add(Map.of("source","p_att","target","p_bert","weight",0.7));
+        kgEdges.add(Map.of("source","p_gcn","target","p_gat","weight",0.6));
+
+        // learning path route – recommended traversal order
+        Map<String, Object> learningPath = new HashMap<>();
+        learningPath.put("topic", "Actor-Critic Methods");
+        learningPath.put("estimatedHours", 28.0);
+        learningPath.put("coverage", 0.42);
+        learningPath.put("route", Arrays.asList(
+            "kw_ml","kw_prob","kw_optim","kw_rl","kw_mdp","kw_ac","kw_pg","kw_dqn","p_dqn","p_a3c","p_ppo","p_sac"
         ));
+
+        Map<String, Object> knowledge = new HashMap<>();
+        knowledge.put("nodes", kgNodes);
+        knowledge.put("edges", kgEdges);
+        knowledge.put("learningPath", learningPath);
+        payload.put("knowledge", knowledge);
 
         return Result.success(payload);
     }

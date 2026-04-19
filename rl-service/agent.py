@@ -216,20 +216,25 @@ class ActorCriticAgent:
 
     def predict_for_api(self, user_state_dict: Dict[str, Any]) -> Dict[str, Any]:
         """
-        为 Spring Boot REST API 提供预测接口（预留）。
+        为 Spring Boot REST API 提供预测接口。
 
         Args:
-            user_state_dict: 包含 interest_vector / history_vector 的字典
-                             （由后端序列化后传入）
+            user_state_dict: 包含 interest_vector / history_vector / kg_vector(可选) 的字典
 
         Returns:
             推荐结果字典，包含 item_indices / scores / explanation
         """
-        # 从字典构建状态向量
-        interest = np.array(user_state_dict.get("interest_vector", [0.0] * (self.config.state_dim // 2)))
-        history  = np.array(user_state_dict.get("history_vector",  [0.0] * (self.config.state_dim // 2)))
-        state = np.concatenate([interest, history]).astype(np.float32)
+        half = self.config.base_state_dim // 2
+        interest = np.array(user_state_dict.get("interest_vector", [0.0] * half))
+        history  = np.array(user_state_dict.get("history_vector",  [0.0] * half))
+        parts = [interest[:half], history[:half]]
 
+        if self.config.use_kg:
+            kg_dim = self.config.kg_embedding_dim
+            kg_vec = np.array(user_state_dict.get("kg_vector", [0.0] * kg_dim))
+            parts.append(kg_vec[:kg_dim])
+
+        state = np.concatenate(parts).astype(np.float32)
         indices, probs = self.recommend_top_k(state)
         return {
             "item_indices": indices,

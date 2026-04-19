@@ -116,12 +116,40 @@ class ModelInfoResponse(BaseModel):
     episode_count: int
     model_path: str
     state_dim: int
+    base_state_dim: int
     action_num: int
     top_k: int
+    use_kg: bool
+    kg_embedding_dim: int
     device: str
     is_training: bool
     last_episode: int
     best_reward: float
+
+
+class LearningPathRequest(BaseModel):
+    user_id: str = Field(..., description="用户 ID")
+    target_topic: str = Field(..., description="目标研究方向关键词")
+    history: Optional[List[str]] = Field(default=None, description="用户已读论文 ID 列表")
+    max_nodes: int = Field(default=20, ge=5, le=50, description="路径最大节点数")
+
+
+class LearningPathNodeResponse(BaseModel):
+    node_id: str
+    label: str
+    node_type: str
+    mastery: float
+    depth: int
+    year: Optional[int] = None
+
+
+class LearningPathResponse(BaseModel):
+    user_id: str
+    topic: str
+    estimated_hours: float
+    coverage: float
+    nodes: List[LearningPathNodeResponse]
+    edges: List[dict]
 
 
 # ── API 路由 ──────────────────────────────────────────────────────
@@ -249,6 +277,44 @@ async def health_check():
         "version": "1.0.0",
         "model_ready": _service is not None,
     }
+
+
+@app.post(
+    "/learning-path",
+    response_model=LearningPathResponse,
+    summary="生成学习路径",
+    tags=["知识图谱"],
+)
+async def generate_learning_path(request: LearningPathRequest):
+    """
+    基于知识图谱为用户生成从当前知识状态到目标主题的学习路径。
+    用于前端 Three.js 三维学习路径可视化。
+    """
+    if _service is None:
+        raise HTTPException(status_code=503, detail="推荐服务尚未初始化")
+    try:
+        kg = getattr(_service, "kg", None)
+        if kg is None:
+            raise HTTPException(status_code=404, detail="知识图谱未初始化")
+
+        from learning_path.path_builder import PathBuilder
+        from knowledge_graph.graph_query import GraphQuery
+
+        query_engine = GraphQuery(kg)
+        builder = PathBuilder(kg, query_engine)
+        history = request.history or []
+        path = builder.build_path(
+            user_id=request.user_id,
+            user_history=history,
+            target_topic=request.target_topic,
+            max_nodes=request.max_nodes,
+        )
+        return builder.to_dict(path)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception(f"学习路径生成失败: {e}")
+        raise HTTPException(status_code=500, detail=f"学习路径生成异常: {str(e)}")
 
 
 # ── 启动入口 ──────────────────────────────────────────────────────

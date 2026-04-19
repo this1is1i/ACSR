@@ -17,7 +17,10 @@ class InteractionSignal:
     favorite: float = 0.0        # 是否收藏 (0 or 1)
     read_time: float = 0.0       # 归一化阅读时长 (0~1)
     topic_match: float = 0.0     # 研究方向匹配度 (0~1)
-    long_term_value: float = 0.0 # 长期科研价值估计 (0~1)，可由外部模型填充
+    long_term_value: float = 0.0 # 长期科研价值估计 (0~1)
+
+    # ── 知识图谱维度 ─────────────────────────────────────────────
+    kg_topology_score: float = 0.0    # KG 拓扑相关度（引用链接近度、主题连通度）
 
     # ── 预留扩展字段 ─────────────────────────────────────────────
     citation_potential: float = 0.0   # 论文引用潜力（预留）
@@ -49,6 +52,7 @@ class WeightedRewardFunction(BaseRewardFunction):
         self.gamma = weights.get("gamma", 0.5)
         self.delta = weights.get("delta", 3.0)
         self.eta   = weights.get("eta",   1.5)
+        self.zeta  = weights.get("zeta",  2.0)  # KG 拓扑相关度权重
 
     def compute(self, signal: InteractionSignal) -> float:
         r = (
@@ -57,6 +61,7 @@ class WeightedRewardFunction(BaseRewardFunction):
             + self.gamma * signal.read_time
             + self.delta * signal.topic_match
             + self.eta   * signal.long_term_value
+            + self.zeta  * signal.kg_topology_score
         )
         return float(r)
 

@@ -297,7 +297,7 @@ class AMinerLoader:
     def save_mock_data(self, output_dir: str = "data/aminer") -> None:
         """将 mock 数据保存为标准 JSON 格式，便于流程测试。"""
         os.makedirs(output_dir, exist_ok=True)
-        papers  = self._mock_papers(200)
+        papers  = self._mock_papers(500)
         authors = self._mock_authors(50)
 
         def paper_to_dict(p: Paper) -> dict:

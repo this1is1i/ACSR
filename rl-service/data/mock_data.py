@@ -12,10 +12,9 @@ class ResearchItem:
     """科研内容条目（论文 / 项目 / 合作者）"""
     item_id: str
     title: str
-    topic_vector: np.ndarray        # 研究方向 embedding（维度与 state_dim 一致）
+    topic_vector: np.ndarray        # 研究方向 embedding（维度与 base_state_dim 一致）
     citation_count: int = 0
     year: int = 2024
-    # 预留知识图谱节点 ID
     kg_node_id: Optional[str] = None
 
 
@@ -26,10 +25,9 @@ class UserProfile:
     interest_vector: np.ndarray     # 用户兴趣 embedding
     history_vector: np.ndarray      # 历史行为 embedding（近期交互的平均池化）
     research_topics: List[str] = field(default_factory=list)
-    # 预留知识图谱特征
     kg_feature: Optional[np.ndarray] = None
-    # 预留社区行为特征
     community_feature: Optional[np.ndarray] = None
+    history_paper_ids: List[str] = field(default_factory=list)
 
 
 class MockDataGenerator:
@@ -41,22 +39,34 @@ class MockDataGenerator:
       - 用户行为日志解析
     """
 
-    def __init__(self, state_dim: int = 64, action_num: int = 20, seed: int = 42):
-        self.state_dim = state_dim
+    def __init__(
+        self,
+        base_state_dim: int = 64,
+        action_num: int = 20,
+        kg_dim: int = 0,
+        seed: int = 42,
+    ):
+        self.base_state_dim = base_state_dim
         self.action_num = action_num
+        self.kg_dim = kg_dim
         self.rng = np.random.default_rng(seed)
 
     # ── 用户数据 ──────────────────────────────────────────────────
 
     def generate_user(self, user_id: str = "user_001") -> UserProfile:
         """生成一个随机用户科研画像。"""
+        # 模拟用户阅读过的论文 ID（用于 KG embedding 计算）
+        num_history = self.rng.integers(3, 15)
+        history_ids = [f"aminer_{self.rng.integers(0, 500):06d}" for _ in range(num_history)]
+
         return UserProfile(
             user_id=user_id,
             interest_vector=self._rand_vec(),
             history_vector=self._rand_vec(),
             research_topics=["NLP", "Graph Learning"],
-            kg_feature=None,       # 接知识图谱时填充
+            kg_feature=None,  # 由环境注入
             community_feature=None,
+            history_paper_ids=history_ids,
         )
 
     # ── 候选科研内容 ──────────────────────────────────────────────
@@ -73,7 +83,7 @@ class MockDataGenerator:
                 topic_vector=self._rand_vec(),
                 citation_count=int(self.rng.integers(0, 500)),
                 year=int(self.rng.integers(2018, 2025)),
-                kg_node_id=f"kg_node_{i}",
+                kg_node_id=f"aminer_{i:06d}",
             )
             for i in range(n)
         ]
@@ -84,33 +94,34 @@ class MockDataGenerator:
         self,
         user: UserProfile,
         kg_feature: Optional[np.ndarray] = None,
-        community_feature: Optional[np.ndarray] = None,
     ) -> np.ndarray:
         """
         将用户特征拼接为状态向量。
-        state = concat(interest_vector, history_vector) -> state_dim
-        知识图谱 / 社区特征预留插入接口。
+
+        state = concat(interest[:half], history[:half], [kg_feature])
         """
-        half = self.state_dim // 2
+        half = self.base_state_dim // 2
         interest = user.interest_vector[:half]
         history  = user.history_vector[:half]
 
-        state = np.concatenate([interest, history]).astype(np.float32)
+        parts = [interest, history]
 
-        # ── 知识图谱特征插入接口（预留）─────────────────────────
-        # if kg_feature is not None:
-        #     state = np.concatenate([state, kg_feature])
+        # ── 知识图谱特征 ─────────────────────────────────────────
+        if self.kg_dim > 0:
+            if kg_feature is not None:
+                parts.append(kg_feature[:self.kg_dim])
+            elif user.kg_feature is not None:
+                parts.append(user.kg_feature[:self.kg_dim])
+            else:
+                parts.append(np.zeros(self.kg_dim, dtype=np.float32))
 
-        # ── 社区行为特征插入接口（预留）─────────────────────────
-        # if community_feature is not None:
-        #     state = np.concatenate([state, community_feature])
-
+        state = np.concatenate(parts).astype(np.float32)
         return state
 
     # ── 辅助方法 ──────────────────────────────────────────────────
 
     def _rand_vec(self) -> np.ndarray:
-        v = self.rng.standard_normal(self.state_dim).astype(np.float32)
+        v = self.rng.standard_normal(self.base_state_dim).astype(np.float32)
         return v / (np.linalg.norm(v) + 1e-8)
 
 
@@ -120,7 +131,6 @@ class DatabaseAdapter:
     """
     真实数据库适配器基类。
     实现此接口后可无缝替换 MockDataGenerator。
-    示例：MySQLAdapter(DatabaseAdapter)
     """
 
     def fetch_user(self, user_id: str) -> UserProfile:
