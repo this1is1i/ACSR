@@ -1,0 +1,4633 @@
+[
+  {
+    "id": "aminer_000000",
+    "title": "Advances in Reinforcement Learning: Method and Application #0",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages RL, Q-learning, MDP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_000",
+      "author_001"
+    ],
+    "keywords": [
+      "RL",
+      "Q-learning",
+      "MDP",
+      "Reinforcement Learning"
+    ],
+    "venue": "ICLR",
+    "year": 2016,
+    "references": []
+  },
+  {
+    "id": "aminer_000001",
+    "title": "Advances in Natural Language Processing: Method and Application #1",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages NLP, transformer, BERT to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_003"
+    ],
+    "keywords": [
+      "NLP",
+      "transformer",
+      "BERT",
+      "Natural Language Processing"
+    ],
+    "venue": "NeurIPS",
+    "year": 2018,
+    "references": []
+  },
+  {
+    "id": "aminer_000002",
+    "title": "Advances in Graph Neural Networks: Method and Application #2",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages graph embedding, node classification, GNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_006",
+      "author_007",
+      "author_008"
+    ],
+    "keywords": [
+      "graph embedding",
+      "node classification",
+      "GNN",
+      "Graph Neural Networks"
+    ],
+    "venue": "KDD",
+    "year": 2017,
+    "references": [
+      "aminer_000000",
+      "aminer_000001",
+      "aminer_000000",
+      "aminer_000001",
+      "aminer_000001",
+      "aminer_000000",
+      "aminer_000000",
+      "aminer_000001"
+    ]
+  },
+  {
+    "id": "aminer_000003",
+    "title": "Advances in Knowledge Graphs: Method and Application #3",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages entity embedding, TransE, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_009"
+    ],
+    "keywords": [
+      "entity embedding",
+      "TransE",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "WWW",
+    "year": 2020,
+    "references": [
+      "aminer_000001"
+    ]
+  },
+  {
+    "id": "aminer_000004",
+    "title": "Advances in Recommender Systems: Method and Application #4",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages deep learning, matrix factorization, collaborative filtering to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_012"
+    ],
+    "keywords": [
+      "deep learning",
+      "matrix factorization",
+      "collaborative filtering",
+      "Recommender Systems"
+    ],
+    "venue": "ACL",
+    "year": 2019,
+    "references": [
+      "aminer_000000",
+      "aminer_000003",
+      "aminer_000000",
+      "aminer_000002",
+      "aminer_000002",
+      "aminer_000001",
+      "aminer_000000"
+    ]
+  },
+  {
+    "id": "aminer_000005",
+    "title": "Advances in Computer Vision: Method and Application #5",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages CNN, ResNet, image segmentation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_015",
+      "author_016"
+    ],
+    "keywords": [
+      "CNN",
+      "ResNet",
+      "image segmentation",
+      "Computer Vision"
+    ],
+    "venue": "KDD",
+    "year": 2016,
+    "references": [
+      "aminer_000002",
+      "aminer_000003",
+      "aminer_000002",
+      "aminer_000001",
+      "aminer_000002",
+      "aminer_000002"
+    ]
+  },
+  {
+    "id": "aminer_000006",
+    "title": "Advances in Federated Learning: Method and Application #6",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages aggregation, privacy, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_018",
+      "author_019",
+      "author_020"
+    ],
+    "keywords": [
+      "aggregation",
+      "privacy",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "ACL",
+    "year": 2020,
+    "references": [
+      "aminer_000003",
+      "aminer_000003"
+    ]
+  },
+  {
+    "id": "aminer_000007",
+    "title": "Advances in Meta-Learning: Method and Application #7",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages few-shot, transfer learning, MAML to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_021",
+      "author_022",
+      "author_023"
+    ],
+    "keywords": [
+      "few-shot",
+      "transfer learning",
+      "MAML",
+      "Meta-Learning"
+    ],
+    "venue": "ACL",
+    "year": 2022,
+    "references": [
+      "aminer_000003",
+      "aminer_000002",
+      "aminer_000000",
+      "aminer_000001",
+      "aminer_000004"
+    ]
+  },
+  {
+    "id": "aminer_000008",
+    "title": "Advances in Reinforcement Learning: Method and Application #8",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages Q-learning, policy gradient, MDP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_024",
+      "author_025"
+    ],
+    "keywords": [
+      "Q-learning",
+      "policy gradient",
+      "MDP",
+      "Reinforcement Learning"
+    ],
+    "venue": "KDD",
+    "year": 2024,
+    "references": [
+      "aminer_000004",
+      "aminer_000002"
+    ]
+  },
+  {
+    "id": "aminer_000009",
+    "title": "Advances in Natural Language Processing: Method and Application #9",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages text classification, transformer, BERT to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_027"
+    ],
+    "keywords": [
+      "text classification",
+      "transformer",
+      "BERT",
+      "Natural Language Processing"
+    ],
+    "venue": "NeurIPS",
+    "year": 2017,
+    "references": [
+      "aminer_000003",
+      "aminer_000002",
+      "aminer_000008",
+      "aminer_000007",
+      "aminer_000001"
+    ]
+  },
+  {
+    "id": "aminer_000010",
+    "title": "Advances in Graph Neural Networks: Method and Application #10",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages graph embedding, node classification, link prediction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_030",
+      "author_031",
+      "author_032",
+      "author_033"
+    ],
+    "keywords": [
+      "graph embedding",
+      "node classification",
+      "link prediction",
+      "Graph Neural Networks"
+    ],
+    "venue": "AAAI",
+    "year": 2023,
+    "references": [
+      "aminer_000006"
+    ]
+  },
+  {
+    "id": "aminer_000011",
+    "title": "Advances in Knowledge Graphs: Method and Application #11",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages relation extraction, TransE, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_033",
+      "author_034",
+      "author_035"
+    ],
+    "keywords": [
+      "relation extraction",
+      "TransE",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "WWW",
+    "year": 2016,
+    "references": [
+      "aminer_000010"
+    ]
+  },
+  {
+    "id": "aminer_000012",
+    "title": "Advances in Recommender Systems: Method and Application #12",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages matrix factorization, deep learning, collaborative filtering to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_036"
+    ],
+    "keywords": [
+      "matrix factorization",
+      "deep learning",
+      "collaborative filtering",
+      "Recommender Systems"
+    ],
+    "venue": "KDD",
+    "year": 2023,
+    "references": [
+      "aminer_000000",
+      "aminer_000011",
+      "aminer_000011",
+      "aminer_000004",
+      "aminer_000008",
+      "aminer_000002",
+      "aminer_000008"
+    ]
+  },
+  {
+    "id": "aminer_000013",
+    "title": "Advances in Computer Vision: Method and Application #13",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages object detection, CNN, ResNet to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_039"
+    ],
+    "keywords": [
+      "object detection",
+      "CNN",
+      "ResNet",
+      "Computer Vision"
+    ],
+    "venue": "WWW",
+    "year": 2022,
+    "references": [
+      "aminer_000008",
+      "aminer_000012"
+    ]
+  },
+  {
+    "id": "aminer_000014",
+    "title": "Advances in Federated Learning: Method and Application #14",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages privacy, aggregation, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_042"
+    ],
+    "keywords": [
+      "privacy",
+      "aggregation",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "NeurIPS",
+    "year": 2022,
+    "references": [
+      "aminer_000003",
+      "aminer_000000",
+      "aminer_000003",
+      "aminer_000009"
+    ]
+  },
+  {
+    "id": "aminer_000015",
+    "title": "Advances in Meta-Learning: Method and Application #15",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages few-shot, transfer learning, MAML to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_045",
+      "author_046"
+    ],
+    "keywords": [
+      "few-shot",
+      "transfer learning",
+      "MAML",
+      "Meta-Learning"
+    ],
+    "venue": "ACL",
+    "year": 2019,
+    "references": [
+      "aminer_000008",
+      "aminer_000002",
+      "aminer_000004",
+      "aminer_000008",
+      "aminer_000013",
+      "aminer_000009",
+      "aminer_000006"
+    ]
+  },
+  {
+    "id": "aminer_000016",
+    "title": "Advances in Reinforcement Learning: Method and Application #16",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages Q-learning, policy gradient, MDP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_048",
+      "author_049"
+    ],
+    "keywords": [
+      "Q-learning",
+      "policy gradient",
+      "MDP",
+      "Reinforcement Learning"
+    ],
+    "venue": "ACL",
+    "year": 2015,
+    "references": [
+      "aminer_000014",
+      "aminer_000003",
+      "aminer_000007",
+      "aminer_000007",
+      "aminer_000002",
+      "aminer_000010",
+      "aminer_000000"
+    ]
+  },
+  {
+    "id": "aminer_000017",
+    "title": "Advances in Natural Language Processing: Method and Application #17",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages NLP, transformer, text classification to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_001"
+    ],
+    "keywords": [
+      "NLP",
+      "transformer",
+      "text classification",
+      "Natural Language Processing"
+    ],
+    "venue": "ACL",
+    "year": 2019,
+    "references": [
+      "aminer_000002",
+      "aminer_000001",
+      "aminer_000010"
+    ]
+  },
+  {
+    "id": "aminer_000018",
+    "title": "Advances in Graph Neural Networks: Method and Application #18",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages link prediction, GNN, node classification to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_004",
+      "author_005",
+      "author_006"
+    ],
+    "keywords": [
+      "link prediction",
+      "GNN",
+      "node classification",
+      "Graph Neural Networks"
+    ],
+    "venue": "SIGIR",
+    "year": 2021,
+    "references": [
+      "aminer_000007",
+      "aminer_000015",
+      "aminer_000013",
+      "aminer_000006",
+      "aminer_000003",
+      "aminer_000003",
+      "aminer_000013"
+    ]
+  },
+  {
+    "id": "aminer_000019",
+    "title": "Advances in Knowledge Graphs: Method and Application #19",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages TransE, relation extraction, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_007",
+      "author_008",
+      "author_009",
+      "author_010"
+    ],
+    "keywords": [
+      "TransE",
+      "relation extraction",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "WWW",
+    "year": 2016,
+    "references": [
+      "aminer_000001"
+    ]
+  },
+  {
+    "id": "aminer_000020",
+    "title": "Advances in Recommender Systems: Method and Application #20",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages collaborative filtering, deep learning, matrix factorization to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_010",
+      "author_011",
+      "author_012",
+      "author_013"
+    ],
+    "keywords": [
+      "collaborative filtering",
+      "deep learning",
+      "matrix factorization",
+      "Recommender Systems"
+    ],
+    "venue": "NeurIPS",
+    "year": 2015,
+    "references": [
+      "aminer_000014",
+      "aminer_000004",
+      "aminer_000013",
+      "aminer_000005",
+      "aminer_000008",
+      "aminer_000014",
+      "aminer_000007",
+      "aminer_000002"
+    ]
+  },
+  {
+    "id": "aminer_000021",
+    "title": "Advances in Computer Vision: Method and Application #21",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages CNN, ResNet, image segmentation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_013",
+      "author_014",
+      "author_015",
+      "author_016"
+    ],
+    "keywords": [
+      "CNN",
+      "ResNet",
+      "image segmentation",
+      "Computer Vision"
+    ],
+    "venue": "ACL",
+    "year": 2021,
+    "references": [
+      "aminer_000013",
+      "aminer_000015"
+    ]
+  },
+  {
+    "id": "aminer_000022",
+    "title": "Advances in Federated Learning: Method and Application #22",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages privacy, aggregation, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_016",
+      "author_017",
+      "author_018",
+      "author_019"
+    ],
+    "keywords": [
+      "privacy",
+      "aggregation",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "KDD",
+    "year": 2022,
+    "references": []
+  },
+  {
+    "id": "aminer_000023",
+    "title": "Advances in Meta-Learning: Method and Application #23",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages MAML, transfer learning, few-shot to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_019",
+      "author_020"
+    ],
+    "keywords": [
+      "MAML",
+      "transfer learning",
+      "few-shot",
+      "Meta-Learning"
+    ],
+    "venue": "ICML",
+    "year": 2024,
+    "references": [
+      "aminer_000006",
+      "aminer_000009"
+    ]
+  },
+  {
+    "id": "aminer_000024",
+    "title": "Advances in Reinforcement Learning: Method and Application #24",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages RL, policy gradient, MDP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_022"
+    ],
+    "keywords": [
+      "RL",
+      "policy gradient",
+      "MDP",
+      "Reinforcement Learning"
+    ],
+    "venue": "AAAI",
+    "year": 2023,
+    "references": []
+  },
+  {
+    "id": "aminer_000025",
+    "title": "Advances in Natural Language Processing: Method and Application #25",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages BERT, NLP, transformer to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_025"
+    ],
+    "keywords": [
+      "BERT",
+      "NLP",
+      "transformer",
+      "Natural Language Processing"
+    ],
+    "venue": "ACL",
+    "year": 2021,
+    "references": [
+      "aminer_000002",
+      "aminer_000019"
+    ]
+  },
+  {
+    "id": "aminer_000026",
+    "title": "Advances in Graph Neural Networks: Method and Application #26",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages GNN, node classification, link prediction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_028"
+    ],
+    "keywords": [
+      "GNN",
+      "node classification",
+      "link prediction",
+      "Graph Neural Networks"
+    ],
+    "venue": "SIGIR",
+    "year": 2024,
+    "references": []
+  },
+  {
+    "id": "aminer_000027",
+    "title": "Advances in Knowledge Graphs: Method and Application #27",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages relation extraction, entity embedding, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_031",
+      "author_032",
+      "author_033"
+    ],
+    "keywords": [
+      "relation extraction",
+      "entity embedding",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "AAAI",
+    "year": 2020,
+    "references": [
+      "aminer_000007",
+      "aminer_000008",
+      "aminer_000012",
+      "aminer_000004",
+      "aminer_000021"
+    ]
+  },
+  {
+    "id": "aminer_000028",
+    "title": "Advances in Recommender Systems: Method and Application #28",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages collaborative filtering, deep learning, matrix factorization to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_034",
+      "author_035"
+    ],
+    "keywords": [
+      "collaborative filtering",
+      "deep learning",
+      "matrix factorization",
+      "Recommender Systems"
+    ],
+    "venue": "KDD",
+    "year": 2017,
+    "references": [
+      "aminer_000002"
+    ]
+  },
+  {
+    "id": "aminer_000029",
+    "title": "Advances in Computer Vision: Method and Application #29",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages image segmentation, CNN, ResNet to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_037",
+      "author_038",
+      "author_039"
+    ],
+    "keywords": [
+      "image segmentation",
+      "CNN",
+      "ResNet",
+      "Computer Vision"
+    ],
+    "venue": "ICML",
+    "year": 2023,
+    "references": [
+      "aminer_000009",
+      "aminer_000005",
+      "aminer_000014",
+      "aminer_000026",
+      "aminer_000017"
+    ]
+  },
+  {
+    "id": "aminer_000030",
+    "title": "Advances in Federated Learning: Method and Application #30",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages distributed learning, privacy, aggregation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_040",
+      "author_041"
+    ],
+    "keywords": [
+      "distributed learning",
+      "privacy",
+      "aggregation",
+      "Federated Learning"
+    ],
+    "venue": "KDD",
+    "year": 2019,
+    "references": [
+      "aminer_000003",
+      "aminer_000028",
+      "aminer_000003",
+      "aminer_000023"
+    ]
+  },
+  {
+    "id": "aminer_000031",
+    "title": "Advances in Meta-Learning: Method and Application #31",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages transfer learning, few-shot, MAML to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_043",
+      "author_044",
+      "author_045"
+    ],
+    "keywords": [
+      "transfer learning",
+      "few-shot",
+      "MAML",
+      "Meta-Learning"
+    ],
+    "venue": "AAAI",
+    "year": 2019,
+    "references": [
+      "aminer_000021",
+      "aminer_000020",
+      "aminer_000027"
+    ]
+  },
+  {
+    "id": "aminer_000032",
+    "title": "Advances in Reinforcement Learning: Method and Application #32",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages RL, Q-learning, MDP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_046",
+      "author_047",
+      "author_048"
+    ],
+    "keywords": [
+      "RL",
+      "Q-learning",
+      "MDP",
+      "Reinforcement Learning"
+    ],
+    "venue": "ICLR",
+    "year": 2022,
+    "references": [
+      "aminer_000002",
+      "aminer_000000",
+      "aminer_000021",
+      "aminer_000008"
+    ]
+  },
+  {
+    "id": "aminer_000033",
+    "title": "Advances in Natural Language Processing: Method and Application #33",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages text classification, transformer, NLP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_049",
+      "author_000"
+    ],
+    "keywords": [
+      "text classification",
+      "transformer",
+      "NLP",
+      "Natural Language Processing"
+    ],
+    "venue": "ICML",
+    "year": 2020,
+    "references": [
+      "aminer_000004"
+    ]
+  },
+  {
+    "id": "aminer_000034",
+    "title": "Advances in Graph Neural Networks: Method and Application #34",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages graph embedding, link prediction, GNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_002",
+      "author_003",
+      "author_004"
+    ],
+    "keywords": [
+      "graph embedding",
+      "link prediction",
+      "GNN",
+      "Graph Neural Networks"
+    ],
+    "venue": "WWW",
+    "year": 2015,
+    "references": []
+  },
+  {
+    "id": "aminer_000035",
+    "title": "Advances in Knowledge Graphs: Method and Application #35",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages relation extraction, KG, TransE to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_005",
+      "author_006",
+      "author_007",
+      "author_008"
+    ],
+    "keywords": [
+      "relation extraction",
+      "KG",
+      "TransE",
+      "Knowledge Graphs"
+    ],
+    "venue": "ICLR",
+    "year": 2018,
+    "references": [
+      "aminer_000022"
+    ]
+  },
+  {
+    "id": "aminer_000036",
+    "title": "Advances in Recommender Systems: Method and Application #36",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages collaborative filtering, deep learning, matrix factorization to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_008",
+      "author_009"
+    ],
+    "keywords": [
+      "collaborative filtering",
+      "deep learning",
+      "matrix factorization",
+      "Recommender Systems"
+    ],
+    "venue": "WWW",
+    "year": 2021,
+    "references": []
+  },
+  {
+    "id": "aminer_000037",
+    "title": "Advances in Computer Vision: Method and Application #37",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages object detection, ResNet, CNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_011"
+    ],
+    "keywords": [
+      "object detection",
+      "ResNet",
+      "CNN",
+      "Computer Vision"
+    ],
+    "venue": "AAAI",
+    "year": 2018,
+    "references": [
+      "aminer_000024"
+    ]
+  },
+  {
+    "id": "aminer_000038",
+    "title": "Advances in Federated Learning: Method and Application #38",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages privacy, distributed learning, aggregation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_014",
+      "author_015",
+      "author_016",
+      "author_017"
+    ],
+    "keywords": [
+      "privacy",
+      "distributed learning",
+      "aggregation",
+      "Federated Learning"
+    ],
+    "venue": "WWW",
+    "year": 2019,
+    "references": [
+      "aminer_000014",
+      "aminer_000014",
+      "aminer_000001",
+      "aminer_000012"
+    ]
+  },
+  {
+    "id": "aminer_000039",
+    "title": "Advances in Meta-Learning: Method and Application #39",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages few-shot, MAML, transfer learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_017",
+      "author_018",
+      "author_019"
+    ],
+    "keywords": [
+      "few-shot",
+      "MAML",
+      "transfer learning",
+      "Meta-Learning"
+    ],
+    "venue": "ICML",
+    "year": 2016,
+    "references": [
+      "aminer_000025",
+      "aminer_000034",
+      "aminer_000021",
+      "aminer_000001",
+      "aminer_000007",
+      "aminer_000016",
+      "aminer_000011",
+      "aminer_000037"
+    ]
+  },
+  {
+    "id": "aminer_000040",
+    "title": "Advances in Reinforcement Learning: Method and Application #40",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages Q-learning, MDP, policy gradient to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_020",
+      "author_021",
+      "author_022"
+    ],
+    "keywords": [
+      "Q-learning",
+      "MDP",
+      "policy gradient",
+      "Reinforcement Learning"
+    ],
+    "venue": "ICML",
+    "year": 2021,
+    "references": [
+      "aminer_000038",
+      "aminer_000032",
+      "aminer_000007",
+      "aminer_000024",
+      "aminer_000036",
+      "aminer_000012"
+    ]
+  },
+  {
+    "id": "aminer_000041",
+    "title": "Advances in Natural Language Processing: Method and Application #41",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages NLP, transformer, text classification to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_023"
+    ],
+    "keywords": [
+      "NLP",
+      "transformer",
+      "text classification",
+      "Natural Language Processing"
+    ],
+    "venue": "KDD",
+    "year": 2023,
+    "references": [
+      "aminer_000027",
+      "aminer_000004",
+      "aminer_000021",
+      "aminer_000039",
+      "aminer_000020"
+    ]
+  },
+  {
+    "id": "aminer_000042",
+    "title": "Advances in Graph Neural Networks: Method and Application #42",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages node classification, link prediction, graph embedding to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_026",
+      "author_027",
+      "author_028",
+      "author_029"
+    ],
+    "keywords": [
+      "node classification",
+      "link prediction",
+      "graph embedding",
+      "Graph Neural Networks"
+    ],
+    "venue": "SIGIR",
+    "year": 2017,
+    "references": [
+      "aminer_000025",
+      "aminer_000018",
+      "aminer_000035",
+      "aminer_000008",
+      "aminer_000012"
+    ]
+  },
+  {
+    "id": "aminer_000043",
+    "title": "Advances in Knowledge Graphs: Method and Application #43",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages relation extraction, entity embedding, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_029",
+      "author_030",
+      "author_031"
+    ],
+    "keywords": [
+      "relation extraction",
+      "entity embedding",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "AAAI",
+    "year": 2022,
+    "references": [
+      "aminer_000018",
+      "aminer_000013",
+      "aminer_000027",
+      "aminer_000037"
+    ]
+  },
+  {
+    "id": "aminer_000044",
+    "title": "Advances in Recommender Systems: Method and Application #44",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages matrix factorization, collaborative filtering, deep learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_032",
+      "author_033",
+      "author_034"
+    ],
+    "keywords": [
+      "matrix factorization",
+      "collaborative filtering",
+      "deep learning",
+      "Recommender Systems"
+    ],
+    "venue": "WWW",
+    "year": 2016,
+    "references": [
+      "aminer_000042",
+      "aminer_000005"
+    ]
+  },
+  {
+    "id": "aminer_000045",
+    "title": "Advances in Computer Vision: Method and Application #45",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages object detection, image segmentation, ResNet to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_035"
+    ],
+    "keywords": [
+      "object detection",
+      "image segmentation",
+      "ResNet",
+      "Computer Vision"
+    ],
+    "venue": "ACL",
+    "year": 2022,
+    "references": [
+      "aminer_000012",
+      "aminer_000009",
+      "aminer_000001"
+    ]
+  },
+  {
+    "id": "aminer_000046",
+    "title": "Advances in Federated Learning: Method and Application #46",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages aggregation, privacy, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_038",
+      "author_039",
+      "author_040",
+      "author_041"
+    ],
+    "keywords": [
+      "aggregation",
+      "privacy",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "SIGIR",
+    "year": 2018,
+    "references": [
+      "aminer_000040",
+      "aminer_000036",
+      "aminer_000012",
+      "aminer_000045",
+      "aminer_000044",
+      "aminer_000024"
+    ]
+  },
+  {
+    "id": "aminer_000047",
+    "title": "Advances in Meta-Learning: Method and Application #47",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages few-shot, transfer learning, MAML to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_041",
+      "author_042"
+    ],
+    "keywords": [
+      "few-shot",
+      "transfer learning",
+      "MAML",
+      "Meta-Learning"
+    ],
+    "venue": "NeurIPS",
+    "year": 2022,
+    "references": [
+      "aminer_000014",
+      "aminer_000011",
+      "aminer_000044",
+      "aminer_000033",
+      "aminer_000029",
+      "aminer_000003"
+    ]
+  },
+  {
+    "id": "aminer_000048",
+    "title": "Advances in Reinforcement Learning: Method and Application #48",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages MDP, Q-learning, policy gradient to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_044",
+      "author_045",
+      "author_046",
+      "author_047"
+    ],
+    "keywords": [
+      "MDP",
+      "Q-learning",
+      "policy gradient",
+      "Reinforcement Learning"
+    ],
+    "venue": "AAAI",
+    "year": 2019,
+    "references": [
+      "aminer_000039",
+      "aminer_000046",
+      "aminer_000032",
+      "aminer_000027",
+      "aminer_000035",
+      "aminer_000028",
+      "aminer_000010"
+    ]
+  },
+  {
+    "id": "aminer_000049",
+    "title": "Advances in Natural Language Processing: Method and Application #49",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages BERT, transformer, text classification to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_047",
+      "author_048"
+    ],
+    "keywords": [
+      "BERT",
+      "transformer",
+      "text classification",
+      "Natural Language Processing"
+    ],
+    "venue": "KDD",
+    "year": 2020,
+    "references": [
+      "aminer_000031",
+      "aminer_000040",
+      "aminer_000015",
+      "aminer_000017",
+      "aminer_000028",
+      "aminer_000004",
+      "aminer_000045",
+      "aminer_000018"
+    ]
+  },
+  {
+    "id": "aminer_000050",
+    "title": "Advances in Graph Neural Networks: Method and Application #50",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages node classification, link prediction, GNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_000",
+      "author_001",
+      "author_002",
+      "author_003"
+    ],
+    "keywords": [
+      "node classification",
+      "link prediction",
+      "GNN",
+      "Graph Neural Networks"
+    ],
+    "venue": "ICLR",
+    "year": 2018,
+    "references": [
+      "aminer_000009",
+      "aminer_000014"
+    ]
+  },
+  {
+    "id": "aminer_000051",
+    "title": "Advances in Knowledge Graphs: Method and Application #51",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages KG, entity embedding, relation extraction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_003",
+      "author_004",
+      "author_005",
+      "author_006"
+    ],
+    "keywords": [
+      "KG",
+      "entity embedding",
+      "relation extraction",
+      "Knowledge Graphs"
+    ],
+    "venue": "SIGIR",
+    "year": 2024,
+    "references": [
+      "aminer_000034",
+      "aminer_000029",
+      "aminer_000026",
+      "aminer_000003",
+      "aminer_000013"
+    ]
+  },
+  {
+    "id": "aminer_000052",
+    "title": "Advances in Recommender Systems: Method and Application #52",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages deep learning, collaborative filtering, matrix factorization to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_006",
+      "author_007"
+    ],
+    "keywords": [
+      "deep learning",
+      "collaborative filtering",
+      "matrix factorization",
+      "Recommender Systems"
+    ],
+    "venue": "AAAI",
+    "year": 2018,
+    "references": [
+      "aminer_000000",
+      "aminer_000022",
+      "aminer_000019",
+      "aminer_000048",
+      "aminer_000024",
+      "aminer_000026",
+      "aminer_000034"
+    ]
+  },
+  {
+    "id": "aminer_000053",
+    "title": "Advances in Computer Vision: Method and Application #53",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages image segmentation, object detection, ResNet to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_009",
+      "author_010",
+      "author_011",
+      "author_012"
+    ],
+    "keywords": [
+      "image segmentation",
+      "object detection",
+      "ResNet",
+      "Computer Vision"
+    ],
+    "venue": "WWW",
+    "year": 2021,
+    "references": []
+  },
+  {
+    "id": "aminer_000054",
+    "title": "Advances in Federated Learning: Method and Application #54",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages aggregation, privacy, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_012"
+    ],
+    "keywords": [
+      "aggregation",
+      "privacy",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "SIGIR",
+    "year": 2024,
+    "references": [
+      "aminer_000039",
+      "aminer_000034"
+    ]
+  },
+  {
+    "id": "aminer_000055",
+    "title": "Advances in Meta-Learning: Method and Application #55",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages transfer learning, few-shot, MAML to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_015",
+      "author_016",
+      "author_017"
+    ],
+    "keywords": [
+      "transfer learning",
+      "few-shot",
+      "MAML",
+      "Meta-Learning"
+    ],
+    "venue": "ACL",
+    "year": 2022,
+    "references": [
+      "aminer_000008",
+      "aminer_000029",
+      "aminer_000011",
+      "aminer_000003",
+      "aminer_000016",
+      "aminer_000024"
+    ]
+  },
+  {
+    "id": "aminer_000056",
+    "title": "Advances in Reinforcement Learning: Method and Application #56",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages policy gradient, MDP, Q-learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_018"
+    ],
+    "keywords": [
+      "policy gradient",
+      "MDP",
+      "Q-learning",
+      "Reinforcement Learning"
+    ],
+    "venue": "AAAI",
+    "year": 2015,
+    "references": [
+      "aminer_000048",
+      "aminer_000053",
+      "aminer_000026",
+      "aminer_000016"
+    ]
+  },
+  {
+    "id": "aminer_000057",
+    "title": "Advances in Natural Language Processing: Method and Application #57",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages NLP, BERT, text classification to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_021"
+    ],
+    "keywords": [
+      "NLP",
+      "BERT",
+      "text classification",
+      "Natural Language Processing"
+    ],
+    "venue": "ICML",
+    "year": 2018,
+    "references": [
+      "aminer_000049"
+    ]
+  },
+  {
+    "id": "aminer_000058",
+    "title": "Advances in Graph Neural Networks: Method and Application #58",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages graph embedding, GNN, node classification to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_024"
+    ],
+    "keywords": [
+      "graph embedding",
+      "GNN",
+      "node classification",
+      "Graph Neural Networks"
+    ],
+    "venue": "ACL",
+    "year": 2022,
+    "references": [
+      "aminer_000008",
+      "aminer_000030",
+      "aminer_000042"
+    ]
+  },
+  {
+    "id": "aminer_000059",
+    "title": "Advances in Knowledge Graphs: Method and Application #59",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages relation extraction, entity embedding, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_027",
+      "author_028"
+    ],
+    "keywords": [
+      "relation extraction",
+      "entity embedding",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "KDD",
+    "year": 2016,
+    "references": [
+      "aminer_000049"
+    ]
+  },
+  {
+    "id": "aminer_000060",
+    "title": "Advances in Recommender Systems: Method and Application #60",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages deep learning, collaborative filtering, matrix factorization to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_030",
+      "author_031"
+    ],
+    "keywords": [
+      "deep learning",
+      "collaborative filtering",
+      "matrix factorization",
+      "Recommender Systems"
+    ],
+    "venue": "NeurIPS",
+    "year": 2019,
+    "references": [
+      "aminer_000025",
+      "aminer_000045",
+      "aminer_000012",
+      "aminer_000004",
+      "aminer_000037",
+      "aminer_000044"
+    ]
+  },
+  {
+    "id": "aminer_000061",
+    "title": "Advances in Computer Vision: Method and Application #61",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages CNN, image segmentation, ResNet to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_033",
+      "author_034",
+      "author_035"
+    ],
+    "keywords": [
+      "CNN",
+      "image segmentation",
+      "ResNet",
+      "Computer Vision"
+    ],
+    "venue": "ICML",
+    "year": 2021,
+    "references": [
+      "aminer_000034",
+      "aminer_000027",
+      "aminer_000042",
+      "aminer_000023",
+      "aminer_000004"
+    ]
+  },
+  {
+    "id": "aminer_000062",
+    "title": "Advances in Federated Learning: Method and Application #62",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages distributed learning, privacy, aggregation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_036",
+      "author_037"
+    ],
+    "keywords": [
+      "distributed learning",
+      "privacy",
+      "aggregation",
+      "Federated Learning"
+    ],
+    "venue": "SIGIR",
+    "year": 2017,
+    "references": [
+      "aminer_000040",
+      "aminer_000057",
+      "aminer_000053",
+      "aminer_000029",
+      "aminer_000045"
+    ]
+  },
+  {
+    "id": "aminer_000063",
+    "title": "Advances in Meta-Learning: Method and Application #63",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages transfer learning, MAML, few-shot to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_039",
+      "author_040"
+    ],
+    "keywords": [
+      "transfer learning",
+      "MAML",
+      "few-shot",
+      "Meta-Learning"
+    ],
+    "venue": "NeurIPS",
+    "year": 2019,
+    "references": [
+      "aminer_000027",
+      "aminer_000052",
+      "aminer_000046",
+      "aminer_000037",
+      "aminer_000017",
+      "aminer_000020",
+      "aminer_000054"
+    ]
+  },
+  {
+    "id": "aminer_000064",
+    "title": "Advances in Reinforcement Learning: Method and Application #64",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages Q-learning, RL, MDP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_042",
+      "author_043"
+    ],
+    "keywords": [
+      "Q-learning",
+      "RL",
+      "MDP",
+      "Reinforcement Learning"
+    ],
+    "venue": "WWW",
+    "year": 2019,
+    "references": [
+      "aminer_000043",
+      "aminer_000003",
+      "aminer_000063",
+      "aminer_000041",
+      "aminer_000023",
+      "aminer_000062"
+    ]
+  },
+  {
+    "id": "aminer_000065",
+    "title": "Advances in Natural Language Processing: Method and Application #65",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages transformer, BERT, text classification to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_045",
+      "author_046",
+      "author_047",
+      "author_048"
+    ],
+    "keywords": [
+      "transformer",
+      "BERT",
+      "text classification",
+      "Natural Language Processing"
+    ],
+    "venue": "AAAI",
+    "year": 2015,
+    "references": [
+      "aminer_000001",
+      "aminer_000024",
+      "aminer_000010",
+      "aminer_000030",
+      "aminer_000052",
+      "aminer_000062",
+      "aminer_000030",
+      "aminer_000060"
+    ]
+  },
+  {
+    "id": "aminer_000066",
+    "title": "Advances in Graph Neural Networks: Method and Application #66",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages GNN, graph embedding, link prediction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_048",
+      "author_049",
+      "author_000"
+    ],
+    "keywords": [
+      "GNN",
+      "graph embedding",
+      "link prediction",
+      "Graph Neural Networks"
+    ],
+    "venue": "WWW",
+    "year": 2022,
+    "references": [
+      "aminer_000031",
+      "aminer_000039",
+      "aminer_000047",
+      "aminer_000060",
+      "aminer_000044",
+      "aminer_000054"
+    ]
+  },
+  {
+    "id": "aminer_000067",
+    "title": "Advances in Knowledge Graphs: Method and Application #67",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages relation extraction, entity embedding, TransE to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_001"
+    ],
+    "keywords": [
+      "relation extraction",
+      "entity embedding",
+      "TransE",
+      "Knowledge Graphs"
+    ],
+    "venue": "ICLR",
+    "year": 2018,
+    "references": [
+      "aminer_000015",
+      "aminer_000024",
+      "aminer_000040"
+    ]
+  },
+  {
+    "id": "aminer_000068",
+    "title": "Advances in Recommender Systems: Method and Application #68",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages collaborative filtering, matrix factorization, deep learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_004"
+    ],
+    "keywords": [
+      "collaborative filtering",
+      "matrix factorization",
+      "deep learning",
+      "Recommender Systems"
+    ],
+    "venue": "ICLR",
+    "year": 2019,
+    "references": [
+      "aminer_000036",
+      "aminer_000012",
+      "aminer_000024",
+      "aminer_000037",
+      "aminer_000029",
+      "aminer_000046",
+      "aminer_000022",
+      "aminer_000038"
+    ]
+  },
+  {
+    "id": "aminer_000069",
+    "title": "Advances in Computer Vision: Method and Application #69",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages CNN, ResNet, object detection to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_007"
+    ],
+    "keywords": [
+      "CNN",
+      "ResNet",
+      "object detection",
+      "Computer Vision"
+    ],
+    "venue": "KDD",
+    "year": 2022,
+    "references": [
+      "aminer_000062",
+      "aminer_000013"
+    ]
+  },
+  {
+    "id": "aminer_000070",
+    "title": "Advances in Federated Learning: Method and Application #70",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages distributed learning, aggregation, privacy to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_010",
+      "author_011",
+      "author_012",
+      "author_013"
+    ],
+    "keywords": [
+      "distributed learning",
+      "aggregation",
+      "privacy",
+      "Federated Learning"
+    ],
+    "venue": "NeurIPS",
+    "year": 2016,
+    "references": [
+      "aminer_000006",
+      "aminer_000032"
+    ]
+  },
+  {
+    "id": "aminer_000071",
+    "title": "Advances in Meta-Learning: Method and Application #71",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages MAML, transfer learning, few-shot to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_013",
+      "author_014"
+    ],
+    "keywords": [
+      "MAML",
+      "transfer learning",
+      "few-shot",
+      "Meta-Learning"
+    ],
+    "venue": "ICLR",
+    "year": 2024,
+    "references": []
+  },
+  {
+    "id": "aminer_000072",
+    "title": "Advances in Reinforcement Learning: Method and Application #72",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages policy gradient, RL, Q-learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_016",
+      "author_017",
+      "author_018",
+      "author_019"
+    ],
+    "keywords": [
+      "policy gradient",
+      "RL",
+      "Q-learning",
+      "Reinforcement Learning"
+    ],
+    "venue": "ACL",
+    "year": 2023,
+    "references": [
+      "aminer_000071"
+    ]
+  },
+  {
+    "id": "aminer_000073",
+    "title": "Advances in Natural Language Processing: Method and Application #73",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages text classification, BERT, transformer to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_019"
+    ],
+    "keywords": [
+      "text classification",
+      "BERT",
+      "transformer",
+      "Natural Language Processing"
+    ],
+    "venue": "ACL",
+    "year": 2018,
+    "references": [
+      "aminer_000054",
+      "aminer_000039",
+      "aminer_000072",
+      "aminer_000007"
+    ]
+  },
+  {
+    "id": "aminer_000074",
+    "title": "Advances in Graph Neural Networks: Method and Application #74",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages node classification, link prediction, GNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_022"
+    ],
+    "keywords": [
+      "node classification",
+      "link prediction",
+      "GNN",
+      "Graph Neural Networks"
+    ],
+    "venue": "ICLR",
+    "year": 2015,
+    "references": [
+      "aminer_000030",
+      "aminer_000022"
+    ]
+  },
+  {
+    "id": "aminer_000075",
+    "title": "Advances in Knowledge Graphs: Method and Application #75",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages TransE, entity embedding, relation extraction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_025",
+      "author_026",
+      "author_027",
+      "author_028"
+    ],
+    "keywords": [
+      "TransE",
+      "entity embedding",
+      "relation extraction",
+      "Knowledge Graphs"
+    ],
+    "venue": "NeurIPS",
+    "year": 2018,
+    "references": [
+      "aminer_000004",
+      "aminer_000029",
+      "aminer_000036",
+      "aminer_000036"
+    ]
+  },
+  {
+    "id": "aminer_000076",
+    "title": "Advances in Recommender Systems: Method and Application #76",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages matrix factorization, collaborative filtering, deep learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_028",
+      "author_029"
+    ],
+    "keywords": [
+      "matrix factorization",
+      "collaborative filtering",
+      "deep learning",
+      "Recommender Systems"
+    ],
+    "venue": "ICLR",
+    "year": 2019,
+    "references": [
+      "aminer_000069"
+    ]
+  },
+  {
+    "id": "aminer_000077",
+    "title": "Advances in Computer Vision: Method and Application #77",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages object detection, CNN, image segmentation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_031",
+      "author_032",
+      "author_033"
+    ],
+    "keywords": [
+      "object detection",
+      "CNN",
+      "image segmentation",
+      "Computer Vision"
+    ],
+    "venue": "AAAI",
+    "year": 2016,
+    "references": [
+      "aminer_000039",
+      "aminer_000076"
+    ]
+  },
+  {
+    "id": "aminer_000078",
+    "title": "Advances in Federated Learning: Method and Application #78",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages distributed learning, aggregation, privacy to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_034"
+    ],
+    "keywords": [
+      "distributed learning",
+      "aggregation",
+      "privacy",
+      "Federated Learning"
+    ],
+    "venue": "ICML",
+    "year": 2021,
+    "references": [
+      "aminer_000064",
+      "aminer_000069",
+      "aminer_000063",
+      "aminer_000056"
+    ]
+  },
+  {
+    "id": "aminer_000079",
+    "title": "Advances in Meta-Learning: Method and Application #79",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages transfer learning, MAML, few-shot to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_037"
+    ],
+    "keywords": [
+      "transfer learning",
+      "MAML",
+      "few-shot",
+      "Meta-Learning"
+    ],
+    "venue": "ACL",
+    "year": 2024,
+    "references": []
+  },
+  {
+    "id": "aminer_000080",
+    "title": "Advances in Reinforcement Learning: Method and Application #80",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages RL, policy gradient, MDP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_040",
+      "author_041"
+    ],
+    "keywords": [
+      "RL",
+      "policy gradient",
+      "MDP",
+      "Reinforcement Learning"
+    ],
+    "venue": "AAAI",
+    "year": 2023,
+    "references": []
+  },
+  {
+    "id": "aminer_000081",
+    "title": "Advances in Natural Language Processing: Method and Application #81",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages text classification, BERT, NLP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_043",
+      "author_044",
+      "author_045"
+    ],
+    "keywords": [
+      "text classification",
+      "BERT",
+      "NLP",
+      "Natural Language Processing"
+    ],
+    "venue": "NeurIPS",
+    "year": 2017,
+    "references": [
+      "aminer_000062",
+      "aminer_000011",
+      "aminer_000060",
+      "aminer_000044",
+      "aminer_000052",
+      "aminer_000042"
+    ]
+  },
+  {
+    "id": "aminer_000082",
+    "title": "Advances in Graph Neural Networks: Method and Application #82",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages node classification, graph embedding, link prediction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_046"
+    ],
+    "keywords": [
+      "node classification",
+      "graph embedding",
+      "link prediction",
+      "Graph Neural Networks"
+    ],
+    "venue": "WWW",
+    "year": 2019,
+    "references": [
+      "aminer_000051",
+      "aminer_000070",
+      "aminer_000004",
+      "aminer_000058"
+    ]
+  },
+  {
+    "id": "aminer_000083",
+    "title": "Advances in Knowledge Graphs: Method and Application #83",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages relation extraction, KG, entity embedding to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_049",
+      "author_000",
+      "author_001",
+      "author_002"
+    ],
+    "keywords": [
+      "relation extraction",
+      "KG",
+      "entity embedding",
+      "Knowledge Graphs"
+    ],
+    "venue": "AAAI",
+    "year": 2015,
+    "references": [
+      "aminer_000000",
+      "aminer_000069",
+      "aminer_000059",
+      "aminer_000052",
+      "aminer_000006",
+      "aminer_000024",
+      "aminer_000066",
+      "aminer_000046"
+    ]
+  },
+  {
+    "id": "aminer_000084",
+    "title": "Advances in Recommender Systems: Method and Application #84",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages collaborative filtering, matrix factorization, deep learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_002",
+      "author_003"
+    ],
+    "keywords": [
+      "collaborative filtering",
+      "matrix factorization",
+      "deep learning",
+      "Recommender Systems"
+    ],
+    "venue": "ICLR",
+    "year": 2019,
+    "references": [
+      "aminer_000056",
+      "aminer_000062",
+      "aminer_000015",
+      "aminer_000003"
+    ]
+  },
+  {
+    "id": "aminer_000085",
+    "title": "Advances in Computer Vision: Method and Application #85",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages CNN, image segmentation, object detection to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_005"
+    ],
+    "keywords": [
+      "CNN",
+      "image segmentation",
+      "object detection",
+      "Computer Vision"
+    ],
+    "venue": "AAAI",
+    "year": 2016,
+    "references": [
+      "aminer_000028"
+    ]
+  },
+  {
+    "id": "aminer_000086",
+    "title": "Advances in Federated Learning: Method and Application #86",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages aggregation, privacy, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_008",
+      "author_009",
+      "author_010",
+      "author_011"
+    ],
+    "keywords": [
+      "aggregation",
+      "privacy",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "ACL",
+    "year": 2022,
+    "references": [
+      "aminer_000065",
+      "aminer_000034",
+      "aminer_000053",
+      "aminer_000061"
+    ]
+  },
+  {
+    "id": "aminer_000087",
+    "title": "Advances in Meta-Learning: Method and Application #87",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages transfer learning, few-shot, MAML to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_011"
+    ],
+    "keywords": [
+      "transfer learning",
+      "few-shot",
+      "MAML",
+      "Meta-Learning"
+    ],
+    "venue": "KDD",
+    "year": 2021,
+    "references": [
+      "aminer_000076",
+      "aminer_000065",
+      "aminer_000017"
+    ]
+  },
+  {
+    "id": "aminer_000088",
+    "title": "Advances in Reinforcement Learning: Method and Application #88",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages policy gradient, Q-learning, MDP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_014",
+      "author_015",
+      "author_016"
+    ],
+    "keywords": [
+      "policy gradient",
+      "Q-learning",
+      "MDP",
+      "Reinforcement Learning"
+    ],
+    "venue": "KDD",
+    "year": 2024,
+    "references": []
+  },
+  {
+    "id": "aminer_000089",
+    "title": "Advances in Natural Language Processing: Method and Application #89",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages text classification, NLP, BERT to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_017",
+      "author_018"
+    ],
+    "keywords": [
+      "text classification",
+      "NLP",
+      "BERT",
+      "Natural Language Processing"
+    ],
+    "venue": "ACL",
+    "year": 2024,
+    "references": [
+      "aminer_000061",
+      "aminer_000044",
+      "aminer_000042",
+      "aminer_000070",
+      "aminer_000069",
+      "aminer_000048",
+      "aminer_000058",
+      "aminer_000041"
+    ]
+  },
+  {
+    "id": "aminer_000090",
+    "title": "Advances in Graph Neural Networks: Method and Application #90",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages link prediction, GNN, graph embedding to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_020",
+      "author_021",
+      "author_022"
+    ],
+    "keywords": [
+      "link prediction",
+      "GNN",
+      "graph embedding",
+      "Graph Neural Networks"
+    ],
+    "venue": "AAAI",
+    "year": 2021,
+    "references": []
+  },
+  {
+    "id": "aminer_000091",
+    "title": "Advances in Knowledge Graphs: Method and Application #91",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages TransE, relation extraction, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_023"
+    ],
+    "keywords": [
+      "TransE",
+      "relation extraction",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "AAAI",
+    "year": 2015,
+    "references": [
+      "aminer_000004",
+      "aminer_000016",
+      "aminer_000064",
+      "aminer_000075",
+      "aminer_000042",
+      "aminer_000012",
+      "aminer_000056"
+    ]
+  },
+  {
+    "id": "aminer_000092",
+    "title": "Advances in Recommender Systems: Method and Application #92",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages deep learning, collaborative filtering, matrix factorization to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_026",
+      "author_027",
+      "author_028"
+    ],
+    "keywords": [
+      "deep learning",
+      "collaborative filtering",
+      "matrix factorization",
+      "Recommender Systems"
+    ],
+    "venue": "WWW",
+    "year": 2024,
+    "references": [
+      "aminer_000009",
+      "aminer_000060"
+    ]
+  },
+  {
+    "id": "aminer_000093",
+    "title": "Advances in Computer Vision: Method and Application #93",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages ResNet, image segmentation, CNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_029",
+      "author_030",
+      "author_031",
+      "author_032"
+    ],
+    "keywords": [
+      "ResNet",
+      "image segmentation",
+      "CNN",
+      "Computer Vision"
+    ],
+    "venue": "ICML",
+    "year": 2024,
+    "references": [
+      "aminer_000086",
+      "aminer_000068",
+      "aminer_000048",
+      "aminer_000040",
+      "aminer_000080"
+    ]
+  },
+  {
+    "id": "aminer_000094",
+    "title": "Advances in Federated Learning: Method and Application #94",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages privacy, aggregation, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_032"
+    ],
+    "keywords": [
+      "privacy",
+      "aggregation",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "AAAI",
+    "year": 2017,
+    "references": [
+      "aminer_000011",
+      "aminer_000055",
+      "aminer_000012"
+    ]
+  },
+  {
+    "id": "aminer_000095",
+    "title": "Advances in Meta-Learning: Method and Application #95",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages transfer learning, MAML, few-shot to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_035",
+      "author_036",
+      "author_037"
+    ],
+    "keywords": [
+      "transfer learning",
+      "MAML",
+      "few-shot",
+      "Meta-Learning"
+    ],
+    "venue": "ICML",
+    "year": 2019,
+    "references": []
+  },
+  {
+    "id": "aminer_000096",
+    "title": "Advances in Reinforcement Learning: Method and Application #96",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages policy gradient, MDP, Q-learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_038",
+      "author_039",
+      "author_040",
+      "author_041"
+    ],
+    "keywords": [
+      "policy gradient",
+      "MDP",
+      "Q-learning",
+      "Reinforcement Learning"
+    ],
+    "venue": "ICLR",
+    "year": 2017,
+    "references": [
+      "aminer_000031",
+      "aminer_000067"
+    ]
+  },
+  {
+    "id": "aminer_000097",
+    "title": "Advances in Natural Language Processing: Method and Application #97",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages BERT, NLP, text classification to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_041",
+      "author_042"
+    ],
+    "keywords": [
+      "BERT",
+      "NLP",
+      "text classification",
+      "Natural Language Processing"
+    ],
+    "venue": "AAAI",
+    "year": 2019,
+    "references": [
+      "aminer_000063",
+      "aminer_000074",
+      "aminer_000018"
+    ]
+  },
+  {
+    "id": "aminer_000098",
+    "title": "Advances in Graph Neural Networks: Method and Application #98",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages link prediction, graph embedding, GNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_044",
+      "author_045",
+      "author_046"
+    ],
+    "keywords": [
+      "link prediction",
+      "graph embedding",
+      "GNN",
+      "Graph Neural Networks"
+    ],
+    "venue": "SIGIR",
+    "year": 2019,
+    "references": [
+      "aminer_000036",
+      "aminer_000086",
+      "aminer_000069",
+      "aminer_000020",
+      "aminer_000009",
+      "aminer_000056",
+      "aminer_000044"
+    ]
+  },
+  {
+    "id": "aminer_000099",
+    "title": "Advances in Knowledge Graphs: Method and Application #99",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages TransE, entity embedding, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_047",
+      "author_048",
+      "author_049"
+    ],
+    "keywords": [
+      "TransE",
+      "entity embedding",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "KDD",
+    "year": 2015,
+    "references": [
+      "aminer_000061",
+      "aminer_000013",
+      "aminer_000030",
+      "aminer_000048",
+      "aminer_000073",
+      "aminer_000045"
+    ]
+  },
+  {
+    "id": "aminer_000100",
+    "title": "Advances in Recommender Systems: Method and Application #100",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages deep learning, matrix factorization, collaborative filtering to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_000"
+    ],
+    "keywords": [
+      "deep learning",
+      "matrix factorization",
+      "collaborative filtering",
+      "Recommender Systems"
+    ],
+    "venue": "AAAI",
+    "year": 2019,
+    "references": []
+  },
+  {
+    "id": "aminer_000101",
+    "title": "Advances in Computer Vision: Method and Application #101",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages object detection, image segmentation, ResNet to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_003",
+      "author_004",
+      "author_005"
+    ],
+    "keywords": [
+      "object detection",
+      "image segmentation",
+      "ResNet",
+      "Computer Vision"
+    ],
+    "venue": "ICLR",
+    "year": 2016,
+    "references": [
+      "aminer_000081",
+      "aminer_000024",
+      "aminer_000079"
+    ]
+  },
+  {
+    "id": "aminer_000102",
+    "title": "Advances in Federated Learning: Method and Application #102",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages aggregation, privacy, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_006",
+      "author_007",
+      "author_008"
+    ],
+    "keywords": [
+      "aggregation",
+      "privacy",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "SIGIR",
+    "year": 2017,
+    "references": [
+      "aminer_000004",
+      "aminer_000074",
+      "aminer_000046",
+      "aminer_000093",
+      "aminer_000016",
+      "aminer_000011",
+      "aminer_000037"
+    ]
+  },
+  {
+    "id": "aminer_000103",
+    "title": "Advances in Meta-Learning: Method and Application #103",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages few-shot, transfer learning, MAML to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_009"
+    ],
+    "keywords": [
+      "few-shot",
+      "transfer learning",
+      "MAML",
+      "Meta-Learning"
+    ],
+    "venue": "AAAI",
+    "year": 2016,
+    "references": [
+      "aminer_000064",
+      "aminer_000034",
+      "aminer_000021",
+      "aminer_000032",
+      "aminer_000061",
+      "aminer_000037",
+      "aminer_000095",
+      "aminer_000043"
+    ]
+  },
+  {
+    "id": "aminer_000104",
+    "title": "Advances in Reinforcement Learning: Method and Application #104",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages MDP, RL, Q-learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_012",
+      "author_013",
+      "author_014",
+      "author_015"
+    ],
+    "keywords": [
+      "MDP",
+      "RL",
+      "Q-learning",
+      "Reinforcement Learning"
+    ],
+    "venue": "WWW",
+    "year": 2019,
+    "references": [
+      "aminer_000046",
+      "aminer_000011",
+      "aminer_000101",
+      "aminer_000050",
+      "aminer_000001",
+      "aminer_000033",
+      "aminer_000068",
+      "aminer_000015"
+    ]
+  },
+  {
+    "id": "aminer_000105",
+    "title": "Advances in Natural Language Processing: Method and Application #105",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages text classification, transformer, BERT to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_015",
+      "author_016"
+    ],
+    "keywords": [
+      "text classification",
+      "transformer",
+      "BERT",
+      "Natural Language Processing"
+    ],
+    "venue": "AAAI",
+    "year": 2015,
+    "references": [
+      "aminer_000086"
+    ]
+  },
+  {
+    "id": "aminer_000106",
+    "title": "Advances in Graph Neural Networks: Method and Application #106",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages node classification, link prediction, GNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_018",
+      "author_019",
+      "author_020",
+      "author_021"
+    ],
+    "keywords": [
+      "node classification",
+      "link prediction",
+      "GNN",
+      "Graph Neural Networks"
+    ],
+    "venue": "KDD",
+    "year": 2021,
+    "references": [
+      "aminer_000081"
+    ]
+  },
+  {
+    "id": "aminer_000107",
+    "title": "Advances in Knowledge Graphs: Method and Application #107",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages KG, TransE, relation extraction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_021",
+      "author_022",
+      "author_023"
+    ],
+    "keywords": [
+      "KG",
+      "TransE",
+      "relation extraction",
+      "Knowledge Graphs"
+    ],
+    "venue": "AAAI",
+    "year": 2016,
+    "references": []
+  },
+  {
+    "id": "aminer_000108",
+    "title": "Advances in Recommender Systems: Method and Application #108",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages collaborative filtering, deep learning, matrix factorization to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_024",
+      "author_025",
+      "author_026",
+      "author_027"
+    ],
+    "keywords": [
+      "collaborative filtering",
+      "deep learning",
+      "matrix factorization",
+      "Recommender Systems"
+    ],
+    "venue": "ICLR",
+    "year": 2021,
+    "references": [
+      "aminer_000058",
+      "aminer_000047",
+      "aminer_000085",
+      "aminer_000095",
+      "aminer_000089",
+      "aminer_000069"
+    ]
+  },
+  {
+    "id": "aminer_000109",
+    "title": "Advances in Computer Vision: Method and Application #109",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages CNN, object detection, image segmentation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_027",
+      "author_028",
+      "author_029",
+      "author_030"
+    ],
+    "keywords": [
+      "CNN",
+      "object detection",
+      "image segmentation",
+      "Computer Vision"
+    ],
+    "venue": "AAAI",
+    "year": 2018,
+    "references": [
+      "aminer_000004",
+      "aminer_000088",
+      "aminer_000047",
+      "aminer_000027"
+    ]
+  },
+  {
+    "id": "aminer_000110",
+    "title": "Advances in Federated Learning: Method and Application #110",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages distributed learning, privacy, aggregation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_030",
+      "author_031",
+      "author_032",
+      "author_033"
+    ],
+    "keywords": [
+      "distributed learning",
+      "privacy",
+      "aggregation",
+      "Federated Learning"
+    ],
+    "venue": "NeurIPS",
+    "year": 2018,
+    "references": [
+      "aminer_000082",
+      "aminer_000045",
+      "aminer_000007",
+      "aminer_000050",
+      "aminer_000035",
+      "aminer_000024",
+      "aminer_000015",
+      "aminer_000108"
+    ]
+  },
+  {
+    "id": "aminer_000111",
+    "title": "Advances in Meta-Learning: Method and Application #111",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages transfer learning, few-shot, MAML to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_033"
+    ],
+    "keywords": [
+      "transfer learning",
+      "few-shot",
+      "MAML",
+      "Meta-Learning"
+    ],
+    "venue": "ACL",
+    "year": 2024,
+    "references": [
+      "aminer_000031",
+      "aminer_000016",
+      "aminer_000100",
+      "aminer_000072",
+      "aminer_000026"
+    ]
+  },
+  {
+    "id": "aminer_000112",
+    "title": "Advances in Reinforcement Learning: Method and Application #112",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages MDP, RL, Q-learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_036"
+    ],
+    "keywords": [
+      "MDP",
+      "RL",
+      "Q-learning",
+      "Reinforcement Learning"
+    ],
+    "venue": "KDD",
+    "year": 2017,
+    "references": [
+      "aminer_000100",
+      "aminer_000076"
+    ]
+  },
+  {
+    "id": "aminer_000113",
+    "title": "Advances in Natural Language Processing: Method and Application #113",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages BERT, transformer, text classification to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_039"
+    ],
+    "keywords": [
+      "BERT",
+      "transformer",
+      "text classification",
+      "Natural Language Processing"
+    ],
+    "venue": "ICLR",
+    "year": 2015,
+    "references": [
+      "aminer_000014",
+      "aminer_000084"
+    ]
+  },
+  {
+    "id": "aminer_000114",
+    "title": "Advances in Graph Neural Networks: Method and Application #114",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages node classification, GNN, graph embedding to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_042",
+      "author_043"
+    ],
+    "keywords": [
+      "node classification",
+      "GNN",
+      "graph embedding",
+      "Graph Neural Networks"
+    ],
+    "venue": "KDD",
+    "year": 2015,
+    "references": []
+  },
+  {
+    "id": "aminer_000115",
+    "title": "Advances in Knowledge Graphs: Method and Application #115",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages entity embedding, relation extraction, TransE to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_045"
+    ],
+    "keywords": [
+      "entity embedding",
+      "relation extraction",
+      "TransE",
+      "Knowledge Graphs"
+    ],
+    "venue": "AAAI",
+    "year": 2023,
+    "references": [
+      "aminer_000014",
+      "aminer_000095",
+      "aminer_000008",
+      "aminer_000060",
+      "aminer_000057",
+      "aminer_000099",
+      "aminer_000046",
+      "aminer_000065"
+    ]
+  },
+  {
+    "id": "aminer_000116",
+    "title": "Advances in Recommender Systems: Method and Application #116",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages collaborative filtering, deep learning, matrix factorization to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_048"
+    ],
+    "keywords": [
+      "collaborative filtering",
+      "deep learning",
+      "matrix factorization",
+      "Recommender Systems"
+    ],
+    "venue": "AAAI",
+    "year": 2022,
+    "references": [
+      "aminer_000082",
+      "aminer_000003",
+      "aminer_000007",
+      "aminer_000061",
+      "aminer_000108",
+      "aminer_000051",
+      "aminer_000054"
+    ]
+  },
+  {
+    "id": "aminer_000117",
+    "title": "Advances in Computer Vision: Method and Application #117",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages CNN, ResNet, object detection to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_001",
+      "author_002",
+      "author_003"
+    ],
+    "keywords": [
+      "CNN",
+      "ResNet",
+      "object detection",
+      "Computer Vision"
+    ],
+    "venue": "WWW",
+    "year": 2021,
+    "references": [
+      "aminer_000008",
+      "aminer_000016"
+    ]
+  },
+  {
+    "id": "aminer_000118",
+    "title": "Advances in Federated Learning: Method and Application #118",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages aggregation, distributed learning, privacy to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_004",
+      "author_005"
+    ],
+    "keywords": [
+      "aggregation",
+      "distributed learning",
+      "privacy",
+      "Federated Learning"
+    ],
+    "venue": "SIGIR",
+    "year": 2022,
+    "references": [
+      "aminer_000077",
+      "aminer_000055",
+      "aminer_000012",
+      "aminer_000101",
+      "aminer_000089",
+      "aminer_000014",
+      "aminer_000109",
+      "aminer_000083"
+    ]
+  },
+  {
+    "id": "aminer_000119",
+    "title": "Advances in Meta-Learning: Method and Application #119",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages few-shot, MAML, transfer learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_007",
+      "author_008",
+      "author_009"
+    ],
+    "keywords": [
+      "few-shot",
+      "MAML",
+      "transfer learning",
+      "Meta-Learning"
+    ],
+    "venue": "WWW",
+    "year": 2017,
+    "references": [
+      "aminer_000051",
+      "aminer_000053",
+      "aminer_000093",
+      "aminer_000012",
+      "aminer_000040",
+      "aminer_000054",
+      "aminer_000040"
+    ]
+  },
+  {
+    "id": "aminer_000120",
+    "title": "Advances in Reinforcement Learning: Method and Application #120",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages Q-learning, RL, policy gradient to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_010",
+      "author_011",
+      "author_012",
+      "author_013"
+    ],
+    "keywords": [
+      "Q-learning",
+      "RL",
+      "policy gradient",
+      "Reinforcement Learning"
+    ],
+    "venue": "NeurIPS",
+    "year": 2020,
+    "references": [
+      "aminer_000011"
+    ]
+  },
+  {
+    "id": "aminer_000121",
+    "title": "Advances in Natural Language Processing: Method and Application #121",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages BERT, transformer, NLP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_013",
+      "author_014",
+      "author_015",
+      "author_016"
+    ],
+    "keywords": [
+      "BERT",
+      "transformer",
+      "NLP",
+      "Natural Language Processing"
+    ],
+    "venue": "ICML",
+    "year": 2019,
+    "references": [
+      "aminer_000071",
+      "aminer_000042",
+      "aminer_000085",
+      "aminer_000015",
+      "aminer_000052",
+      "aminer_000045",
+      "aminer_000111",
+      "aminer_000085"
+    ]
+  },
+  {
+    "id": "aminer_000122",
+    "title": "Advances in Graph Neural Networks: Method and Application #122",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages node classification, graph embedding, GNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_016",
+      "author_017",
+      "author_018"
+    ],
+    "keywords": [
+      "node classification",
+      "graph embedding",
+      "GNN",
+      "Graph Neural Networks"
+    ],
+    "venue": "NeurIPS",
+    "year": 2019,
+    "references": [
+      "aminer_000027",
+      "aminer_000019",
+      "aminer_000084",
+      "aminer_000061",
+      "aminer_000028",
+      "aminer_000108",
+      "aminer_000013",
+      "aminer_000044"
+    ]
+  },
+  {
+    "id": "aminer_000123",
+    "title": "Advances in Knowledge Graphs: Method and Application #123",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages entity embedding, TransE, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_019",
+      "author_020",
+      "author_021"
+    ],
+    "keywords": [
+      "entity embedding",
+      "TransE",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "WWW",
+    "year": 2020,
+    "references": [
+      "aminer_000003",
+      "aminer_000023",
+      "aminer_000034",
+      "aminer_000089"
+    ]
+  },
+  {
+    "id": "aminer_000124",
+    "title": "Advances in Recommender Systems: Method and Application #124",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages collaborative filtering, deep learning, matrix factorization to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_022",
+      "author_023"
+    ],
+    "keywords": [
+      "collaborative filtering",
+      "deep learning",
+      "matrix factorization",
+      "Recommender Systems"
+    ],
+    "venue": "SIGIR",
+    "year": 2021,
+    "references": [
+      "aminer_000008",
+      "aminer_000018",
+      "aminer_000094",
+      "aminer_000081",
+      "aminer_000003",
+      "aminer_000011"
+    ]
+  },
+  {
+    "id": "aminer_000125",
+    "title": "Advances in Computer Vision: Method and Application #125",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages ResNet, object detection, CNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_025"
+    ],
+    "keywords": [
+      "ResNet",
+      "object detection",
+      "CNN",
+      "Computer Vision"
+    ],
+    "venue": "ICML",
+    "year": 2017,
+    "references": [
+      "aminer_000039",
+      "aminer_000092",
+      "aminer_000041",
+      "aminer_000099",
+      "aminer_000120"
+    ]
+  },
+  {
+    "id": "aminer_000126",
+    "title": "Advances in Federated Learning: Method and Application #126",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages privacy, aggregation, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_028",
+      "author_029",
+      "author_030",
+      "author_031"
+    ],
+    "keywords": [
+      "privacy",
+      "aggregation",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "SIGIR",
+    "year": 2019,
+    "references": [
+      "aminer_000056",
+      "aminer_000084",
+      "aminer_000054",
+      "aminer_000062"
+    ]
+  },
+  {
+    "id": "aminer_000127",
+    "title": "Advances in Meta-Learning: Method and Application #127",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages few-shot, transfer learning, MAML to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_031",
+      "author_032",
+      "author_033"
+    ],
+    "keywords": [
+      "few-shot",
+      "transfer learning",
+      "MAML",
+      "Meta-Learning"
+    ],
+    "venue": "ICML",
+    "year": 2018,
+    "references": [
+      "aminer_000014",
+      "aminer_000036",
+      "aminer_000086",
+      "aminer_000086",
+      "aminer_000075",
+      "aminer_000062"
+    ]
+  },
+  {
+    "id": "aminer_000128",
+    "title": "Advances in Reinforcement Learning: Method and Application #128",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages Q-learning, policy gradient, RL to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_034",
+      "author_035"
+    ],
+    "keywords": [
+      "Q-learning",
+      "policy gradient",
+      "RL",
+      "Reinforcement Learning"
+    ],
+    "venue": "KDD",
+    "year": 2018,
+    "references": []
+  },
+  {
+    "id": "aminer_000129",
+    "title": "Advances in Natural Language Processing: Method and Application #129",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages BERT, text classification, transformer to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_037",
+      "author_038"
+    ],
+    "keywords": [
+      "BERT",
+      "text classification",
+      "transformer",
+      "Natural Language Processing"
+    ],
+    "venue": "SIGIR",
+    "year": 2023,
+    "references": [
+      "aminer_000030",
+      "aminer_000001",
+      "aminer_000127",
+      "aminer_000110",
+      "aminer_000044"
+    ]
+  },
+  {
+    "id": "aminer_000130",
+    "title": "Advances in Graph Neural Networks: Method and Application #130",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages graph embedding, node classification, link prediction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_040"
+    ],
+    "keywords": [
+      "graph embedding",
+      "node classification",
+      "link prediction",
+      "Graph Neural Networks"
+    ],
+    "venue": "SIGIR",
+    "year": 2015,
+    "references": [
+      "aminer_000101"
+    ]
+  },
+  {
+    "id": "aminer_000131",
+    "title": "Advances in Knowledge Graphs: Method and Application #131",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages TransE, KG, entity embedding to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_043",
+      "author_044",
+      "author_045"
+    ],
+    "keywords": [
+      "TransE",
+      "KG",
+      "entity embedding",
+      "Knowledge Graphs"
+    ],
+    "venue": "ICLR",
+    "year": 2024,
+    "references": [
+      "aminer_000103",
+      "aminer_000106",
+      "aminer_000074",
+      "aminer_000029",
+      "aminer_000103",
+      "aminer_000005"
+    ]
+  },
+  {
+    "id": "aminer_000132",
+    "title": "Advances in Recommender Systems: Method and Application #132",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages matrix factorization, deep learning, collaborative filtering to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_046",
+      "author_047",
+      "author_048"
+    ],
+    "keywords": [
+      "matrix factorization",
+      "deep learning",
+      "collaborative filtering",
+      "Recommender Systems"
+    ],
+    "venue": "WWW",
+    "year": 2018,
+    "references": [
+      "aminer_000027",
+      "aminer_000062",
+      "aminer_000111",
+      "aminer_000102",
+      "aminer_000020",
+      "aminer_000101"
+    ]
+  },
+  {
+    "id": "aminer_000133",
+    "title": "Advances in Computer Vision: Method and Application #133",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages image segmentation, CNN, ResNet to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_049",
+      "author_000"
+    ],
+    "keywords": [
+      "image segmentation",
+      "CNN",
+      "ResNet",
+      "Computer Vision"
+    ],
+    "venue": "KDD",
+    "year": 2018,
+    "references": [
+      "aminer_000029",
+      "aminer_000130",
+      "aminer_000049",
+      "aminer_000089",
+      "aminer_000089",
+      "aminer_000037",
+      "aminer_000060",
+      "aminer_000026"
+    ]
+  },
+  {
+    "id": "aminer_000134",
+    "title": "Advances in Federated Learning: Method and Application #134",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages privacy, aggregation, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_002",
+      "author_003",
+      "author_004",
+      "author_005"
+    ],
+    "keywords": [
+      "privacy",
+      "aggregation",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "WWW",
+    "year": 2020,
+    "references": [
+      "aminer_000126",
+      "aminer_000118"
+    ]
+  },
+  {
+    "id": "aminer_000135",
+    "title": "Advances in Meta-Learning: Method and Application #135",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages few-shot, MAML, transfer learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_005",
+      "author_006",
+      "author_007"
+    ],
+    "keywords": [
+      "few-shot",
+      "MAML",
+      "transfer learning",
+      "Meta-Learning"
+    ],
+    "venue": "AAAI",
+    "year": 2022,
+    "references": [
+      "aminer_000113",
+      "aminer_000077",
+      "aminer_000070",
+      "aminer_000014",
+      "aminer_000090",
+      "aminer_000129",
+      "aminer_000018"
+    ]
+  },
+  {
+    "id": "aminer_000136",
+    "title": "Advances in Reinforcement Learning: Method and Application #136",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages RL, Q-learning, MDP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_008",
+      "author_009",
+      "author_010",
+      "author_011"
+    ],
+    "keywords": [
+      "RL",
+      "Q-learning",
+      "MDP",
+      "Reinforcement Learning"
+    ],
+    "venue": "ICML",
+    "year": 2022,
+    "references": [
+      "aminer_000019",
+      "aminer_000023",
+      "aminer_000129",
+      "aminer_000098"
+    ]
+  },
+  {
+    "id": "aminer_000137",
+    "title": "Advances in Natural Language Processing: Method and Application #137",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages BERT, text classification, transformer to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_011"
+    ],
+    "keywords": [
+      "BERT",
+      "text classification",
+      "transformer",
+      "Natural Language Processing"
+    ],
+    "venue": "ACL",
+    "year": 2022,
+    "references": [
+      "aminer_000038",
+      "aminer_000015",
+      "aminer_000115",
+      "aminer_000026",
+      "aminer_000087",
+      "aminer_000021",
+      "aminer_000129",
+      "aminer_000044"
+    ]
+  },
+  {
+    "id": "aminer_000138",
+    "title": "Advances in Graph Neural Networks: Method and Application #138",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages link prediction, node classification, GNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_014"
+    ],
+    "keywords": [
+      "link prediction",
+      "node classification",
+      "GNN",
+      "Graph Neural Networks"
+    ],
+    "venue": "WWW",
+    "year": 2016,
+    "references": [
+      "aminer_000095",
+      "aminer_000072",
+      "aminer_000099",
+      "aminer_000104",
+      "aminer_000086"
+    ]
+  },
+  {
+    "id": "aminer_000139",
+    "title": "Advances in Knowledge Graphs: Method and Application #139",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages relation extraction, KG, entity embedding to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_017",
+      "author_018"
+    ],
+    "keywords": [
+      "relation extraction",
+      "KG",
+      "entity embedding",
+      "Knowledge Graphs"
+    ],
+    "venue": "WWW",
+    "year": 2019,
+    "references": [
+      "aminer_000064",
+      "aminer_000038",
+      "aminer_000085",
+      "aminer_000020"
+    ]
+  },
+  {
+    "id": "aminer_000140",
+    "title": "Advances in Recommender Systems: Method and Application #140",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages deep learning, matrix factorization, collaborative filtering to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_020",
+      "author_021",
+      "author_022",
+      "author_023"
+    ],
+    "keywords": [
+      "deep learning",
+      "matrix factorization",
+      "collaborative filtering",
+      "Recommender Systems"
+    ],
+    "venue": "WWW",
+    "year": 2017,
+    "references": [
+      "aminer_000079"
+    ]
+  },
+  {
+    "id": "aminer_000141",
+    "title": "Advances in Computer Vision: Method and Application #141",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages CNN, image segmentation, object detection to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_023",
+      "author_024"
+    ],
+    "keywords": [
+      "CNN",
+      "image segmentation",
+      "object detection",
+      "Computer Vision"
+    ],
+    "venue": "ACL",
+    "year": 2017,
+    "references": [
+      "aminer_000092",
+      "aminer_000004",
+      "aminer_000092",
+      "aminer_000079",
+      "aminer_000046",
+      "aminer_000054",
+      "aminer_000087",
+      "aminer_000124"
+    ]
+  },
+  {
+    "id": "aminer_000142",
+    "title": "Advances in Federated Learning: Method and Application #142",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages privacy, aggregation, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_026"
+    ],
+    "keywords": [
+      "privacy",
+      "aggregation",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "WWW",
+    "year": 2024,
+    "references": [
+      "aminer_000129"
+    ]
+  },
+  {
+    "id": "aminer_000143",
+    "title": "Advances in Meta-Learning: Method and Application #143",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages few-shot, MAML, transfer learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_029",
+      "author_030",
+      "author_031",
+      "author_032"
+    ],
+    "keywords": [
+      "few-shot",
+      "MAML",
+      "transfer learning",
+      "Meta-Learning"
+    ],
+    "venue": "ICML",
+    "year": 2021,
+    "references": [
+      "aminer_000046",
+      "aminer_000042"
+    ]
+  },
+  {
+    "id": "aminer_000144",
+    "title": "Advances in Reinforcement Learning: Method and Application #144",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages policy gradient, Q-learning, RL to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_032",
+      "author_033"
+    ],
+    "keywords": [
+      "policy gradient",
+      "Q-learning",
+      "RL",
+      "Reinforcement Learning"
+    ],
+    "venue": "WWW",
+    "year": 2024,
+    "references": [
+      "aminer_000072",
+      "aminer_000114",
+      "aminer_000059",
+      "aminer_000136",
+      "aminer_000061",
+      "aminer_000079",
+      "aminer_000120"
+    ]
+  },
+  {
+    "id": "aminer_000145",
+    "title": "Advances in Natural Language Processing: Method and Application #145",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages text classification, BERT, transformer to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_035",
+      "author_036",
+      "author_037"
+    ],
+    "keywords": [
+      "text classification",
+      "BERT",
+      "transformer",
+      "Natural Language Processing"
+    ],
+    "venue": "ICML",
+    "year": 2022,
+    "references": [
+      "aminer_000128",
+      "aminer_000135",
+      "aminer_000107",
+      "aminer_000041",
+      "aminer_000051",
+      "aminer_000035"
+    ]
+  },
+  {
+    "id": "aminer_000146",
+    "title": "Advances in Graph Neural Networks: Method and Application #146",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages node classification, link prediction, GNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_038",
+      "author_039",
+      "author_040",
+      "author_041"
+    ],
+    "keywords": [
+      "node classification",
+      "link prediction",
+      "GNN",
+      "Graph Neural Networks"
+    ],
+    "venue": "NeurIPS",
+    "year": 2018,
+    "references": [
+      "aminer_000031",
+      "aminer_000072",
+      "aminer_000021",
+      "aminer_000041",
+      "aminer_000069",
+      "aminer_000115",
+      "aminer_000131",
+      "aminer_000037"
+    ]
+  },
+  {
+    "id": "aminer_000147",
+    "title": "Advances in Knowledge Graphs: Method and Application #147",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages TransE, entity embedding, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_041"
+    ],
+    "keywords": [
+      "TransE",
+      "entity embedding",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "WWW",
+    "year": 2018,
+    "references": [
+      "aminer_000013",
+      "aminer_000101",
+      "aminer_000128",
+      "aminer_000095",
+      "aminer_000060",
+      "aminer_000098"
+    ]
+  },
+  {
+    "id": "aminer_000148",
+    "title": "Advances in Recommender Systems: Method and Application #148",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages collaborative filtering, matrix factorization, deep learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_044",
+      "author_045"
+    ],
+    "keywords": [
+      "collaborative filtering",
+      "matrix factorization",
+      "deep learning",
+      "Recommender Systems"
+    ],
+    "venue": "AAAI",
+    "year": 2022,
+    "references": [
+      "aminer_000037",
+      "aminer_000035",
+      "aminer_000009",
+      "aminer_000073",
+      "aminer_000120"
+    ]
+  },
+  {
+    "id": "aminer_000149",
+    "title": "Advances in Computer Vision: Method and Application #149",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages CNN, ResNet, image segmentation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_047",
+      "author_048",
+      "author_049",
+      "author_000"
+    ],
+    "keywords": [
+      "CNN",
+      "ResNet",
+      "image segmentation",
+      "Computer Vision"
+    ],
+    "venue": "NeurIPS",
+    "year": 2019,
+    "references": [
+      "aminer_000055",
+      "aminer_000038",
+      "aminer_000140",
+      "aminer_000135"
+    ]
+  },
+  {
+    "id": "aminer_000150",
+    "title": "Advances in Federated Learning: Method and Application #150",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages privacy, distributed learning, aggregation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_000",
+      "author_001"
+    ],
+    "keywords": [
+      "privacy",
+      "distributed learning",
+      "aggregation",
+      "Federated Learning"
+    ],
+    "venue": "SIGIR",
+    "year": 2024,
+    "references": []
+  },
+  {
+    "id": "aminer_000151",
+    "title": "Advances in Meta-Learning: Method and Application #151",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages MAML, few-shot, transfer learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_003",
+      "author_004",
+      "author_005",
+      "author_006"
+    ],
+    "keywords": [
+      "MAML",
+      "few-shot",
+      "transfer learning",
+      "Meta-Learning"
+    ],
+    "venue": "ICML",
+    "year": 2024,
+    "references": [
+      "aminer_000137",
+      "aminer_000004",
+      "aminer_000131",
+      "aminer_000147",
+      "aminer_000061",
+      "aminer_000036",
+      "aminer_000074"
+    ]
+  },
+  {
+    "id": "aminer_000152",
+    "title": "Advances in Reinforcement Learning: Method and Application #152",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages policy gradient, RL, MDP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_006",
+      "author_007",
+      "author_008"
+    ],
+    "keywords": [
+      "policy gradient",
+      "RL",
+      "MDP",
+      "Reinforcement Learning"
+    ],
+    "venue": "NeurIPS",
+    "year": 2023,
+    "references": [
+      "aminer_000021",
+      "aminer_000134"
+    ]
+  },
+  {
+    "id": "aminer_000153",
+    "title": "Advances in Natural Language Processing: Method and Application #153",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages NLP, BERT, transformer to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_009",
+      "author_010",
+      "author_011",
+      "author_012"
+    ],
+    "keywords": [
+      "NLP",
+      "BERT",
+      "transformer",
+      "Natural Language Processing"
+    ],
+    "venue": "WWW",
+    "year": 2019,
+    "references": []
+  },
+  {
+    "id": "aminer_000154",
+    "title": "Advances in Graph Neural Networks: Method and Application #154",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages GNN, graph embedding, link prediction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_012"
+    ],
+    "keywords": [
+      "GNN",
+      "graph embedding",
+      "link prediction",
+      "Graph Neural Networks"
+    ],
+    "venue": "WWW",
+    "year": 2023,
+    "references": [
+      "aminer_000061",
+      "aminer_000026",
+      "aminer_000148",
+      "aminer_000085",
+      "aminer_000034"
+    ]
+  },
+  {
+    "id": "aminer_000155",
+    "title": "Advances in Knowledge Graphs: Method and Application #155",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages relation extraction, TransE, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_015",
+      "author_016"
+    ],
+    "keywords": [
+      "relation extraction",
+      "TransE",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "ICML",
+    "year": 2018,
+    "references": [
+      "aminer_000122",
+      "aminer_000046",
+      "aminer_000034",
+      "aminer_000016",
+      "aminer_000117",
+      "aminer_000009",
+      "aminer_000075"
+    ]
+  },
+  {
+    "id": "aminer_000156",
+    "title": "Advances in Recommender Systems: Method and Application #156",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages collaborative filtering, matrix factorization, deep learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_018"
+    ],
+    "keywords": [
+      "collaborative filtering",
+      "matrix factorization",
+      "deep learning",
+      "Recommender Systems"
+    ],
+    "venue": "WWW",
+    "year": 2019,
+    "references": [
+      "aminer_000101",
+      "aminer_000139",
+      "aminer_000121",
+      "aminer_000064",
+      "aminer_000009",
+      "aminer_000048",
+      "aminer_000073",
+      "aminer_000091"
+    ]
+  },
+  {
+    "id": "aminer_000157",
+    "title": "Advances in Computer Vision: Method and Application #157",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages CNN, object detection, image segmentation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_021",
+      "author_022",
+      "author_023"
+    ],
+    "keywords": [
+      "CNN",
+      "object detection",
+      "image segmentation",
+      "Computer Vision"
+    ],
+    "venue": "KDD",
+    "year": 2016,
+    "references": [
+      "aminer_000112",
+      "aminer_000098",
+      "aminer_000086",
+      "aminer_000047",
+      "aminer_000127",
+      "aminer_000127"
+    ]
+  },
+  {
+    "id": "aminer_000158",
+    "title": "Advances in Federated Learning: Method and Application #158",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages aggregation, distributed learning, privacy to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_024"
+    ],
+    "keywords": [
+      "aggregation",
+      "distributed learning",
+      "privacy",
+      "Federated Learning"
+    ],
+    "venue": "WWW",
+    "year": 2019,
+    "references": [
+      "aminer_000154",
+      "aminer_000046",
+      "aminer_000139",
+      "aminer_000075",
+      "aminer_000082",
+      "aminer_000026"
+    ]
+  },
+  {
+    "id": "aminer_000159",
+    "title": "Advances in Meta-Learning: Method and Application #159",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages MAML, transfer learning, few-shot to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_027",
+      "author_028",
+      "author_029",
+      "author_030"
+    ],
+    "keywords": [
+      "MAML",
+      "transfer learning",
+      "few-shot",
+      "Meta-Learning"
+    ],
+    "venue": "ICML",
+    "year": 2020,
+    "references": [
+      "aminer_000113",
+      "aminer_000089"
+    ]
+  },
+  {
+    "id": "aminer_000160",
+    "title": "Advances in Reinforcement Learning: Method and Application #160",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages Q-learning, MDP, RL to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_030",
+      "author_031",
+      "author_032"
+    ],
+    "keywords": [
+      "Q-learning",
+      "MDP",
+      "RL",
+      "Reinforcement Learning"
+    ],
+    "venue": "ICLR",
+    "year": 2015,
+    "references": [
+      "aminer_000103"
+    ]
+  },
+  {
+    "id": "aminer_000161",
+    "title": "Advances in Natural Language Processing: Method and Application #161",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages BERT, transformer, text classification to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_033",
+      "author_034"
+    ],
+    "keywords": [
+      "BERT",
+      "transformer",
+      "text classification",
+      "Natural Language Processing"
+    ],
+    "venue": "NeurIPS",
+    "year": 2018,
+    "references": []
+  },
+  {
+    "id": "aminer_000162",
+    "title": "Advances in Graph Neural Networks: Method and Application #162",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages node classification, graph embedding, link prediction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_036",
+      "author_037"
+    ],
+    "keywords": [
+      "node classification",
+      "graph embedding",
+      "link prediction",
+      "Graph Neural Networks"
+    ],
+    "venue": "AAAI",
+    "year": 2020,
+    "references": []
+  },
+  {
+    "id": "aminer_000163",
+    "title": "Advances in Knowledge Graphs: Method and Application #163",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages relation extraction, entity embedding, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_039",
+      "author_040",
+      "author_041",
+      "author_042"
+    ],
+    "keywords": [
+      "relation extraction",
+      "entity embedding",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "WWW",
+    "year": 2019,
+    "references": [
+      "aminer_000135",
+      "aminer_000093"
+    ]
+  },
+  {
+    "id": "aminer_000164",
+    "title": "Advances in Recommender Systems: Method and Application #164",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages collaborative filtering, deep learning, matrix factorization to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_042",
+      "author_043",
+      "author_044",
+      "author_045"
+    ],
+    "keywords": [
+      "collaborative filtering",
+      "deep learning",
+      "matrix factorization",
+      "Recommender Systems"
+    ],
+    "venue": "NeurIPS",
+    "year": 2019,
+    "references": [
+      "aminer_000127",
+      "aminer_000132"
+    ]
+  },
+  {
+    "id": "aminer_000165",
+    "title": "Advances in Computer Vision: Method and Application #165",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages image segmentation, ResNet, object detection to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_045",
+      "author_046"
+    ],
+    "keywords": [
+      "image segmentation",
+      "ResNet",
+      "object detection",
+      "Computer Vision"
+    ],
+    "venue": "NeurIPS",
+    "year": 2017,
+    "references": [
+      "aminer_000156",
+      "aminer_000073",
+      "aminer_000125"
+    ]
+  },
+  {
+    "id": "aminer_000166",
+    "title": "Advances in Federated Learning: Method and Application #166",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages privacy, distributed learning, aggregation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_048",
+      "author_049",
+      "author_000"
+    ],
+    "keywords": [
+      "privacy",
+      "distributed learning",
+      "aggregation",
+      "Federated Learning"
+    ],
+    "venue": "ICLR",
+    "year": 2017,
+    "references": [
+      "aminer_000022",
+      "aminer_000081",
+      "aminer_000088",
+      "aminer_000016",
+      "aminer_000140",
+      "aminer_000138",
+      "aminer_000074"
+    ]
+  },
+  {
+    "id": "aminer_000167",
+    "title": "Advances in Meta-Learning: Method and Application #167",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages MAML, few-shot, transfer learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_001"
+    ],
+    "keywords": [
+      "MAML",
+      "few-shot",
+      "transfer learning",
+      "Meta-Learning"
+    ],
+    "venue": "WWW",
+    "year": 2023,
+    "references": [
+      "aminer_000035",
+      "aminer_000060",
+      "aminer_000126"
+    ]
+  },
+  {
+    "id": "aminer_000168",
+    "title": "Advances in Reinforcement Learning: Method and Application #168",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages policy gradient, MDP, RL to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_004",
+      "author_005",
+      "author_006"
+    ],
+    "keywords": [
+      "policy gradient",
+      "MDP",
+      "RL",
+      "Reinforcement Learning"
+    ],
+    "venue": "SIGIR",
+    "year": 2022,
+    "references": [
+      "aminer_000016"
+    ]
+  },
+  {
+    "id": "aminer_000169",
+    "title": "Advances in Natural Language Processing: Method and Application #169",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages text classification, BERT, NLP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_007"
+    ],
+    "keywords": [
+      "text classification",
+      "BERT",
+      "NLP",
+      "Natural Language Processing"
+    ],
+    "venue": "AAAI",
+    "year": 2022,
+    "references": [
+      "aminer_000081",
+      "aminer_000164"
+    ]
+  },
+  {
+    "id": "aminer_000170",
+    "title": "Advances in Graph Neural Networks: Method and Application #170",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages node classification, GNN, link prediction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_010"
+    ],
+    "keywords": [
+      "node classification",
+      "GNN",
+      "link prediction",
+      "Graph Neural Networks"
+    ],
+    "venue": "NeurIPS",
+    "year": 2023,
+    "references": [
+      "aminer_000110",
+      "aminer_000128"
+    ]
+  },
+  {
+    "id": "aminer_000171",
+    "title": "Advances in Knowledge Graphs: Method and Application #171",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages entity embedding, TransE, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_013",
+      "author_014",
+      "author_015"
+    ],
+    "keywords": [
+      "entity embedding",
+      "TransE",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "KDD",
+    "year": 2016,
+    "references": [
+      "aminer_000082",
+      "aminer_000057"
+    ]
+  },
+  {
+    "id": "aminer_000172",
+    "title": "Advances in Recommender Systems: Method and Application #172",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages matrix factorization, collaborative filtering, deep learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_016"
+    ],
+    "keywords": [
+      "matrix factorization",
+      "collaborative filtering",
+      "deep learning",
+      "Recommender Systems"
+    ],
+    "venue": "ICLR",
+    "year": 2024,
+    "references": [
+      "aminer_000160",
+      "aminer_000077"
+    ]
+  },
+  {
+    "id": "aminer_000173",
+    "title": "Advances in Computer Vision: Method and Application #173",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages object detection, CNN, ResNet to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_019"
+    ],
+    "keywords": [
+      "object detection",
+      "CNN",
+      "ResNet",
+      "Computer Vision"
+    ],
+    "venue": "NeurIPS",
+    "year": 2015,
+    "references": []
+  },
+  {
+    "id": "aminer_000174",
+    "title": "Advances in Federated Learning: Method and Application #174",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages aggregation, distributed learning, privacy to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_022",
+      "author_023",
+      "author_024"
+    ],
+    "keywords": [
+      "aggregation",
+      "distributed learning",
+      "privacy",
+      "Federated Learning"
+    ],
+    "venue": "KDD",
+    "year": 2022,
+    "references": [
+      "aminer_000158",
+      "aminer_000163",
+      "aminer_000007",
+      "aminer_000127",
+      "aminer_000160",
+      "aminer_000139"
+    ]
+  },
+  {
+    "id": "aminer_000175",
+    "title": "Advances in Meta-Learning: Method and Application #175",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages few-shot, MAML, transfer learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_025",
+      "author_026"
+    ],
+    "keywords": [
+      "few-shot",
+      "MAML",
+      "transfer learning",
+      "Meta-Learning"
+    ],
+    "venue": "WWW",
+    "year": 2024,
+    "references": [
+      "aminer_000018",
+      "aminer_000015",
+      "aminer_000040",
+      "aminer_000112",
+      "aminer_000106",
+      "aminer_000123",
+      "aminer_000118"
+    ]
+  },
+  {
+    "id": "aminer_000176",
+    "title": "Advances in Reinforcement Learning: Method and Application #176",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages MDP, Q-learning, policy gradient to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_028"
+    ],
+    "keywords": [
+      "MDP",
+      "Q-learning",
+      "policy gradient",
+      "Reinforcement Learning"
+    ],
+    "venue": "WWW",
+    "year": 2018,
+    "references": [
+      "aminer_000102",
+      "aminer_000033",
+      "aminer_000094",
+      "aminer_000131",
+      "aminer_000143"
+    ]
+  },
+  {
+    "id": "aminer_000177",
+    "title": "Advances in Natural Language Processing: Method and Application #177",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages text classification, NLP, BERT to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_031",
+      "author_032",
+      "author_033",
+      "author_034"
+    ],
+    "keywords": [
+      "text classification",
+      "NLP",
+      "BERT",
+      "Natural Language Processing"
+    ],
+    "venue": "ACL",
+    "year": 2017,
+    "references": [
+      "aminer_000063",
+      "aminer_000036",
+      "aminer_000024",
+      "aminer_000012",
+      "aminer_000074",
+      "aminer_000098",
+      "aminer_000157"
+    ]
+  },
+  {
+    "id": "aminer_000178",
+    "title": "Advances in Graph Neural Networks: Method and Application #178",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages node classification, link prediction, graph embedding to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_034",
+      "author_035",
+      "author_036",
+      "author_037"
+    ],
+    "keywords": [
+      "node classification",
+      "link prediction",
+      "graph embedding",
+      "Graph Neural Networks"
+    ],
+    "venue": "AAAI",
+    "year": 2019,
+    "references": [
+      "aminer_000040",
+      "aminer_000127",
+      "aminer_000131"
+    ]
+  },
+  {
+    "id": "aminer_000179",
+    "title": "Advances in Knowledge Graphs: Method and Application #179",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages TransE, KG, relation extraction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_037"
+    ],
+    "keywords": [
+      "TransE",
+      "KG",
+      "relation extraction",
+      "Knowledge Graphs"
+    ],
+    "venue": "ICML",
+    "year": 2019,
+    "references": [
+      "aminer_000129",
+      "aminer_000117",
+      "aminer_000061",
+      "aminer_000055",
+      "aminer_000149",
+      "aminer_000090"
+    ]
+  },
+  {
+    "id": "aminer_000180",
+    "title": "Advances in Recommender Systems: Method and Application #180",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages matrix factorization, deep learning, collaborative filtering to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_040"
+    ],
+    "keywords": [
+      "matrix factorization",
+      "deep learning",
+      "collaborative filtering",
+      "Recommender Systems"
+    ],
+    "venue": "SIGIR",
+    "year": 2015,
+    "references": [
+      "aminer_000002",
+      "aminer_000027",
+      "aminer_000110",
+      "aminer_000034",
+      "aminer_000067",
+      "aminer_000093",
+      "aminer_000103",
+      "aminer_000093"
+    ]
+  },
+  {
+    "id": "aminer_000181",
+    "title": "Advances in Computer Vision: Method and Application #181",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages object detection, ResNet, image segmentation to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_043",
+      "author_044",
+      "author_045",
+      "author_046"
+    ],
+    "keywords": [
+      "object detection",
+      "ResNet",
+      "image segmentation",
+      "Computer Vision"
+    ],
+    "venue": "KDD",
+    "year": 2024,
+    "references": [
+      "aminer_000098"
+    ]
+  },
+  {
+    "id": "aminer_000182",
+    "title": "Advances in Federated Learning: Method and Application #182",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages aggregation, privacy, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_046",
+      "author_047",
+      "author_048"
+    ],
+    "keywords": [
+      "aggregation",
+      "privacy",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "WWW",
+    "year": 2023,
+    "references": [
+      "aminer_000100"
+    ]
+  },
+  {
+    "id": "aminer_000183",
+    "title": "Advances in Meta-Learning: Method and Application #183",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages MAML, few-shot, transfer learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_049",
+      "author_000",
+      "author_001",
+      "author_002"
+    ],
+    "keywords": [
+      "MAML",
+      "few-shot",
+      "transfer learning",
+      "Meta-Learning"
+    ],
+    "venue": "AAAI",
+    "year": 2017,
+    "references": [
+      "aminer_000102",
+      "aminer_000128",
+      "aminer_000010",
+      "aminer_000011",
+      "aminer_000009",
+      "aminer_000035",
+      "aminer_000182",
+      "aminer_000085"
+    ]
+  },
+  {
+    "id": "aminer_000184",
+    "title": "Advances in Reinforcement Learning: Method and Application #184",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages MDP, Q-learning, policy gradient to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_002",
+      "author_003",
+      "author_004"
+    ],
+    "keywords": [
+      "MDP",
+      "Q-learning",
+      "policy gradient",
+      "Reinforcement Learning"
+    ],
+    "venue": "WWW",
+    "year": 2023,
+    "references": [
+      "aminer_000100",
+      "aminer_000157"
+    ]
+  },
+  {
+    "id": "aminer_000185",
+    "title": "Advances in Natural Language Processing: Method and Application #185",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages text classification, transformer, BERT to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_005",
+      "author_006",
+      "author_007"
+    ],
+    "keywords": [
+      "text classification",
+      "transformer",
+      "BERT",
+      "Natural Language Processing"
+    ],
+    "venue": "ICML",
+    "year": 2024,
+    "references": [
+      "aminer_000004",
+      "aminer_000094",
+      "aminer_000084",
+      "aminer_000172",
+      "aminer_000028",
+      "aminer_000106",
+      "aminer_000149"
+    ]
+  },
+  {
+    "id": "aminer_000186",
+    "title": "Advances in Graph Neural Networks: Method and Application #186",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages link prediction, graph embedding, GNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_008",
+      "author_009",
+      "author_010",
+      "author_011"
+    ],
+    "keywords": [
+      "link prediction",
+      "graph embedding",
+      "GNN",
+      "Graph Neural Networks"
+    ],
+    "venue": "ICLR",
+    "year": 2023,
+    "references": []
+  },
+  {
+    "id": "aminer_000187",
+    "title": "Advances in Knowledge Graphs: Method and Application #187",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages TransE, KG, relation extraction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_011"
+    ],
+    "keywords": [
+      "TransE",
+      "KG",
+      "relation extraction",
+      "Knowledge Graphs"
+    ],
+    "venue": "ACL",
+    "year": 2015,
+    "references": []
+  },
+  {
+    "id": "aminer_000188",
+    "title": "Advances in Recommender Systems: Method and Application #188",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages matrix factorization, deep learning, collaborative filtering to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_014",
+      "author_015"
+    ],
+    "keywords": [
+      "matrix factorization",
+      "deep learning",
+      "collaborative filtering",
+      "Recommender Systems"
+    ],
+    "venue": "SIGIR",
+    "year": 2023,
+    "references": [
+      "aminer_000105",
+      "aminer_000176"
+    ]
+  },
+  {
+    "id": "aminer_000189",
+    "title": "Advances in Computer Vision: Method and Application #189",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages ResNet, image segmentation, CNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_017",
+      "author_018",
+      "author_019"
+    ],
+    "keywords": [
+      "ResNet",
+      "image segmentation",
+      "CNN",
+      "Computer Vision"
+    ],
+    "venue": "AAAI",
+    "year": 2023,
+    "references": [
+      "aminer_000132",
+      "aminer_000053"
+    ]
+  },
+  {
+    "id": "aminer_000190",
+    "title": "Advances in Federated Learning: Method and Application #190",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages distributed learning, aggregation, privacy to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_020",
+      "author_021",
+      "author_022"
+    ],
+    "keywords": [
+      "distributed learning",
+      "aggregation",
+      "privacy",
+      "Federated Learning"
+    ],
+    "venue": "AAAI",
+    "year": 2018,
+    "references": [
+      "aminer_000136",
+      "aminer_000087",
+      "aminer_000139",
+      "aminer_000090",
+      "aminer_000173",
+      "aminer_000184",
+      "aminer_000174"
+    ]
+  },
+  {
+    "id": "aminer_000191",
+    "title": "Advances in Meta-Learning: Method and Application #191",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages few-shot, MAML, transfer learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_023",
+      "author_024"
+    ],
+    "keywords": [
+      "few-shot",
+      "MAML",
+      "transfer learning",
+      "Meta-Learning"
+    ],
+    "venue": "AAAI",
+    "year": 2020,
+    "references": [
+      "aminer_000076",
+      "aminer_000073",
+      "aminer_000180"
+    ]
+  },
+  {
+    "id": "aminer_000192",
+    "title": "Advances in Reinforcement Learning: Method and Application #192",
+    "abstract": "In this paper, we propose a novel approach to reinforcement learning. Our method leverages Q-learning, MDP, policy gradient to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_026",
+      "author_027",
+      "author_028",
+      "author_029"
+    ],
+    "keywords": [
+      "Q-learning",
+      "MDP",
+      "policy gradient",
+      "Reinforcement Learning"
+    ],
+    "venue": "SIGIR",
+    "year": 2020,
+    "references": [
+      "aminer_000031",
+      "aminer_000146",
+      "aminer_000173",
+      "aminer_000139"
+    ]
+  },
+  {
+    "id": "aminer_000193",
+    "title": "Advances in Natural Language Processing: Method and Application #193",
+    "abstract": "In this paper, we propose a novel approach to natural language processing. Our method leverages BERT, text classification, NLP to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_029",
+      "author_030",
+      "author_031"
+    ],
+    "keywords": [
+      "BERT",
+      "text classification",
+      "NLP",
+      "Natural Language Processing"
+    ],
+    "venue": "AAAI",
+    "year": 2018,
+    "references": [
+      "aminer_000182",
+      "aminer_000020",
+      "aminer_000088",
+      "aminer_000113"
+    ]
+  },
+  {
+    "id": "aminer_000194",
+    "title": "Advances in Graph Neural Networks: Method and Application #194",
+    "abstract": "In this paper, we propose a novel approach to graph neural networks. Our method leverages graph embedding, node classification, link prediction to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_032",
+      "author_033"
+    ],
+    "keywords": [
+      "graph embedding",
+      "node classification",
+      "link prediction",
+      "Graph Neural Networks"
+    ],
+    "venue": "ICML",
+    "year": 2023,
+    "references": [
+      "aminer_000178",
+      "aminer_000069",
+      "aminer_000035",
+      "aminer_000027",
+      "aminer_000157",
+      "aminer_000189",
+      "aminer_000150",
+      "aminer_000061"
+    ]
+  },
+  {
+    "id": "aminer_000195",
+    "title": "Advances in Knowledge Graphs: Method and Application #195",
+    "abstract": "In this paper, we propose a novel approach to knowledge graphs. Our method leverages entity embedding, relation extraction, KG to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_035"
+    ],
+    "keywords": [
+      "entity embedding",
+      "relation extraction",
+      "KG",
+      "Knowledge Graphs"
+    ],
+    "venue": "SIGIR",
+    "year": 2020,
+    "references": []
+  },
+  {
+    "id": "aminer_000196",
+    "title": "Advances in Recommender Systems: Method and Application #196",
+    "abstract": "In this paper, we propose a novel approach to recommender systems. Our method leverages deep learning, matrix factorization, collaborative filtering to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_038",
+      "author_039"
+    ],
+    "keywords": [
+      "deep learning",
+      "matrix factorization",
+      "collaborative filtering",
+      "Recommender Systems"
+    ],
+    "venue": "SIGIR",
+    "year": 2022,
+    "references": [
+      "aminer_000001",
+      "aminer_000140"
+    ]
+  },
+  {
+    "id": "aminer_000197",
+    "title": "Advances in Computer Vision: Method and Application #197",
+    "abstract": "In this paper, we propose a novel approach to computer vision. Our method leverages ResNet, image segmentation, CNN to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_041"
+    ],
+    "keywords": [
+      "ResNet",
+      "image segmentation",
+      "CNN",
+      "Computer Vision"
+    ],
+    "venue": "ACL",
+    "year": 2023,
+    "references": [
+      "aminer_000082",
+      "aminer_000073",
+      "aminer_000165",
+      "aminer_000015"
+    ]
+  },
+  {
+    "id": "aminer_000198",
+    "title": "Advances in Federated Learning: Method and Application #198",
+    "abstract": "In this paper, we propose a novel approach to federated learning. Our method leverages aggregation, privacy, distributed learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_044",
+      "author_045",
+      "author_046"
+    ],
+    "keywords": [
+      "aggregation",
+      "privacy",
+      "distributed learning",
+      "Federated Learning"
+    ],
+    "venue": "ICML",
+    "year": 2015,
+    "references": [
+      "aminer_000045",
+      "aminer_000009",
+      "aminer_000101",
+      "aminer_000126",
+      "aminer_000047",
+      "aminer_000191"
+    ]
+  },
+  {
+    "id": "aminer_000199",
+    "title": "Advances in Meta-Learning: Method and Application #199",
+    "abstract": "In this paper, we propose a novel approach to meta-learning. Our method leverages MAML, few-shot, transfer learning to achieve state-of-the-art performance on benchmark datasets.",
+    "authors": [
+      "author_047",
+      "author_048",
+      "author_049",
+      "author_000"
+    ],
+    "keywords": [
+      "MAML",
+      "few-shot",
+      "transfer learning",
+      "Meta-Learning"
+    ],
+    "venue": "ICLR",
+    "year": 2023,
+    "references": [
+      "aminer_000116",
+      "aminer_000164",
+      "aminer_000139",
+      "aminer_000134"
+    ]
+  }
+]

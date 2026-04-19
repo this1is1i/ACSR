@@ -1,0 +1,38 @@
+:root {
+  --primary: #6366f1;
+  --secondary: #8b5cf6;
+  --accent: #06b6d4;
+  --bg-dark: #0f172a;
+  --bg-card: rgba(30, 41, 59, 0.7);
+  --bg-hover: rgba(51, 65, 85, 0.8);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --design-border: rgba(148, 163, 184, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #6366f1;
+    --secondary: #8b5cf6;
+    --accent: #06b6d4;
+    --bg-dark: #0f172a;
+    --bg-card: rgba(30, 41, 59, 0.7);
+    --bg-hover: rgba(51, 65, 85, 0.8);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --design-border: rgba(148, 163, 184, 0.1);
+  }
+}
+
+/* Light theme (toggle with data-theme="light") */
+[data-theme="light"] {
+  --primary: #4f46e5;
+  --secondary: #7c3aed;
+  --accent: #0596a6;
+  --bg-dark: #f7fafc; /* page background for light mode */
+  --bg-card: rgba(255,255,255,0.9);
+  --bg-hover: rgba(2,6,23,0.04);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --design-border: rgba(15, 23, 42, 0.06);
+}

@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 700" width="960" height="700"
+     font-family="'PingFang SC','Microsoft YaHei',Arial,sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="2" dy="3" stdDeviation="4" flood-color="#00000022"/></filter>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#4A5568"/>
+    </marker>
+    <marker id="arrR" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#E53E3E"/>
+    </marker>
+    <marker id="arrG" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#38A169"/>
+    </marker>
+    <linearGradient id="gVue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#42D392"/><stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="gSpring" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6BAE43"/><stop offset="100%" stop-color="#3D6B21"/>
+    </linearGradient>
+    <linearGradient id="gSec" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4299E1"/><stop offset="100%" stop-color="#2B6CB0"/>
+    </linearGradient>
+    <linearGradient id="gPy" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F6AD55"/><stop offset="100%" stop-color="#C05621"/>
+    </linearGradient>
+    <linearGradient id="gDb" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9F7AEA"/><stop offset="100%" stop-color="#553C9A"/>
+    </linearGradient>
+    <linearGradient id="gKg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#38B2AC"/><stop offset="100%" stop-color="#1D4044"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="960" height="700" fill="#F7FAFC" rx="14"/>
+  <text x="480" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#1A202C">科研推荐系统后端架构图</text>
+  <text x="480" y="57" text-anchor="middle" font-size="12" fill="#718096">Vue 3 · Spring Boot 3 · Python FastAPI · MySQL · JWT</text>
+  <line x1="60" y1="68" x2="900" y2="68" stroke="#E2E8F0" stroke-width="1.5"/>
+
+  <!-- ── Layer 1: Vue 前端 ── -->
+  <rect x="340" y="82" width="280" height="60" rx="10" fill="url(#gVue)" filter="url(#sh)"/>
+  <text x="480" y="108" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Vue 3 前端</text>
+  <text x="480" y="127" text-anchor="middle" font-size="11" fill="#D1FAE5">用户界面 · 三维学习路径可视化</text>
+
+  <!-- arrow down -->
+  <line x1="480" y1="142" x2="480" y2="168" stroke="#4A5568" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="492" y="159" font-size="10" fill="#718096">HTTP/REST</text>
+
+  <!-- ── Layer 2: Spring Boot 主体 ── -->
+  <rect x="60" y="172" width="840" height="290" rx="12" fill="white" stroke="#C6F6D5" stroke-width="2" filter="url(#sh)"/>
+  <text x="90" y="196" font-size="12" fill="#276749" font-weight="bold">Spring Boot 3 后端（:8080）</text>
+
+  <!-- Security Layer -->
+  <rect x="80" y="204" width="800" height="48" rx="8" fill="url(#gSec)"/>
+  <text x="480" y="225" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Spring Security + JWT Filter</text>
+  <text x="480" y="242" text-anchor="middle" font-size="10" fill="#BEE3F8">请求认证 · Token 解析 · 角色鉴权 · 白名单放行（/login /register）</text>
+
+  <!-- Controllers row -->
+  <text x="90" y="278" font-size="11" fill="#2D3748" font-weight="bold">Controller 层</text>
+  <rect x="80"  y="284" width="172" height="52" rx="8" fill="#EBF8FF" stroke="#4299E1" stroke-width="1.5"/>
+  <text x="166" y="306" text-anchor="middle" font-size="11" fill="#2B6CB0" font-weight="bold">UserController</text>
+  <text x="166" y="323" text-anchor="middle" font-size="10" fill="#4A5568">register · login · profile</text>
+
+  <rect x="265" y="284" width="172" height="52" rx="8" fill="#EBF8FF" stroke="#4299E1" stroke-width="1.5"/>
+  <text x="351" y="306" text-anchor="middle" font-size="11" fill="#2B6CB0" font-weight="bold">PaperController</text>
+  <text x="351" y="323" text-anchor="middle" font-size="10" fill="#4A5568">list · search · detail</text>
+
+  <rect x="450" y="284" width="172" height="52" rx="8" fill="#EBF8FF" stroke="#4299E1" stroke-width="1.5"/>
+  <text x="536" y="306" text-anchor="middle" font-size="11" fill="#2B6CB0" font-weight="bold">BehaviorController</text>
+  <text x="536" y="323" text-anchor="middle" font-size="10" fill="#4A5568">click · favorite · read</text>
+
+  <rect x="635" y="284" width="245" height="52" rx="8" fill="#FFF5F5" stroke="#E53E3E" stroke-width="1.5"/>
+  <text x="757" y="306" text-anchor="middle" font-size="11" fill="#C53030" font-weight="bold">RecommendController ★</text>
+  <text x="757" y="323" text-anchor="middle" font-size="10" fill="#4A5568">GET /recommend · /train · /model/info</text>
+
+  <!-- Service row -->
+  <text x="90" y="362" font-size="11" fill="#2D3748" font-weight="bold">Service 层</text>
+  <rect x="80"  y="368" width="355" height="52" rx="8" fill="#F0FFF4" stroke="#48BB78" stroke-width="1.5"/>
+  <text x="258" y="390" text-anchor="middle" font-size="11" fill="#276749" font-weight="bold">UserService · PaperService · BehaviorService</text>
+  <text x="258" y="408" text-anchor="middle" font-size="10" fill="#4A5568">业务逻辑 · 数据校验 · 事务管理</text>
+
+  <rect x="448" y="368" width="432" height="52" rx="8" fill="#FFF5F5" stroke="#E53E3E" stroke-width="2"/>
+  <text x="664" y="390" text-anchor="middle" font-size="11" fill="#C53030" font-weight="bold">RecommendService ★</text>
+  <text x="664" y="408" text-anchor="middle" font-size="10" fill="#4A5568">调用 PythonRecClient · 组装结果 · 降级策略</text>
+
+  <!-- Client -->
+  <rect x="448" y="432" width="432" height="50" rx="8" fill="#FFFAF0" stroke="#F6AD55" stroke-width="2"/>
+  <text x="664" y="454" text-anchor="middle" font-size="12" fill="#C05621" font-weight="bold">PythonRecClient（RestTemplate）</text>
+  <text x="664" y="470" text-anchor="middle" font-size="10" fill="#4A5568">POST /recommend · GET /model/info · GET /health · 超时配置</text>
+
+  <!-- arrow to Python -->
+  <line x1="664" y1="482" x2="664" y2="522" stroke="#E53E3E" stroke-width="2.5" marker-end="url(#arrR)"/>
+  <text x="676" y="506" font-size="10" fill="#C53030" font-weight="bold">HTTP POST</text>
+
+  <!-- ── Layer 3: Python 推荐服务 ── -->
+  <rect x="448" y="525" width="432" height="86" rx="10" fill="url(#gPy)" filter="url(#sh)"/>
+  <text x="664" y="548" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Python FastAPI 推荐服务（:8000）</text>
+  <text x="664" y="567" text-anchor="middle" font-size="11" fill="#FEF3C7">Actor-Critic RL · Top-K 推荐 · 知识图谱</text>
+  <text x="664" y="583" text-anchor="middle" font-size="10" fill="#FEFCBF">POST /recommend · POST /train · GET /model/info</text>
+  <text x="664" y="598" text-anchor="middle" font-size="10" fill="#FEFCBF">推荐解释生成 · 候选集召回 · 热重载</text>
+
+  <!-- ── Layer 4: DB ── -->
+  <!-- MySQL -->
+  <rect x="60" y="525" width="360" height="86" rx="10" fill="url(#gDb)" filter="url(#sh)"/>
+  <text x="240" y="550" text-anchor="middle" font-size="14" fill="white" font-weight="bold">MySQL 数据库</text>
+  <text x="110" y="573" font-size="11" fill="#E9D8FD">user</text>
+  <text x="178" y="573" font-size="11" fill="#E9D8FD">paper</text>
+  <text x="240" y="573" font-size="11" fill="#E9D8FD">behavior_log</text>
+  <text x="340" y="573" font-size="11" fill="#E9D8FD">post</text>
+  <text x="240" y="594" text-anchor="middle" font-size="10" fill="#C4B5FD">MyBatis-Plus ORM · 分页插件 · 逻辑删除</text>
+  <text x="240" y="608" text-anchor="middle" font-size="10" fill="#C4B5FD">全文检索索引 · recommendation_log</text>
+
+  <!-- Arrow from service to db -->
+  <line x1="258" y1="422" x2="240" y2="523" stroke="#4A5568" stroke-width="1.8" marker-end="url(#arr)" stroke-dasharray="5,3"/>
+
+  <!-- ── Legend ── -->
+  <rect x="60" y="632" width="840" height="50" rx="8" fill="white" stroke="#E2E8F0" stroke-width="1.5"/>
+  <rect x="78" y="648" width="14" height="14" rx="3" fill="#FFF5F5" stroke="#E53E3E" stroke-width="1.5"/>
+  <text x="98" y="659" font-size="11" fill="#2D3748">核心推荐链路</text>
+  <rect x="200" y="648" width="14" height="14" rx="3" fill="#EBF8FF" stroke="#4299E1" stroke-width="1.5"/>
+  <text x="220" y="659" font-size="11" fill="#2D3748">标准业务模块</text>
+  <rect x="340" y="648" width="14" height="14" rx="3" fill="url(#gPy)"/>
+  <text x="360" y="659" font-size="11" fill="#2D3748">Python RL 推荐服务（独立进程）</text>
+  <rect x="540" y="648" width="14" height="14" rx="3" fill="url(#gDb)"/>
+  <text x="560" y="659" font-size="11" fill="#2D3748">MySQL 数据层</text>
+  <text x="780" y="659" font-size="11" fill="#718096">★ = 推荐系统核心模块</text>
+
+  <!-- response arrow back up -->
+  <line x1="800" y1="522" x2="800" y2="484" stroke="#38A169" stroke-width="2" marker-end="url(#arrG)" stroke-dasharray="4,2"/>
+  <text x="812" y="508" font-size="10" fill="#276749">JSON 响应</text>
+</svg>

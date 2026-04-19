@@ -1,0 +1,57 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: research-backend
+
+  # ── 数据库配置 ────────────────────────────────────────────────
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/research_db?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: qwer1234
+
+  # ── Jackson 配置 ──────────────────────────────────────────────
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
+
+# ── MyBatis-Plus 配置 ─────────────────────────────────────────
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.example.research.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# ── JWT 配置 ──────────────────────────────────────────────────
+jwt:
+  secret: research-system-jwt-secret-key-2024-very-long-string-for-security
+  expiration: 86400000    # 24 小时（毫秒）
+  header: Authorization
+  prefix: "Bearer "
+
+# ── Python 推荐服务配置 ───────────────────────────────────────
+python:
+  rec-service:
+    base-url: http://localhost:8000
+    timeout: 5000           # 连接超时（ms）
+    read-timeout: 10000     # 读取超时（ms）
+
+# ── 日志配置 ──────────────────────────────────────────────────
+logging:
+  level:
+    com.example.research: DEBUG
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

@@ -1,0 +1,31 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve:design": "vite",
+    "mcp:playwright": "npx playwright test"
+  },
+  "dependencies": {
+    "3d-force-graph": "^1.80.0",
+    "@element-plus/icons-vue": "^2.3.2",
+    "@stomp/stompjs": "^7.3.0",
+    "axios": "^1.13.6",
+    "chart.js": "^4.5.1",
+    "echarts": "^6.0.0",
+    "element-plus": "^2.13.6",
+    "pinia": "^3.0.4",
+    "sockjs-client": "^1.6.1",
+    "three": "^0.183.2",
+    "vue": "^3.5.30",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.5",
+    "vite": "^8.0.1"
+  }
+}

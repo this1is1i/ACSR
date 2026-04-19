@@ -1,0 +1,295 @@
+2026-03-01 17:42:01,988 [INFO] ÊµÑé [ac_recommender] ¿ªÊ¼£¬ÈÕÖ¾±£´æÖÁ logs/ac_recommender.log
+2026-03-01 17:42:01,989 [INFO] ÑµÁ·ÅäÖÃ: state_dim=64, action_num=20, episodes=500, steps=50
+2026-03-01 17:42:02,341 [INFO] Episode    1 | episode_reward: 28.8351 | steps: 50 | avg_actor_loss: 1.1754 | avg_td_error: 1.1651 | ºÄÊ±: 0.4s
+2026-03-01 17:42:02,693 [INFO] Episode    2 | episode_reward: 37.4525 | steps: 50 | avg_actor_loss: 0.5016 | avg_td_error: 1.1291 | ºÄÊ±: 0.7s
+2026-03-01 17:42:03,044 [INFO] Episode    3 | episode_reward: 36.5070 | steps: 50 | avg_actor_loss: 1.3267 | avg_td_error: 1.2514 | ºÄÊ±: 1.1s
+2026-03-01 17:42:03,367 [INFO] Episode    4 | episode_reward: 27.2201 | steps: 50 | avg_actor_loss: -0.0381 | avg_td_error: 1.2907 | ºÄÊ±: 1.4s
+2026-03-01 17:42:03,695 [INFO] Episode    5 | episode_reward: 38.1650 | steps: 50 | avg_actor_loss: 0.0855 | avg_td_error: 1.4045 | ºÄÊ±: 1.7s
+2026-03-01 17:42:04,036 [INFO] Episode    6 | episode_reward: 84.8614 | steps: 50 | avg_actor_loss: 0.0044 | avg_td_error: 2.0615 | ºÄÊ±: 2.0s
+2026-03-01 17:42:04,374 [INFO] Episode    7 | episode_reward: 53.6528 | steps: 50 | avg_actor_loss: 0.0012 | avg_td_error: 1.9416 | ºÄÊ±: 2.4s
+2026-03-01 17:42:04,683 [INFO] Episode    8 | episode_reward: 29.2112 | steps: 50 | avg_actor_loss: -0.0000 | avg_td_error: 1.7393 | ºÄÊ±: 2.7s
+2026-03-01 17:42:04,990 [INFO] Episode    9 | episode_reward: 24.2348 | steps: 50 | avg_actor_loss: -0.0001 | avg_td_error: 1.7614 | ºÄÊ±: 3.0s
+2026-03-01 17:42:05,292 [INFO] Episode   10 | episode_reward: 27.9947 | steps: 50 | avg_actor_loss: -0.0010 | avg_td_error: 1.8213 | ºÄÊ±: 3.3s
+2026-03-01 17:42:05,595 [INFO] Episode   11 | episode_reward: 55.2448 | steps: 50 | avg_actor_loss: 0.0009 | avg_td_error: 2.2382 | ºÄÊ±: 3.6s
+2026-03-01 17:42:05,906 [INFO] Episode   12 | episode_reward: 26.8410 | steps: 50 | avg_actor_loss: 0.0005 | avg_td_error: 2.4649 | ºÄÊ±: 3.9s
+2026-03-01 17:42:06,212 [INFO] Episode   13 | episode_reward: 52.6302 | steps: 50 | avg_actor_loss: -0.0003 | avg_td_error: 2.2483 | ºÄÊ±: 4.2s
+2026-03-01 17:42:06,529 [INFO] Episode   14 | episode_reward: 28.2637 | steps: 50 | avg_actor_loss: -0.0009 | avg_td_error: 2.3552 | ºÄÊ±: 4.5s
+2026-03-01 17:42:06,837 [INFO] Episode   15 | episode_reward: 26.8120 | steps: 50 | avg_actor_loss: 0.0011 | avg_td_error: 2.7565 | ºÄÊ±: 4.8s
+2026-03-01 17:42:07,151 [INFO] Episode   16 | episode_reward: 46.1664 | steps: 50 | avg_actor_loss: 0.9967 | avg_td_error: 3.0893 | ºÄÊ±: 5.2s
+2026-03-01 17:42:07,472 [INFO] Episode   17 | episode_reward: 36.9355 | steps: 50 | avg_actor_loss: 0.5418 | avg_td_error: 2.4205 | ºÄÊ±: 5.5s
+2026-03-01 17:42:07,781 [INFO] Episode   18 | episode_reward: 62.7584 | steps: 50 | avg_actor_loss: 0.0027 | avg_td_error: 2.4010 | ºÄÊ±: 5.8s
+2026-03-01 17:42:08,102 [INFO] Episode   19 | episode_reward: 41.8530 | steps: 50 | avg_actor_loss: -0.0790 | avg_td_error: 2.3990 | ºÄÊ±: 6.1s
+2026-03-01 17:42:08,422 [INFO] Episode   20 | episode_reward: 26.7547 | steps: 50 | avg_actor_loss: -0.5641 | avg_td_error: 2.0044 | ºÄÊ±: 6.4s
+2026-03-01 17:42:08,737 [INFO] Episode   21 | episode_reward: 34.4686 | steps: 50 | avg_actor_loss: 0.0313 | avg_td_error: 2.4538 | ºÄÊ±: 6.7s
+2026-03-01 17:42:09,058 [INFO] Episode   22 | episode_reward: 66.8500 | steps: 50 | avg_actor_loss: 0.7766 | avg_td_error: 2.8282 | ºÄÊ±: 7.1s
+2026-03-01 17:42:09,385 [INFO] Episode   23 | episode_reward: 31.1832 | steps: 50 | avg_actor_loss: -0.0031 | avg_td_error: 2.1707 | ºÄÊ±: 7.4s
+2026-03-01 17:42:09,702 [INFO] Episode   24 | episode_reward: 39.1012 | steps: 50 | avg_actor_loss: 1.7831 | avg_td_error: 2.4095 | ºÄÊ±: 7.7s
+2026-03-01 17:42:10,016 [INFO] Episode   25 | episode_reward: 28.4839 | steps: 50 | avg_actor_loss: -0.0153 | avg_td_error: 2.6047 | ºÄÊ±: 8.0s
+2026-03-01 17:42:10,326 [INFO] Episode   26 | episode_reward: 68.6567 | steps: 50 | avg_actor_loss: 0.0059 | avg_td_error: 3.1917 | ºÄÊ±: 8.3s
+2026-03-01 17:42:10,639 [INFO] Episode   27 | episode_reward: 39.3237 | steps: 50 | avg_actor_loss: -0.0018 | avg_td_error: 2.5973 | ºÄÊ±: 8.7s
+2026-03-01 17:42:10,950 [INFO] Episode   28 | episode_reward: 65.4070 | steps: 50 | avg_actor_loss: 1.0430 | avg_td_error: 2.8206 | ºÄÊ±: 9.0s
+2026-03-01 17:42:11,258 [INFO] Episode   29 | episode_reward: 49.4735 | steps: 50 | avg_actor_loss: 0.1072 | avg_td_error: 2.8679 | ºÄÊ±: 9.3s
+2026-03-01 17:42:11,573 [INFO] Episode   30 | episode_reward: 57.2669 | steps: 50 | avg_actor_loss: 1.0680 | avg_td_error: 3.3703 | ºÄÊ±: 9.6s
+2026-03-01 17:42:11,881 [INFO] Episode   31 | episode_reward: 16.8829 | steps: 50 | avg_actor_loss: -0.0060 | avg_td_error: 2.9861 | ºÄÊ±: 9.9s
+2026-03-01 17:42:12,208 [INFO] Episode   32 | episode_reward: 30.2044 | steps: 50 | avg_actor_loss: -0.0024 | avg_td_error: 3.1801 | ºÄÊ±: 10.2s
+2026-03-01 17:42:12,552 [INFO] Episode   33 | episode_reward: 26.4769 | steps: 50 | avg_actor_loss: -0.1421 | avg_td_error: 3.0249 | ºÄÊ±: 10.6s
+2026-03-01 17:42:12,867 [INFO] Episode   34 | episode_reward: 31.3301 | steps: 50 | avg_actor_loss: -0.5874 | avg_td_error: 2.6096 | ºÄÊ±: 10.9s
+2026-03-01 17:42:13,191 [INFO] Episode   35 | episode_reward: 26.4514 | steps: 50 | avg_actor_loss: 0.2285 | avg_td_error: 2.2602 | ºÄÊ±: 11.2s
+2026-03-01 17:42:13,513 [INFO] Episode   36 | episode_reward: 37.5223 | steps: 50 | avg_actor_loss: -1.1926 | avg_td_error: 2.9361 | ºÄÊ±: 11.5s
+2026-03-01 17:42:13,829 [INFO] Episode   37 | episode_reward: 42.9896 | steps: 50 | avg_actor_loss: 0.9147 | avg_td_error: 2.8723 | ºÄÊ±: 11.8s
+2026-03-01 17:42:14,138 [INFO] Episode   38 | episode_reward: 48.9826 | steps: 50 | avg_actor_loss: -0.6733 | avg_td_error: 2.8902 | ºÄÊ±: 12.2s
+2026-03-01 17:42:14,451 [INFO] Episode   39 | episode_reward: 50.4300 | steps: 50 | avg_actor_loss: 0.2625 | avg_td_error: 2.9452 | ºÄÊ±: 12.5s
+2026-03-01 17:42:14,771 [INFO] Episode   40 | episode_reward: 21.2374 | steps: 50 | avg_actor_loss: -1.7153 | avg_td_error: 3.3064 | ºÄÊ±: 12.8s
+2026-03-01 17:42:15,089 [INFO] Episode   41 | episode_reward: 34.2933 | steps: 50 | avg_actor_loss: -1.6772 | avg_td_error: 3.1748 | ºÄÊ±: 13.1s
+2026-03-01 17:42:15,415 [INFO] Episode   42 | episode_reward: 47.7832 | steps: 50 | avg_actor_loss: -0.7335 | avg_td_error: 3.7281 | ºÄÊ±: 13.4s
+2026-03-01 17:42:15,729 [INFO] Episode   43 | episode_reward: 30.9719 | steps: 50 | avg_actor_loss: 0.0754 | avg_td_error: 3.0853 | ºÄÊ±: 13.7s
+2026-03-01 17:42:16,044 [INFO] Episode   44 | episode_reward: 27.4642 | steps: 50 | avg_actor_loss: -3.0219 | avg_td_error: 2.6680 | ºÄÊ±: 14.1s
+2026-03-01 17:42:16,355 [INFO] Episode   45 | episode_reward: 20.0774 | steps: 50 | avg_actor_loss: -0.0033 | avg_td_error: 2.9859 | ºÄÊ±: 14.4s
+2026-03-01 17:42:16,664 [INFO] Episode   46 | episode_reward: 39.1880 | steps: 50 | avg_actor_loss: -1.8324 | avg_td_error: 2.8780 | ºÄÊ±: 14.7s
+2026-03-01 17:42:16,979 [INFO] Episode   47 | episode_reward: 67.3008 | steps: 50 | avg_actor_loss: 0.5068 | avg_td_error: 3.2587 | ºÄÊ±: 15.0s
+2026-03-01 17:42:17,294 [INFO] Episode   48 | episode_reward: 53.7513 | steps: 50 | avg_actor_loss: -0.0008 | avg_td_error: 3.4027 | ºÄÊ±: 15.3s
+2026-03-01 17:42:17,616 [INFO] Episode   49 | episode_reward: 30.8315 | steps: 50 | avg_actor_loss: -0.7904 | avg_td_error: 3.1506 | ºÄÊ±: 15.6s
+2026-03-01 17:42:17,937 [INFO] Episode   50 | episode_reward: 45.1522 | steps: 50 | avg_actor_loss: 0.4009 | avg_td_error: 3.7131 | ºÄÊ±: 15.9s
+2026-03-01 17:42:17,939 [INFO] ©¤©¤ Top-K ÍÆ¼öÊ¾Àý ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+2026-03-01 17:42:17,939 [INFO]   #1: item_idx=19 | prob=0.9977 | ÍÆ¼ö¡¶Research on Theory #19¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2024 Äê£¬±»Òý 25 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_19¡£
+2026-03-01 17:42:17,939 [INFO]   #2: item_idx= 7 | prob=0.0006 | ÍÆ¼ö¡¶Research on HCI #7¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2022 Äê£¬±»Òý 464 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_7¡£
+2026-03-01 17:42:17,939 [INFO]   #3: item_idx= 4 | prob=0.0003 | ÍÆ¼ö¡¶Research on Bioinformatics #4¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2021 Äê£¬±»Òý 147 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_4¡£
+2026-03-01 17:42:17,939 [INFO]   #4: item_idx= 8 | prob=0.0002 | ÍÆ¼ö¡¶Research on Robotics #8¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2022 Äê£¬±»Òý 355 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_8¡£
+2026-03-01 17:42:17,939 [INFO]   #5: item_idx=18 | prob=0.0002 | ÍÆ¼ö¡¶Research on Robotics #18¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2019 Äê£¬±»Òý 450 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_18¡£
+2026-03-01 17:42:17,939 [INFO] ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+2026-03-01 17:42:17,939 [INFO] ÍÆ¼ö¼ÇÂ¼: {"user_id": "user_0402", "items": [19, 7, 4, 8, 18], "explanation": "ÍÆ¼ö¡¶Research on Theory #19¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2024 Äê£¬±»Òý 25 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_19¡£ | ÍÆ¼ö¡¶Research on HCI #7¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2022 Äê£¬±»Òý 464 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_7¡£ | ÍÆ¼ö¡¶Research on Bioinformatics #4¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2021 Äê£¬±»Òý 147 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_4¡£ | ÍÆ¼ö¡¶Research on Robotics #8¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2022 Äê£¬±»Òý 355 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_8¡£ | ÍÆ¼ö¡¶Research on Robotics #18¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2019 Äê£¬±»Òý 450 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_18¡£", "timestamp": 1772358137.9393647}
+2026-03-01 17:42:18,278 [INFO] Episode   51 | episode_reward: 62.5223 | steps: 50 | avg_actor_loss: 0.0042 | avg_td_error: 3.6373 | ºÄÊ±: 16.3s
+2026-03-01 17:42:18,604 [INFO] Episode   52 | episode_reward: 20.6576 | steps: 50 | avg_actor_loss: 0.0001 | avg_td_error: 3.9367 | ºÄÊ±: 16.6s
+2026-03-01 17:42:18,915 [INFO] Episode   53 | episode_reward: 32.8614 | steps: 50 | avg_actor_loss: 0.7124 | avg_td_error: 3.5480 | ºÄÊ±: 16.9s
+2026-03-01 17:42:19,224 [INFO] Episode   54 | episode_reward: 70.0664 | steps: 50 | avg_actor_loss: 0.6650 | avg_td_error: 3.9375 | ºÄÊ±: 17.2s
+2026-03-01 17:42:19,533 [INFO] Episode   55 | episode_reward: 38.3547 | steps: 50 | avg_actor_loss: -0.8063 | avg_td_error: 4.5413 | ºÄÊ±: 17.5s
+2026-03-01 17:42:19,844 [INFO] Episode   56 | episode_reward: 23.0280 | steps: 50 | avg_actor_loss: 0.3623 | avg_td_error: 3.5518 | ºÄÊ±: 17.9s
+2026-03-01 17:42:20,156 [INFO] Episode   57 | episode_reward: 34.0257 | steps: 50 | avg_actor_loss: -0.4689 | avg_td_error: 3.1521 | ºÄÊ±: 18.2s
+2026-03-01 17:42:20,478 [INFO] Episode   58 | episode_reward: 54.5487 | steps: 50 | avg_actor_loss: 0.0006 | avg_td_error: 2.9673 | ºÄÊ±: 18.5s
+2026-03-01 17:42:20,830 [INFO] Episode   59 | episode_reward: 36.2972 | steps: 50 | avg_actor_loss: 0.5457 | avg_td_error: 3.6342 | ºÄÊ±: 18.8s
+2026-03-01 17:42:21,174 [INFO] Episode   60 | episode_reward: 27.7062 | steps: 50 | avg_actor_loss: -0.1724 | avg_td_error: 3.3012 | ºÄÊ±: 19.2s
+2026-03-01 17:42:21,502 [INFO] Episode   61 | episode_reward: 60.2727 | steps: 50 | avg_actor_loss: 0.4970 | avg_td_error: 3.4970 | ºÄÊ±: 19.5s
+2026-03-01 17:42:21,859 [INFO] Episode   62 | episode_reward: 57.7764 | steps: 50 | avg_actor_loss: -0.3725 | avg_td_error: 3.5767 | ºÄÊ±: 19.9s
+2026-03-01 17:42:22,193 [INFO] Episode   63 | episode_reward: 85.4046 | steps: 50 | avg_actor_loss: -0.1196 | avg_td_error: 3.1737 | ºÄÊ±: 20.2s
+2026-03-01 17:42:22,524 [INFO] Episode   64 | episode_reward: 42.4024 | steps: 50 | avg_actor_loss: -0.0203 | avg_td_error: 3.7769 | ºÄÊ±: 20.5s
+2026-03-01 17:42:22,854 [INFO] Episode   65 | episode_reward: 66.2120 | steps: 50 | avg_actor_loss: 0.0098 | avg_td_error: 3.7618 | ºÄÊ±: 20.9s
+2026-03-01 17:42:23,183 [INFO] Episode   66 | episode_reward: 22.0583 | steps: 50 | avg_actor_loss: 0.6459 | avg_td_error: 3.9017 | ºÄÊ±: 21.2s
+2026-03-01 17:42:23,501 [INFO] Episode   67 | episode_reward: 30.5734 | steps: 50 | avg_actor_loss: -0.2400 | avg_td_error: 3.3655 | ºÄÊ±: 21.5s
+2026-03-01 17:42:23,815 [INFO] Episode   68 | episode_reward: 26.7451 | steps: 50 | avg_actor_loss: -0.0857 | avg_td_error: 3.9300 | ºÄÊ±: 21.8s
+2026-03-01 17:42:24,126 [INFO] Episode   69 | episode_reward: 50.5996 | steps: 50 | avg_actor_loss: 0.0036 | avg_td_error: 3.6409 | ºÄÊ±: 22.1s
+2026-03-01 17:42:24,434 [INFO] Episode   70 | episode_reward: 32.0562 | steps: 50 | avg_actor_loss: -0.6647 | avg_td_error: 3.5125 | ºÄÊ±: 22.4s
+2026-03-01 17:42:24,747 [INFO] Episode   71 | episode_reward: 21.8294 | steps: 50 | avg_actor_loss: -0.0082 | avg_td_error: 3.4762 | ºÄÊ±: 22.8s
+2026-03-01 17:42:25,068 [INFO] Episode   72 | episode_reward: 32.8491 | steps: 50 | avg_actor_loss: -0.9029 | avg_td_error: 2.8348 | ºÄÊ±: 23.1s
+2026-03-01 17:42:25,434 [INFO] Episode   73 | episode_reward: 99.2480 | steps: 50 | avg_actor_loss: 0.0138 | avg_td_error: 3.5427 | ºÄÊ±: 23.4s
+2026-03-01 17:42:25,758 [INFO] Episode   74 | episode_reward: 50.6026 | steps: 50 | avg_actor_loss: -0.1581 | avg_td_error: 3.5894 | ºÄÊ±: 23.8s
+2026-03-01 17:42:26,086 [INFO] Episode   75 | episode_reward: 25.9590 | steps: 50 | avg_actor_loss: 0.0018 | avg_td_error: 3.2296 | ºÄÊ±: 24.1s
+2026-03-01 17:42:26,439 [INFO] Episode   76 | episode_reward: 27.7495 | steps: 50 | avg_actor_loss: -0.0081 | avg_td_error: 3.4244 | ºÄÊ±: 24.5s
+2026-03-01 17:42:26,814 [INFO] Episode   77 | episode_reward: 73.6430 | steps: 50 | avg_actor_loss: 0.0117 | avg_td_error: 4.0226 | ºÄÊ±: 24.8s
+2026-03-01 17:42:27,152 [INFO] Episode   78 | episode_reward: 16.9978 | steps: 50 | avg_actor_loss: -0.0787 | avg_td_error: 2.8426 | ºÄÊ±: 25.2s
+2026-03-01 17:42:27,507 [INFO] Episode   79 | episode_reward: 53.3384 | steps: 50 | avg_actor_loss: 0.0032 | avg_td_error: 4.0528 | ºÄÊ±: 25.5s
+2026-03-01 17:42:27,834 [INFO] Episode   80 | episode_reward: 20.5800 | steps: 50 | avg_actor_loss: -0.8143 | avg_td_error: 3.0566 | ºÄÊ±: 25.8s
+2026-03-01 17:42:28,163 [INFO] Episode   81 | episode_reward: 31.0065 | steps: 50 | avg_actor_loss: -0.0036 | avg_td_error: 3.1766 | ºÄÊ±: 26.2s
+2026-03-01 17:42:28,487 [INFO] Episode   82 | episode_reward: 78.7001 | steps: 50 | avg_actor_loss: -0.0946 | avg_td_error: 2.8724 | ºÄÊ±: 26.5s
+2026-03-01 17:42:28,804 [INFO] Episode   83 | episode_reward: 52.2691 | steps: 50 | avg_actor_loss: -0.0010 | avg_td_error: 3.2529 | ºÄÊ±: 26.8s
+2026-03-01 17:42:29,116 [INFO] Episode   84 | episode_reward: 27.8430 | steps: 50 | avg_actor_loss: -2.2324 | avg_td_error: 2.8568 | ºÄÊ±: 27.1s
+2026-03-01 17:42:29,446 [INFO] Episode   85 | episode_reward: 28.2854 | steps: 50 | avg_actor_loss: 0.0288 | avg_td_error: 3.2177 | ºÄÊ±: 27.5s
+2026-03-01 17:42:29,774 [INFO] Episode   86 | episode_reward: 80.0375 | steps: 50 | avg_actor_loss: 0.6178 | avg_td_error: 3.1062 | ºÄÊ±: 27.8s
+2026-03-01 17:42:30,127 [INFO] Episode   87 | episode_reward: 31.1170 | steps: 50 | avg_actor_loss: -0.0024 | avg_td_error: 2.5973 | ºÄÊ±: 28.1s
+2026-03-01 17:42:30,503 [INFO] Episode   88 | episode_reward: 31.3943 | steps: 50 | avg_actor_loss: -7.3038 | avg_td_error: 3.2173 | ºÄÊ±: 28.5s
+2026-03-01 17:42:30,864 [INFO] Episode   89 | episode_reward: 61.4350 | steps: 50 | avg_actor_loss: 0.0142 | avg_td_error: 4.2580 | ºÄÊ±: 28.9s
+2026-03-01 17:42:31,204 [INFO] Episode   90 | episode_reward: 19.1164 | steps: 50 | avg_actor_loss: -0.0013 | avg_td_error: 3.2051 | ºÄÊ±: 29.2s
+2026-03-01 17:42:31,562 [INFO] Episode   91 | episode_reward: 41.2180 | steps: 50 | avg_actor_loss: -0.0068 | avg_td_error: 3.1710 | ºÄÊ±: 29.6s
+2026-03-01 17:42:31,909 [INFO] Episode   92 | episode_reward: 48.8672 | steps: 50 | avg_actor_loss: -0.0024 | avg_td_error: 3.3737 | ºÄÊ±: 29.9s
+2026-03-01 17:42:32,240 [INFO] Episode   93 | episode_reward: 28.9248 | steps: 50 | avg_actor_loss: -0.0023 | avg_td_error: 3.2774 | ºÄÊ±: 30.3s
+2026-03-01 17:42:32,583 [INFO] Episode   94 | episode_reward: 20.8591 | steps: 50 | avg_actor_loss: -0.0065 | avg_td_error: 3.5701 | ºÄÊ±: 30.6s
+2026-03-01 17:42:32,919 [INFO] Episode   95 | episode_reward: 22.8381 | steps: 50 | avg_actor_loss: -0.0150 | avg_td_error: 3.4988 | ºÄÊ±: 30.9s
+2026-03-01 17:42:33,247 [INFO] Episode   96 | episode_reward: 65.7546 | steps: 50 | avg_actor_loss: 0.0009 | avg_td_error: 4.0395 | ºÄÊ±: 31.3s
+2026-03-01 17:42:33,572 [INFO] Episode   97 | episode_reward: 67.3560 | steps: 50 | avg_actor_loss: 0.0070 | avg_td_error: 3.5658 | ºÄÊ±: 31.6s
+2026-03-01 17:42:33,899 [INFO] Episode   98 | episode_reward: 32.9951 | steps: 50 | avg_actor_loss: -0.0167 | avg_td_error: 3.2099 | ºÄÊ±: 31.9s
+2026-03-01 17:42:34,220 [INFO] Episode   99 | episode_reward: 22.7946 | steps: 50 | avg_actor_loss: -0.0161 | avg_td_error: 3.0854 | ºÄÊ±: 32.2s
+2026-03-01 17:42:34,540 [INFO] Episode  100 | episode_reward: 47.1282 | steps: 50 | avg_actor_loss: 0.0080 | avg_td_error: 3.4173 | ºÄÊ±: 32.6s
+2026-03-01 17:42:34,541 [INFO] ©¤©¤ Top-K ÍÆ¼öÊ¾Àý ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+2026-03-01 17:42:34,541 [INFO]   #1: item_idx=19 | prob=0.9816 | ÍÆ¼ö¡¶Research on Theory #19¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2024 Äê£¬±»Òý 27 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_19¡£
+2026-03-01 17:42:34,541 [INFO]   #2: item_idx= 4 | prob=0.0120 | ÍÆ¼ö¡¶Research on Bioinformatics #4¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2022 Äê£¬±»Òý 301 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_4¡£
+2026-03-01 17:42:34,541 [INFO]   #3: item_idx= 7 | prob=0.0015 | ÍÆ¼ö¡¶Research on HCI #7¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2021 Äê£¬±»Òý 364 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_7¡£
+2026-03-01 17:42:34,541 [INFO]   #4: item_idx=18 | prob=0.0008 | ÍÆ¼ö¡¶Research on Robotics #18¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2024 Äê£¬±»Òý 43 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_18¡£
+2026-03-01 17:42:34,542 [INFO]   #5: item_idx= 6 | prob=0.0006 | ÍÆ¼ö¡¶Research on Security #6¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2020 Äê£¬±»Òý 243 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_6¡£
+2026-03-01 17:42:34,542 [INFO] ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+2026-03-01 17:42:34,542 [INFO] ÍÆ¼ö¼ÇÂ¼: {"user_id": "user_0879", "items": [19, 4, 7, 18, 6], "explanation": "ÍÆ¼ö¡¶Research on Theory #19¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2024 Äê£¬±»Òý 27 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_19¡£ | ÍÆ¼ö¡¶Research on Bioinformatics #4¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2022 Äê£¬±»Òý 301 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_4¡£ | ÍÆ¼ö¡¶Research on HCI #7¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2021 Äê£¬±»Òý 364 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_7¡£ | ÍÆ¼ö¡¶Research on Robotics #18¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2024 Äê£¬±»Òý 43 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_18¡£ | ÍÆ¼ö¡¶Research on Security #6¡·µÄÔ­Òò£º¸ÃÂÛÎÄÓëÄúµÄÑÐ¾¿·½Ïò¸ß¶ÈÏà¹Ø£¬·¢±íÓÚ 2020 Äê£¬±»Òý 243 ´Î£¬ÖªÊ¶Í¼Æ×½Úµã ID: kg_node_6¡£", "timestamp": 1772358154.5424874}
+2026-03-01 17:42:34,872 [INFO] Episode  101 | episode_reward: 20.9624 | steps: 50 | avg_actor_loss: -0.0075 | avg_td_error: 2.6772 | ºÄÊ±: 32.9s
+2026-03-01 17:42:35,205 [INFO] Episode  102 | episode_reward: 52.3956 | steps: 50 | avg_actor_loss: 0.8138 | avg_td_error: 3.3106 | ºÄÊ±: 33.2s
+2026-03-21 23:34:41,732 [INFO] ÊµÑé [ac_recommender] ¿ªÊ¼£¬ÈÕÖ¾±£´æÖÁ logs/ac_recommender.log
+2026-03-21 23:34:41,733 [INFO] ÑµÁ·ÅäÖÃ: state_dim=64, action_num=20, episodes=500, steps=50
+2026-03-21 23:34:42,110 [INFO] Episode    1 | episode_reward: 28.8351 | steps: 50 | avg_actor_loss: 1.1754 | avg_td_error: 1.1651 | ºÄÊ±: 0.4s
+2026-03-21 23:34:42,474 [INFO] Episode    2 | episode_reward: 37.4525 | steps: 50 | avg_actor_loss: 0.5016 | avg_td_error: 1.1291 | ºÄÊ±: 0.7s
+2026-03-21 23:34:42,818 [INFO] Episode    3 | episode_reward: 36.5070 | steps: 50 | avg_actor_loss: 1.3267 | avg_td_error: 1.2514 | ºÄÊ±: 1.1s
+2026-03-21 23:34:43,150 [INFO] Episode    4 | episode_reward: 27.2201 | steps: 50 | avg_actor_loss: -0.0381 | avg_td_error: 1.2907 | ºÄÊ±: 1.4s
+2026-03-21 23:34:43,476 [INFO] Episode    5 | episode_reward: 38.1650 | steps: 50 | avg_actor_loss: 0.0855 | avg_td_error: 1.4045 | ºÄÊ±: 1.7s
+2026-03-21 23:34:43,815 [INFO] Episode    6 | episode_reward: 84.8614 | steps: 50 | avg_actor_loss: 0.0044 | avg_td_error: 2.0615 | ºÄÊ±: 2.1s
+2026-03-21 23:34:44,154 [INFO] Episode    7 | episode_reward: 53.6528 | steps: 50 | avg_actor_loss: 0.0012 | avg_td_error: 1.9416 | ºÄÊ±: 2.4s
+2026-03-21 23:34:44,480 [INFO] Episode    8 | episode_reward: 29.2112 | steps: 50 | avg_actor_loss: -0.0000 | avg_td_error: 1.7393 | ºÄÊ±: 2.7s
+2026-03-21 23:34:44,826 [INFO] Episode    9 | episode_reward: 24.2348 | steps: 50 | avg_actor_loss: -0.0001 | avg_td_error: 1.7614 | ºÄÊ±: 3.1s
+2026-03-21 23:34:45,163 [INFO] Episode   10 | episode_reward: 27.9947 | steps: 50 | avg_actor_loss: -0.0010 | avg_td_error: 1.8213 | ºÄÊ±: 3.4s
+2026-03-21 23:34:45,481 [INFO] Episode   11 | episode_reward: 55.2448 | steps: 50 | avg_actor_loss: 0.0009 | avg_td_error: 2.2382 | ºÄÊ±: 3.7s
+2026-03-21 23:34:45,804 [INFO] Episode   12 | episode_reward: 26.8410 | steps: 50 | avg_actor_loss: 0.0005 | avg_td_error: 2.4649 | ºÄÊ±: 4.1s
+2026-03-29 19:45:20,123 [INFO] ÊµÑé [ac_recommender] ¿ªÊ¼£¬ÈÕÖ¾±£´æÖÁ logs/ac_recommender.log
+2026-03-29 19:45:20,125 [INFO] ÑµÁ·ÅäÖÃ: state_dim=64, action_num=20, episodes=500, steps=50
+2026-03-29 19:45:20,456 [INFO] Episode    1 | episode_reward: 28.8351 | steps: 50 | avg_actor_loss: 1.1754 | avg_td_error: 1.1651 | ºÄÊ±: 0.3s
+2026-03-29 19:45:20,790 [INFO] Episode    2 | episode_reward: 37.4525 | steps: 50 | avg_actor_loss: 0.5016 | avg_td_error: 1.1291 | ºÄÊ±: 0.7s
+2026-03-29 19:45:21,109 [INFO] Episode    3 | episode_reward: 36.5070 | steps: 50 | avg_actor_loss: 1.3267 | avg_td_error: 1.2514 | ºÄÊ±: 1.0s
+2026-03-29 19:45:21,432 [INFO] Episode    4 | episode_reward: 27.2201 | steps: 50 | avg_actor_loss: -0.0381 | avg_td_error: 1.2907 | ºÄÊ±: 1.3s
+2026-03-29 19:45:21,774 [INFO] Episode    5 | episode_reward: 38.1650 | steps: 50 | avg_actor_loss: 0.0855 | avg_td_error: 1.4045 | ºÄÊ±: 1.7s
+2026-03-29 19:45:22,093 [INFO] Episode    6 | episode_reward: 84.8614 | steps: 50 | avg_actor_loss: 0.0044 | avg_td_error: 2.0615 | ºÄÊ±: 2.0s
+2026-03-29 19:45:22,415 [INFO] Episode    7 | episode_reward: 53.6528 | steps: 50 | avg_actor_loss: 0.0012 | avg_td_error: 1.9416 | ºÄÊ±: 2.3s
+2026-03-29 19:45:22,736 [INFO] Episode    8 | episode_reward: 29.2112 | steps: 50 | avg_actor_loss: -0.0000 | avg_td_error: 1.7393 | ºÄÊ±: 2.6s
+2026-03-29 19:45:23,072 [INFO] Episode    9 | episode_reward: 24.2348 | steps: 50 | avg_actor_loss: -0.0001 | avg_td_error: 1.7614 | ºÄÊ±: 2.9s
+2026-03-29 19:45:23,411 [INFO] Episode   10 | episode_reward: 27.9947 | steps: 50 | avg_actor_loss: -0.0010 | avg_td_error: 1.8213 | ºÄÊ±: 3.3s
+2026-03-29 19:45:23,739 [INFO] Episode   11 | episode_reward: 55.2448 | steps: 50 | avg_actor_loss: 0.0009 | avg_td_error: 2.2382 | ºÄÊ±: 3.6s
+2026-03-29 19:45:24,057 [INFO] Episode   12 | episode_reward: 26.8410 | steps: 50 | avg_actor_loss: 0.0005 | avg_td_error: 2.4649 | ºÄÊ±: 3.9s
+2026-03-29 19:45:24,395 [INFO] Episode   13 | episode_reward: 52.6302 | steps: 50 | avg_actor_loss: -0.0003 | avg_td_error: 2.2483 | ºÄÊ±: 4.3s
+2026-03-29 19:45:24,718 [INFO] Episode   14 | episode_reward: 28.2637 | steps: 50 | avg_actor_loss: -0.0009 | avg_td_error: 2.3552 | ºÄÊ±: 4.6s
+2026-03-29 19:45:25,062 [INFO] Episode   15 | episode_reward: 26.8120 | steps: 50 | avg_actor_loss: 0.0011 | avg_td_error: 2.7565 | ºÄÊ±: 4.9s
+2026-03-29 19:45:25,382 [INFO] Episode   16 | episode_reward: 46.1664 | steps: 50 | avg_actor_loss: 0.9967 | avg_td_error: 3.0893 | ºÄÊ±: 5.3s
+2026-03-29 19:47:35,734 [INFO] ÊµÑé [ac_recommender] ¿ªÊ¼£¬ÈÕÖ¾±£´æÖÁ logs/ac_recommender.log
+2026-03-29 19:47:35,734 [INFO] ÑµÁ·ÅäÖÃ: state_dim=64, action_num=20, episodes=500, steps=50
+2026-03-29 19:47:36,048 [INFO] Episode    1 | episode_reward: 28.8351 | steps: 50 | avg_actor_loss: 1.1754 | avg_td_error: 1.1651 | ºÄÊ±: 0.3s
+2026-03-29 19:47:36,392 [INFO] Episode    2 | episode_reward: 37.4525 | steps: 50 | avg_actor_loss: 0.5016 | avg_td_error: 1.1291 | ºÄÊ±: 0.7s
+2026-03-29 19:47:36,776 [INFO] Episode    3 | episode_reward: 36.5070 | steps: 50 | avg_actor_loss: 1.3267 | avg_td_error: 1.2514 | ºÄÊ±: 1.0s
+2026-03-29 19:47:37,140 [INFO] Episode    4 | episode_reward: 27.2201 | steps: 50 | avg_actor_loss: -0.0381 | avg_td_error: 1.2907 | ºÄÊ±: 1.4s
+2026-03-29 19:47:37,487 [INFO] Episode    5 | episode_reward: 38.1650 | steps: 50 | avg_actor_loss: 0.0855 | avg_td_error: 1.4045 | ºÄÊ±: 1.8s
+2026-03-29 19:47:37,849 [INFO] Episode    6 | episode_reward: 84.8614 | steps: 50 | avg_actor_loss: 0.0044 | avg_td_error: 2.0615 | ºÄÊ±: 2.1s
+2026-03-29 19:47:38,193 [INFO] Episode    7 | episode_reward: 53.6528 | steps: 50 | avg_actor_loss: 0.0012 | avg_td_error: 1.9416 | ºÄÊ±: 2.5s
+2026-03-29 19:47:38,510 [INFO] Episode    8 | episode_reward: 29.2112 | steps: 50 | avg_actor_loss: -0.0000 | avg_td_error: 1.7393 | ºÄÊ±: 2.8s
+2026-03-29 19:47:38,830 [INFO] Episode    9 | episode_reward: 24.2348 | steps: 50 | avg_actor_loss: -0.0001 | avg_td_error: 1.7614 | ºÄÊ±: 3.1s
+2026-03-29 19:47:39,164 [INFO] Episode   10 | episode_reward: 27.9947 | steps: 50 | avg_actor_loss: -0.0010 | avg_td_error: 1.8213 | ºÄÊ±: 3.4s
+2026-03-29 19:47:39,512 [INFO] Episode   11 | episode_reward: 55.2448 | steps: 50 | avg_actor_loss: 0.0009 | avg_td_error: 2.2382 | ºÄÊ±: 3.8s
+2026-03-29 19:47:39,846 [INFO] Episode   12 | episode_reward: 26.8410 | steps: 50 | avg_actor_loss: 0.0005 | avg_td_error: 2.4649 | ºÄÊ±: 4.1s
+2026-03-29 19:47:40,186 [INFO] Episode   13 | episode_reward: 52.6302 | steps: 50 | avg_actor_loss: -0.0003 | avg_td_error: 2.2483 | ºÄÊ±: 4.5s
+2026-04-18 21:46:01,489 [INFO] ʵ�� [ac_recommender] ��ʼ����־������ logs/ac_recommender.log
+2026-04-18 21:46:01,489 [INFO] ѵ������: state_dim=64, action_num=20, episodes=500, steps=50
+2026-04-18 21:46:01,829 [INFO] Episode    1 | episode_reward: 28.8351 | steps: 50 | avg_actor_loss: 1.1754 | avg_td_error: 1.1651 | ��ʱ: 0.3s
+2026-04-18 21:46:02,203 [INFO] Episode    2 | episode_reward: 37.4525 | steps: 50 | avg_actor_loss: 0.5016 | avg_td_error: 1.1291 | ��ʱ: 0.7s
+2026-04-18 21:46:02,572 [INFO] Episode    3 | episode_reward: 36.5070 | steps: 50 | avg_actor_loss: 1.3267 | avg_td_error: 1.2514 | ��ʱ: 1.1s
+2026-04-18 21:46:02,883 [INFO] Episode    4 | episode_reward: 27.2201 | steps: 50 | avg_actor_loss: -0.0381 | avg_td_error: 1.2907 | ��ʱ: 1.4s
+2026-04-18 21:46:03,253 [INFO] Episode    5 | episode_reward: 38.1650 | steps: 50 | avg_actor_loss: 0.0855 | avg_td_error: 1.4045 | ��ʱ: 1.8s
+2026-04-18 21:46:03,592 [INFO] Episode    6 | episode_reward: 84.8614 | steps: 50 | avg_actor_loss: 0.0044 | avg_td_error: 2.0615 | ��ʱ: 2.1s
+2026-04-18 21:46:03,929 [INFO] Episode    7 | episode_reward: 53.6528 | steps: 50 | avg_actor_loss: 0.0012 | avg_td_error: 1.9416 | ��ʱ: 2.4s
+2026-04-18 21:46:04,273 [INFO] Episode    8 | episode_reward: 29.2112 | steps: 50 | avg_actor_loss: -0.0000 | avg_td_error: 1.7393 | ��ʱ: 2.8s
+2026-04-18 21:46:04,597 [INFO] Episode    9 | episode_reward: 24.2348 | steps: 50 | avg_actor_loss: -0.0001 | avg_td_error: 1.7614 | ��ʱ: 3.1s
+2026-04-18 21:46:04,912 [INFO] Episode   10 | episode_reward: 27.9947 | steps: 50 | avg_actor_loss: -0.0010 | avg_td_error: 1.8213 | ��ʱ: 3.4s
+2026-04-18 21:46:05,230 [INFO] Episode   11 | episode_reward: 55.2448 | steps: 50 | avg_actor_loss: 0.0009 | avg_td_error: 2.2382 | ��ʱ: 3.7s
+2026-04-18 21:46:05,539 [INFO] Episode   12 | episode_reward: 26.8410 | steps: 50 | avg_actor_loss: 0.0005 | avg_td_error: 2.4649 | ��ʱ: 4.1s
+2026-04-18 21:46:05,857 [INFO] Episode   13 | episode_reward: 52.6302 | steps: 50 | avg_actor_loss: -0.0003 | avg_td_error: 2.2483 | ��ʱ: 4.4s
+2026-04-18 21:46:06,182 [INFO] Episode   14 | episode_reward: 28.2637 | steps: 50 | avg_actor_loss: -0.0009 | avg_td_error: 2.3552 | ��ʱ: 4.7s
+2026-04-18 21:46:06,507 [INFO] Episode   15 | episode_reward: 26.8120 | steps: 50 | avg_actor_loss: 0.0011 | avg_td_error: 2.7565 | ��ʱ: 5.0s
+2026-04-18 21:46:06,832 [INFO] Episode   16 | episode_reward: 46.1664 | steps: 50 | avg_actor_loss: 0.9969 | avg_td_error: 3.0893 | ��ʱ: 5.3s
+2026-04-18 21:46:07,171 [INFO] Episode   17 | episode_reward: 36.9355 | steps: 50 | avg_actor_loss: 0.5418 | avg_td_error: 2.4205 | ��ʱ: 5.7s
+2026-04-18 21:46:07,487 [INFO] Episode   18 | episode_reward: 62.7584 | steps: 50 | avg_actor_loss: 0.0027 | avg_td_error: 2.4010 | ��ʱ: 6.0s
+2026-04-18 21:46:07,820 [INFO] Episode   19 | episode_reward: 41.8530 | steps: 50 | avg_actor_loss: -0.0790 | avg_td_error: 2.3990 | ��ʱ: 6.3s
+2026-04-18 21:46:08,135 [INFO] Episode   20 | episode_reward: 26.7547 | steps: 50 | avg_actor_loss: -0.5641 | avg_td_error: 2.0044 | ��ʱ: 6.6s
+2026-04-18 21:46:08,446 [INFO] Episode   21 | episode_reward: 34.4686 | steps: 50 | avg_actor_loss: 0.0311 | avg_td_error: 2.4538 | ��ʱ: 7.0s
+2026-04-18 21:46:08,755 [INFO] Episode   22 | episode_reward: 66.8500 | steps: 50 | avg_actor_loss: 0.7758 | avg_td_error: 2.8282 | ��ʱ: 7.3s
+2026-04-18 21:46:09,071 [INFO] Episode   23 | episode_reward: 31.1832 | steps: 50 | avg_actor_loss: -0.0030 | avg_td_error: 2.1707 | ��ʱ: 7.6s
+2026-04-18 21:46:09,381 [INFO] Episode   24 | episode_reward: 38.5836 | steps: 50 | avg_actor_loss: 1.7758 | avg_td_error: 2.4647 | ��ʱ: 7.9s
+2026-04-18 21:46:09,707 [INFO] Episode   25 | episode_reward: 28.4839 | steps: 50 | avg_actor_loss: -0.0218 | avg_td_error: 2.6288 | ��ʱ: 8.2s
+2026-04-18 21:46:10,016 [INFO] Episode   26 | episode_reward: 68.6567 | steps: 50 | avg_actor_loss: 0.0042 | avg_td_error: 3.2109 | ��ʱ: 8.5s
+2026-04-18 21:46:10,331 [INFO] Episode   27 | episode_reward: 39.3237 | steps: 50 | avg_actor_loss: -0.0018 | avg_td_error: 2.6264 | ��ʱ: 8.8s
+2026-04-18 21:46:10,649 [INFO] Episode   28 | episode_reward: 71.4611 | steps: 50 | avg_actor_loss: 0.8867 | avg_td_error: 2.9542 | ��ʱ: 9.2s
+2026-04-18 21:46:10,954 [INFO] Episode   29 | episode_reward: 40.0902 | steps: 50 | avg_actor_loss: 0.2238 | avg_td_error: 2.8104 | ��ʱ: 9.5s
+2026-04-18 21:46:11,260 [INFO] Episode   30 | episode_reward: 70.1294 | steps: 50 | avg_actor_loss: 0.0259 | avg_td_error: 3.4352 | ��ʱ: 9.8s
+2026-04-18 21:46:11,577 [INFO] Episode   31 | episode_reward: 16.8829 | steps: 50 | avg_actor_loss: 1.2093 | avg_td_error: 2.9441 | ��ʱ: 10.1s
+2026-04-18 21:46:11,955 [INFO] Episode   32 | episode_reward: 30.2044 | steps: 50 | avg_actor_loss: -0.0042 | avg_td_error: 3.2040 | ��ʱ: 10.5s
+2026-04-18 21:46:12,287 [INFO] Episode   33 | episode_reward: 25.9920 | steps: 50 | avg_actor_loss: 0.4489 | avg_td_error: 3.0087 | ��ʱ: 10.8s
+2026-04-18 21:46:12,633 [INFO] Episode   34 | episode_reward: 32.8361 | steps: 50 | avg_actor_loss: -0.3931 | avg_td_error: 2.8958 | ��ʱ: 11.1s
+2026-04-18 21:46:12,994 [INFO] Episode   35 | episode_reward: 29.3642 | steps: 50 | avg_actor_loss: -3.3696 | avg_td_error: 2.2336 | ��ʱ: 11.5s
+2026-04-18 21:46:13,303 [INFO] Episode   36 | episode_reward: 36.3793 | steps: 50 | avg_actor_loss: -3.2561 | avg_td_error: 2.8086 | ��ʱ: 11.8s
+2026-04-18 21:46:13,656 [INFO] Episode   37 | episode_reward: 34.2941 | steps: 50 | avg_actor_loss: -1.8636 | avg_td_error: 2.9086 | ��ʱ: 12.2s
+2026-04-18 21:46:13,983 [INFO] Episode   38 | episode_reward: 47.3323 | steps: 50 | avg_actor_loss: -0.2486 | avg_td_error: 2.9734 | ��ʱ: 12.5s
+2026-04-18 21:46:14,296 [INFO] Episode   39 | episode_reward: 43.1704 | steps: 50 | avg_actor_loss: -4.0888 | avg_td_error: 2.8241 | ��ʱ: 12.8s
+2026-04-18 21:46:14,619 [INFO] Episode   40 | episode_reward: 19.8305 | steps: 50 | avg_actor_loss: -1.1851 | avg_td_error: 3.1871 | ��ʱ: 13.1s
+2026-04-18 21:46:14,933 [INFO] Episode   41 | episode_reward: 29.0176 | steps: 50 | avg_actor_loss: 0.1345 | avg_td_error: 3.0730 | ��ʱ: 13.4s
+2026-04-18 21:46:15,239 [INFO] Episode   42 | episode_reward: 31.2026 | steps: 50 | avg_actor_loss: 1.0394 | avg_td_error: 3.6082 | ��ʱ: 13.7s
+2026-04-18 21:46:15,545 [INFO] Episode   43 | episode_reward: 27.0505 | steps: 50 | avg_actor_loss: -2.9437 | avg_td_error: 3.0983 | ��ʱ: 14.1s
+2026-04-18 21:46:15,859 [INFO] Episode   44 | episode_reward: 33.2674 | steps: 50 | avg_actor_loss: -0.1810 | avg_td_error: 3.0010 | ��ʱ: 14.4s
+2026-04-18 21:46:16,178 [INFO] Episode   45 | episode_reward: 32.4998 | steps: 50 | avg_actor_loss: -0.6013 | avg_td_error: 3.1533 | ��ʱ: 14.7s
+2026-04-18 21:46:16,486 [INFO] Episode   46 | episode_reward: 32.3397 | steps: 50 | avg_actor_loss: -2.9231 | avg_td_error: 3.0921 | ��ʱ: 15.0s
+2026-04-18 21:46:16,797 [INFO] Episode   47 | episode_reward: 61.8037 | steps: 50 | avg_actor_loss: 1.2031 | avg_td_error: 3.2180 | ��ʱ: 15.3s
+2026-04-18 21:46:17,110 [INFO] Episode   48 | episode_reward: 34.7274 | steps: 50 | avg_actor_loss: 0.9414 | avg_td_error: 3.1866 | ��ʱ: 15.6s
+2026-04-18 21:46:17,432 [INFO] Episode   49 | episode_reward: 32.5993 | steps: 50 | avg_actor_loss: -2.1241 | avg_td_error: 3.2592 | ��ʱ: 15.9s
+2026-04-18 21:46:17,751 [INFO] Episode   50 | episode_reward: 27.9804 | steps: 50 | avg_actor_loss: -6.2423 | avg_td_error: 3.5210 | ��ʱ: 16.3s
+2026-04-18 21:46:17,753 [INFO] ���� Top-K �Ƽ�ʾ�� ����������������������������������������������������
+2026-04-18 21:46:17,753 [INFO]   #1: item_idx=18 | prob=0.8615 | �Ƽ���Research on Robotics #18����ԭ�򣺸������������о�����߶���أ������� 2019 �꣬���� 450 �Σ�֪ʶͼ�׽ڵ� ID: kg_node_18��
+2026-04-18 21:46:17,753 [INFO]   #2: item_idx=19 | prob=0.0388 | �Ƽ���Research on Theory #19����ԭ�򣺸������������о�����߶���أ������� 2024 �꣬���� 25 �Σ�֪ʶͼ�׽ڵ� ID: kg_node_19��
+2026-04-18 21:46:17,753 [INFO]   #3: item_idx=10 | prob=0.0246 | �Ƽ���Research on NLP #10����ԭ�򣺸������������о�����߶���أ������� 2024 �꣬���� 303 �Σ�֪ʶͼ�׽ڵ� ID: kg_node_10��
+2026-04-18 21:46:17,753 [INFO]   #4: item_idx=12 | prob=0.0157 | �Ƽ���Research on RL #12����ԭ�򣺸������������о�����߶���أ������� 2023 �꣬���� 432 �Σ�֪ʶͼ�׽ڵ� ID: kg_node_12��
+2026-04-18 21:46:17,753 [INFO]   #5: item_idx=16 | prob=0.0147 | �Ƽ���Research on Security #16����ԭ�򣺸������������о�����߶���أ������� 2021 �꣬���� 314 �Σ�֪ʶͼ�׽ڵ� ID: kg_node_16��
+2026-04-18 21:46:17,753 [INFO] ����������������������������������������������������������������������������������������
+2026-04-18 21:46:17,753 [INFO] �Ƽ���¼: {"user_id": "user_0402", "items": [18, 19, 10, 12, 16], "explanation": "�Ƽ���Research on Robotics #18����ԭ�򣺸������������о�����߶���أ������� 2019 �꣬���� 450 �Σ�֪ʶͼ�׽ڵ� ID: kg_node_18�� | �Ƽ���Research on Theory #19����ԭ�򣺸������������о�����߶���أ������� 2024 �꣬���� 25 �Σ�֪ʶͼ�׽ڵ� ID: kg_node_19�� | �Ƽ���Research on NLP #10����ԭ�򣺸������������о�����߶���أ������� 2024 �꣬���� 303 �Σ�֪ʶͼ�׽ڵ� ID: kg_node_10�� | �Ƽ���Research on RL #12����ԭ�򣺸������������о�����߶���أ������� 2023 �꣬���� 432 �Σ�֪ʶͼ�׽ڵ� ID: kg_node_12�� | �Ƽ���Research on Security #16����ԭ�򣺸������������о�����߶���أ������� 2021 �꣬���� 314 �Σ�֪ʶͼ�׽ڵ� ID: kg_node_16��", "timestamp": 1776519977.7535932}
+2026-04-18 21:46:18,097 [INFO] Episode   51 | episode_reward: 22.6959 | steps: 50 | avg_actor_loss: -0.4958 | avg_td_error: 3.1115 | ��ʱ: 16.6s
+2026-04-18 21:46:18,425 [INFO] Episode   52 | episode_reward: 86.4150 | steps: 50 | avg_actor_loss: 0.0729 | avg_td_error: 4.0987 | ��ʱ: 16.9s
+2026-04-18 21:46:18,743 [INFO] Episode   53 | episode_reward: 29.7365 | steps: 50 | avg_actor_loss: -0.0030 | avg_td_error: 3.3431 | ��ʱ: 17.3s
+2026-04-18 21:46:19,074 [INFO] Episode   54 | episode_reward: 43.5346 | steps: 50 | avg_actor_loss: -0.0086 | avg_td_error: 3.6410 | ��ʱ: 17.6s
+2026-04-18 21:46:19,378 [INFO] Episode   55 | episode_reward: 39.5646 | steps: 50 | avg_actor_loss: -0.0102 | avg_td_error: 4.3766 | ��ʱ: 17.9s
+2026-04-18 21:46:19,704 [INFO] Episode   56 | episode_reward: 21.4129 | steps: 50 | avg_actor_loss: -0.0191 | avg_td_error: 3.4554 | ��ʱ: 18.2s
+2026-04-18 21:46:20,033 [INFO] Episode   57 | episode_reward: 28.5367 | steps: 50 | avg_actor_loss: 0.2267 | avg_td_error: 3.2457 | ��ʱ: 18.5s
+2026-04-18 21:46:20,359 [INFO] Episode   58 | episode_reward: 32.8559 | steps: 50 | avg_actor_loss: 1.4062 | avg_td_error: 3.2135 | ��ʱ: 18.9s
+2026-04-18 21:46:20,711 [INFO] Episode   59 | episode_reward: 44.9065 | steps: 50 | avg_actor_loss: -1.2340 | avg_td_error: 3.5623 | ��ʱ: 19.2s
+2026-04-18 21:46:21,032 [INFO] Episode   60 | episode_reward: 39.3200 | steps: 50 | avg_actor_loss: -3.1876 | avg_td_error: 3.5207 | ��ʱ: 19.5s
+2026-04-18 21:46:21,396 [INFO] Episode   61 | episode_reward: 54.8094 | steps: 50 | avg_actor_loss: 1.5332 | avg_td_error: 3.5772 | ��ʱ: 19.9s
+2026-04-18 21:46:21,710 [INFO] Episode   62 | episode_reward: 49.6331 | steps: 50 | avg_actor_loss: -0.6882 | avg_td_error: 3.5514 | ��ʱ: 20.2s
+2026-04-18 21:46:22,034 [INFO] Episode   63 | episode_reward: 27.5203 | steps: 50 | avg_actor_loss: -0.2813 | avg_td_error: 2.9714 | ��ʱ: 20.5s
+2026-04-18 21:46:22,403 [INFO] Episode   64 | episode_reward: 45.8885 | steps: 50 | avg_actor_loss: -0.2475 | avg_td_error: 3.4329 | ��ʱ: 20.9s
+2026-04-18 21:46:22,721 [INFO] Episode   65 | episode_reward: 58.9945 | steps: 50 | avg_actor_loss: 0.4403 | avg_td_error: 3.4664 | ��ʱ: 21.2s
+2026-04-18 21:46:23,034 [INFO] Episode   66 | episode_reward: 56.3699 | steps: 50 | avg_actor_loss: -1.7550 | avg_td_error: 3.4157 | ��ʱ: 21.5s
+2026-04-18 21:46:23,342 [INFO] Episode   67 | episode_reward: 38.6942 | steps: 50 | avg_actor_loss: -0.4298 | avg_td_error: 3.1782 | ��ʱ: 21.9s
+2026-04-18 21:46:23,688 [INFO] Episode   68 | episode_reward: 30.5335 | steps: 50 | avg_actor_loss: -0.2559 | avg_td_error: 3.6280 | ��ʱ: 22.2s
+2026-04-18 21:46:24,052 [INFO] Episode   69 | episode_reward: 32.8314 | steps: 50 | avg_actor_loss: 0.4348 | avg_td_error: 3.7434 | ��ʱ: 22.6s
+2026-04-18 21:46:24,405 [INFO] Episode   70 | episode_reward: 41.8307 | steps: 50 | avg_actor_loss: -0.5293 | avg_td_error: 3.5797 | ��ʱ: 22.9s
+2026-04-18 21:46:24,770 [INFO] Episode   71 | episode_reward: 25.8994 | steps: 50 | avg_actor_loss: -2.6041 | avg_td_error: 3.3454 | ��ʱ: 23.3s
+2026-04-18 21:46:25,115 [INFO] Episode   72 | episode_reward: 69.8279 | steps: 50 | avg_actor_loss: -0.2402 | avg_td_error: 3.1057 | ��ʱ: 23.6s
+2026-04-18 21:46:25,456 [INFO] Episode   73 | episode_reward: 48.0417 | steps: 50 | avg_actor_loss: -0.3106 | avg_td_error: 3.2373 | ��ʱ: 24.0s
+2026-04-18 21:46:25,811 [INFO] Episode   74 | episode_reward: 26.2124 | steps: 50 | avg_actor_loss: -1.3063 | avg_td_error: 3.2115 | ��ʱ: 24.3s
+2026-04-18 21:46:26,131 [INFO] Episode   75 | episode_reward: 66.6997 | steps: 50 | avg_actor_loss: 0.8450 | avg_td_error: 3.5945 | ��ʱ: 24.6s
+2026-04-18 21:46:26,463 [INFO] Episode   76 | episode_reward: 30.9710 | steps: 50 | avg_actor_loss: 0.0201 | avg_td_error: 3.6443 | ��ʱ: 25.0s
+2026-04-18 21:46:26,815 [INFO] Episode   77 | episode_reward: 34.3533 | steps: 50 | avg_actor_loss: 0.5831 | avg_td_error: 3.4449 | ��ʱ: 25.3s
+2026-04-18 21:46:27,145 [INFO] Episode   78 | episode_reward: 17.0514 | steps: 50 | avg_actor_loss: 0.0753 | avg_td_error: 3.5387 | ��ʱ: 25.7s
+2026-04-18 21:46:27,484 [INFO] Episode   79 | episode_reward: 29.4357 | steps: 50 | avg_actor_loss: -4.7350 | avg_td_error: 3.5287 | ��ʱ: 26.0s
+2026-04-18 21:50:33,113 [INFO] ʵ�� [ac_recommender] ��ʼ����־������ logs/ac_recommender.log
+2026-04-18 21:50:33,113 [INFO] ѵ������: state_dim=64, action_num=20, episodes=500, steps=50
+2026-04-18 21:50:33,435 [INFO] Episode    1 | episode_reward: 28.8351 | steps: 50 | avg_actor_loss: 1.1754 | avg_td_error: 1.1651 | ��ʱ: 0.3s
+2026-04-18 21:50:33,774 [INFO] Episode    2 | episode_reward: 37.4525 | steps: 50 | avg_actor_loss: 0.5016 | avg_td_error: 1.1291 | ��ʱ: 0.7s
+2026-04-18 21:50:34,104 [INFO] Episode    3 | episode_reward: 36.5070 | steps: 50 | avg_actor_loss: 1.3267 | avg_td_error: 1.2514 | ��ʱ: 1.0s
+2026-04-18 21:50:34,419 [INFO] Episode    4 | episode_reward: 27.2201 | steps: 50 | avg_actor_loss: -0.0381 | avg_td_error: 1.2907 | ��ʱ: 1.3s
+2026-04-18 21:50:34,729 [INFO] Episode    5 | episode_reward: 38.1650 | steps: 50 | avg_actor_loss: 0.0855 | avg_td_error: 1.4045 | ��ʱ: 1.6s
+2026-04-18 21:50:35,071 [INFO] Episode    6 | episode_reward: 84.8614 | steps: 50 | avg_actor_loss: 0.0044 | avg_td_error: 2.0615 | ��ʱ: 2.0s
+2026-04-18 21:50:35,429 [INFO] Episode    7 | episode_reward: 53.6528 | steps: 50 | avg_actor_loss: 0.0012 | avg_td_error: 1.9416 | ��ʱ: 2.3s
+2026-04-18 21:50:35,738 [INFO] Episode    8 | episode_reward: 29.2112 | steps: 50 | avg_actor_loss: -0.0000 | avg_td_error: 1.7393 | ��ʱ: 2.6s
+2026-04-18 21:50:36,043 [INFO] Episode    9 | episode_reward: 24.2348 | steps: 50 | avg_actor_loss: -0.0001 | avg_td_error: 1.7614 | ��ʱ: 2.9s
+2026-04-18 21:50:36,347 [INFO] Episode   10 | episode_reward: 27.9947 | steps: 50 | avg_actor_loss: -0.0010 | avg_td_error: 1.8213 | ��ʱ: 3.2s
+2026-04-18 21:50:36,684 [INFO] Episode   11 | episode_reward: 55.2448 | steps: 50 | avg_actor_loss: 0.0009 | avg_td_error: 2.2382 | ��ʱ: 3.6s
+2026-04-18 21:50:36,998 [INFO] Episode   12 | episode_reward: 26.8410 | steps: 50 | avg_actor_loss: 0.0005 | avg_td_error: 2.4649 | ��ʱ: 3.9s
+2026-04-18 21:50:37,338 [INFO] Episode   13 | episode_reward: 52.6302 | steps: 50 | avg_actor_loss: -0.0003 | avg_td_error: 2.2483 | ��ʱ: 4.2s
+2026-04-18 21:50:37,643 [INFO] Episode   14 | episode_reward: 28.2637 | steps: 50 | avg_actor_loss: -0.0009 | avg_td_error: 2.3552 | ��ʱ: 4.5s
+2026-04-18 21:50:37,948 [INFO] Episode   15 | episode_reward: 26.8120 | steps: 50 | avg_actor_loss: 0.0011 | avg_td_error: 2.7565 | ��ʱ: 4.8s
+2026-04-18 21:50:38,271 [INFO] Episode   16 | episode_reward: 46.1664 | steps: 50 | avg_actor_loss: 0.9969 | avg_td_error: 3.0893 | ��ʱ: 5.2s
+2026-04-18 21:50:38,624 [INFO] Episode   17 | episode_reward: 36.9355 | steps: 50 | avg_actor_loss: 0.5418 | avg_td_error: 2.4205 | ��ʱ: 5.5s
+2026-04-18 21:50:38,946 [INFO] Episode   18 | episode_reward: 62.7584 | steps: 50 | avg_actor_loss: 0.0027 | avg_td_error: 2.4010 | ��ʱ: 5.8s
+2026-04-18 21:50:39,257 [INFO] Episode   19 | episode_reward: 41.8530 | steps: 50 | avg_actor_loss: -0.0790 | avg_td_error: 2.3990 | ��ʱ: 6.1s
+2026-04-18 21:50:39,572 [INFO] Episode   20 | episode_reward: 26.7547 | steps: 50 | avg_actor_loss: -0.5641 | avg_td_error: 2.0044 | ��ʱ: 6.5s
+2026-04-18 21:50:39,880 [INFO] Episode   21 | episode_reward: 34.4686 | steps: 50 | avg_actor_loss: 0.0311 | avg_td_error: 2.4538 | ��ʱ: 6.8s
+2026-04-18 21:50:40,187 [INFO] Episode   22 | episode_reward: 66.8500 | steps: 50 | avg_actor_loss: 0.7758 | avg_td_error: 2.8282 | ��ʱ: 7.1s
+2026-04-18 21:50:40,496 [INFO] Episode   23 | episode_reward: 31.1832 | steps: 50 | avg_actor_loss: -0.0030 | avg_td_error: 2.1707 | ��ʱ: 7.4s
+2026-04-18 21:50:40,805 [INFO] Episode   24 | episode_reward: 38.5836 | steps: 50 | avg_actor_loss: 1.7758 | avg_td_error: 2.4647 | ��ʱ: 7.7s
+2026-04-18 21:50:41,105 [INFO] Episode   25 | episode_reward: 28.4839 | steps: 50 | avg_actor_loss: -0.0218 | avg_td_error: 2.6288 | ��ʱ: 8.0s
+2026-04-18 21:50:41,413 [INFO] Episode   26 | episode_reward: 68.6567 | steps: 50 | avg_actor_loss: 0.0042 | avg_td_error: 3.2109 | ��ʱ: 8.3s
+2026-04-18 21:50:41,713 [INFO] Episode   27 | episode_reward: 39.3237 | steps: 50 | avg_actor_loss: -0.0018 | avg_td_error: 2.6264 | ��ʱ: 8.6s
+2026-04-18 21:50:42,019 [INFO] Episode   28 | episode_reward: 71.4611 | steps: 50 | avg_actor_loss: 0.8867 | avg_td_error: 2.9542 | ��ʱ: 8.9s
+2026-04-18 21:50:42,328 [INFO] Episode   29 | episode_reward: 40.0902 | steps: 50 | avg_actor_loss: 0.2238 | avg_td_error: 2.8104 | ��ʱ: 9.2s
+2026-04-18 21:50:42,637 [INFO] Episode   30 | episode_reward: 70.1294 | steps: 50 | avg_actor_loss: 0.0259 | avg_td_error: 3.4352 | ��ʱ: 9.5s
+2026-04-18 21:50:42,950 [INFO] Episode   31 | episode_reward: 16.8829 | steps: 50 | avg_actor_loss: 1.2093 | avg_td_error: 2.9441 | ��ʱ: 9.8s
+2026-04-18 21:50:43,261 [INFO] Episode   32 | episode_reward: 30.2044 | steps: 50 | avg_actor_loss: -0.0042 | avg_td_error: 3.2040 | ��ʱ: 10.1s
+2026-04-18 21:50:43,571 [INFO] Episode   33 | episode_reward: 25.9920 | steps: 50 | avg_actor_loss: 0.4489 | avg_td_error: 3.0087 | ��ʱ: 10.5s
+2026-04-18 21:50:43,883 [INFO] Episode   34 | episode_reward: 32.8361 | steps: 50 | avg_actor_loss: -0.3931 | avg_td_error: 2.8958 | ��ʱ: 10.8s
+2026-04-18 21:50:44,198 [INFO] Episode   35 | episode_reward: 29.3642 | steps: 50 | avg_actor_loss: -3.3696 | avg_td_error: 2.2336 | ��ʱ: 11.1s
+2026-04-18 21:50:44,521 [INFO] Episode   36 | episode_reward: 36.3793 | steps: 50 | avg_actor_loss: -3.2561 | avg_td_error: 2.8086 | ��ʱ: 11.4s
+2026-04-18 21:50:44,836 [INFO] Episode   37 | episode_reward: 34.2941 | steps: 50 | avg_actor_loss: -1.8636 | avg_td_error: 2.9086 | ��ʱ: 11.7s

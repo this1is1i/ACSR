@@ -1,0 +1,446 @@
+[
+  {
+    "id": "author_000",
+    "name": "Researcher_0",
+    "org": "Google",
+    "interests": [
+      "RL"
+    ]
+  },
+  {
+    "id": "author_001",
+    "name": "Researcher_1",
+    "org": "Google",
+    "interests": [
+      "NLP",
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_002",
+    "name": "Researcher_2",
+    "org": "Stanford",
+    "interests": [
+      "RL",
+      "KG",
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_003",
+    "name": "Researcher_3",
+    "org": "Tsinghua",
+    "interests": [
+      "RL",
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_004",
+    "name": "Researcher_4",
+    "org": "MIT",
+    "interests": [
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_005",
+    "name": "Researcher_5",
+    "org": "Tsinghua",
+    "interests": [
+      "RL",
+      "KG",
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_006",
+    "name": "Researcher_6",
+    "org": "Google",
+    "interests": [
+      "RecSys",
+      "KG",
+      "GNN"
+    ]
+  },
+  {
+    "id": "author_007",
+    "name": "Researcher_7",
+    "org": "Stanford",
+    "interests": [
+      "KG",
+      "CV"
+    ]
+  },
+  {
+    "id": "author_008",
+    "name": "Researcher_8",
+    "org": "DeepMind",
+    "interests": [
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_009",
+    "name": "Researcher_9",
+    "org": "Google",
+    "interests": [
+      "CV",
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_010",
+    "name": "Researcher_10",
+    "org": "Stanford",
+    "interests": [
+      "CV"
+    ]
+  },
+  {
+    "id": "author_011",
+    "name": "Researcher_11",
+    "org": "MIT",
+    "interests": [
+      "GNN"
+    ]
+  },
+  {
+    "id": "author_012",
+    "name": "Researcher_12",
+    "org": "MIT",
+    "interests": [
+      "CV",
+      "KG"
+    ]
+  },
+  {
+    "id": "author_013",
+    "name": "Researcher_13",
+    "org": "CMU",
+    "interests": [
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_014",
+    "name": "Researcher_14",
+    "org": "Peking University",
+    "interests": [
+      "RL",
+      "GNN",
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_015",
+    "name": "Researcher_15",
+    "org": "Tsinghua",
+    "interests": [
+      "RecSys",
+      "KG"
+    ]
+  },
+  {
+    "id": "author_016",
+    "name": "Researcher_16",
+    "org": "DeepMind",
+    "interests": [
+      "KG",
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_017",
+    "name": "Researcher_17",
+    "org": "Google",
+    "interests": [
+      "RL"
+    ]
+  },
+  {
+    "id": "author_018",
+    "name": "Researcher_18",
+    "org": "Google",
+    "interests": [
+      "CV"
+    ]
+  },
+  {
+    "id": "author_019",
+    "name": "Researcher_19",
+    "org": "MIT",
+    "interests": [
+      "RL"
+    ]
+  },
+  {
+    "id": "author_020",
+    "name": "Researcher_20",
+    "org": "Peking University",
+    "interests": [
+      "GNN",
+      "CV"
+    ]
+  },
+  {
+    "id": "author_021",
+    "name": "Researcher_21",
+    "org": "Stanford",
+    "interests": [
+      "CV",
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_022",
+    "name": "Researcher_22",
+    "org": "Google",
+    "interests": [
+      "RecSys",
+      "RL"
+    ]
+  },
+  {
+    "id": "author_023",
+    "name": "Researcher_23",
+    "org": "Tsinghua",
+    "interests": [
+      "NLP",
+      "KG",
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_024",
+    "name": "Researcher_24",
+    "org": "Stanford",
+    "interests": [
+      "GNN",
+      "CV"
+    ]
+  },
+  {
+    "id": "author_025",
+    "name": "Researcher_25",
+    "org": "Google",
+    "interests": [
+      "KG",
+      "NLP",
+      "CV"
+    ]
+  },
+  {
+    "id": "author_026",
+    "name": "Researcher_26",
+    "org": "DeepMind",
+    "interests": [
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_027",
+    "name": "Researcher_27",
+    "org": "DeepMind",
+    "interests": [
+      "CV"
+    ]
+  },
+  {
+    "id": "author_028",
+    "name": "Researcher_28",
+    "org": "Peking University",
+    "interests": [
+      "RL",
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_029",
+    "name": "Researcher_29",
+    "org": "Tsinghua",
+    "interests": [
+      "CV",
+      "NLP",
+      "GNN"
+    ]
+  },
+  {
+    "id": "author_030",
+    "name": "Researcher_30",
+    "org": "Peking University",
+    "interests": [
+      "GNN",
+      "NLP",
+      "CV"
+    ]
+  },
+  {
+    "id": "author_031",
+    "name": "Researcher_31",
+    "org": "Stanford",
+    "interests": [
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_032",
+    "name": "Researcher_32",
+    "org": "Tsinghua",
+    "interests": [
+      "CV",
+      "KG",
+      "GNN"
+    ]
+  },
+  {
+    "id": "author_033",
+    "name": "Researcher_33",
+    "org": "Tsinghua",
+    "interests": [
+      "CV",
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_034",
+    "name": "Researcher_34",
+    "org": "Stanford",
+    "interests": [
+      "GNN",
+      "RL",
+      "KG"
+    ]
+  },
+  {
+    "id": "author_035",
+    "name": "Researcher_35",
+    "org": "DeepMind",
+    "interests": [
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_036",
+    "name": "Researcher_36",
+    "org": "Google",
+    "interests": [
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_037",
+    "name": "Researcher_37",
+    "org": "Peking University",
+    "interests": [
+      "RL",
+      "GNN",
+      "KG"
+    ]
+  },
+  {
+    "id": "author_038",
+    "name": "Researcher_38",
+    "org": "Tsinghua",
+    "interests": [
+      "KG",
+      "CV"
+    ]
+  },
+  {
+    "id": "author_039",
+    "name": "Researcher_39",
+    "org": "Tsinghua",
+    "interests": [
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_040",
+    "name": "Researcher_40",
+    "org": "Google",
+    "interests": [
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_041",
+    "name": "Researcher_41",
+    "org": "Tsinghua",
+    "interests": [
+      "RecSys",
+      "CV"
+    ]
+  },
+  {
+    "id": "author_042",
+    "name": "Researcher_42",
+    "org": "MIT",
+    "interests": [
+      "GNN",
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_043",
+    "name": "Researcher_43",
+    "org": "Peking University",
+    "interests": [
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_044",
+    "name": "Researcher_44",
+    "org": "Google",
+    "interests": [
+      "KG",
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_045",
+    "name": "Researcher_45",
+    "org": "Tsinghua",
+    "interests": [
+      "RecSys"
+    ]
+  },
+  {
+    "id": "author_046",
+    "name": "Researcher_46",
+    "org": "CMU",
+    "interests": [
+      "KG",
+      "RecSys",
+      "NLP"
+    ]
+  },
+  {
+    "id": "author_047",
+    "name": "Researcher_47",
+    "org": "Stanford",
+    "interests": [
+      "NLP",
+      "KG"
+    ]
+  },
+  {
+    "id": "author_048",
+    "name": "Researcher_48",
+    "org": "DeepMind",
+    "interests": [
+      "RL",
+      "KG",
+      "CV"
+    ]
+  },
+  {
+    "id": "author_049",
+    "name": "Researcher_49",
+    "org": "Peking University",
+    "interests": [
+      "RL"
+    ]
+  }
+]

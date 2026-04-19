@@ -1,0 +1,170 @@
+# train.py
+# 主训练脚本
+
+from __future__ import annotations
+import sys
+import os
+
+# 将项目根目录加入 Python 路径
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import numpy as np
+import torch
+from typing import Optional
+
+from config import Config, default_config
+from agent import ActorCriticAgent
+from env.rec_env import ResearchRecEnv
+from utils.logger import TrainingLogger
+from utils.reward import WeightedRewardFunction
+
+
+def train(config: Optional[Config] = None) -> ActorCriticAgent:
+    """
+    Actor–Critic 训练主循环。
+
+    流程：
+        for each episode:
+            state = env.reset()
+            for each step:
+                action, log_prob = agent.select_action(state)
+                next_state, reward, done = env.step(action)
+                agent.update(...)
+                state = next_state
+
+    Args:
+        config: 训练配置，默认使用 default_config
+
+    Returns:
+        训练完成的 agent
+    """
+    config = config or default_config
+    torch.manual_seed(42)
+    np.random.seed(42)
+
+    # ── 初始化组件 ────────────────────────────────────────────────
+    reward_fn = WeightedRewardFunction(config.reward_weights)
+    env       = ResearchRecEnv(config=config, reward_fn=reward_fn)
+    agent     = ActorCriticAgent(config=config)
+    logger    = TrainingLogger(log_dir=config.log_dir, experiment_name="ac_recommender")
+
+    # 可选：启用 TensorBoard
+    # logger.init_tensorboard()
+
+    logger.logger.info(
+        f"训练配置: state_dim={config.state_dim}, action_num={config.action_num}, "
+        f"episodes={config.max_episodes}, steps={config.max_steps}"
+    )
+
+    best_reward = float("-inf")
+
+    # ── 主训练循环 ────────────────────────────────────────────────
+    for episode in range(1, config.max_episodes + 1):
+        state, info = env.reset()
+
+        episode_reward   = 0.0
+        episode_steps    = 0
+        total_actor_loss = 0.0
+        total_td_error   = 0.0
+
+        for step in range(config.max_steps):
+            # 1. Actor 选择动作
+            action, log_prob = agent.select_action(state)
+
+            # 2. 环境执行动作
+            next_state, reward, done, step_info = env.step(action)
+
+            # 3. Agent 更新（Actor–Critic 单步更新）
+            losses = agent.update(
+                state=state,
+                action=action,
+                reward=reward,
+                next_state=next_state,
+                done=done,
+                log_prob=log_prob,
+            )
+
+            # 4. 记录
+            episode_reward   += reward
+            total_actor_loss += losses["actor_loss"]
+            total_td_error   += abs(losses["td_error"])
+            episode_steps    += 1
+
+            logger.log_step(step, {
+                "action":      action,
+                "reward":      f"{reward:.3f}",
+                "td_error":    f"{losses['td_error']:.4f}",
+                "entropy":     f"{losses['entropy']:.4f}",
+            })
+
+            state = next_state
+            if done:
+                break
+
+        # ── Episode 统计 ──────────────────────────────────────────
+        agent.episode_count += 1
+        avg_actor_loss = total_actor_loss / episode_steps
+        avg_td_error   = total_td_error   / episode_steps
+
+        metrics = {
+            "episode_reward": episode_reward,
+            "steps":          episode_steps,
+            "avg_actor_loss": avg_actor_loss,
+            "avg_td_error":   avg_td_error,
+        }
+        logger.log_episode(episode, metrics)
+
+        # ── 最优模型保存 ──────────────────────────────────────────
+        if episode_reward > best_reward:
+            best_reward = episode_reward
+            agent.save_model()
+            logger.logger.info(f"  ✓ 新最优模型已保存 (reward={best_reward:.3f})")
+
+        # ── 每 50 轮打印 Top-K 推荐示例 ──────────────────────────
+        if episode % 50 == 0:
+            _demo_recommendation(agent, env, logger, config)
+
+    # ── 训练结束 ──────────────────────────────────────────────────
+    logger.save_history()
+    logger.logger.info(f"训练完成！最优 Episode Reward: {best_reward:.3f}")
+    return agent
+
+
+def _demo_recommendation(
+    agent: ActorCriticAgent,
+    env: ResearchRecEnv,
+    logger: TrainingLogger,
+    config: Config,
+) -> None:
+    """展示当前策略的 Top-K 推荐结果（用于训练过程监控）。"""
+    state, info = env.reset()
+    indices, probs = agent.recommend_top_k(state, k=config.top_k)
+    explanations = [env.generate_explanation(i) for i in indices]
+
+    logger.logger.info("── Top-K 推荐示例 ──────────────────────────")
+    for rank, (idx, prob, exp) in enumerate(zip(indices, probs, explanations), 1):
+        logger.logger.info(f"  #{rank}: item_idx={idx:>2d} | prob={prob:.4f} | {exp}")
+    logger.logger.info("────────────────────────────────────────────")
+
+    # 记录推荐日志（预留接口）
+    logger.log_recommendation(
+        user_id=info["user_id"],
+        recommended_items=indices,
+        explanation=" | ".join(explanations),
+    )
+
+
+if __name__ == "__main__":
+    print("=" * 60)
+    print("  Actor–Critic 科研推荐系统  开始训练")
+    print("=" * 60)
+    trained_agent = train(default_config)
+
+    # ── 推理演示 ──────────────────────────────────────────────────
+    print("\n[推理演示] 调用 REST API 接口格式：")
+    dummy_request = {
+        "interest_vector": np.random.randn(default_config.state_dim // 2).tolist(),
+        "history_vector":  np.random.randn(default_config.state_dim // 2).tolist(),
+    }
+    result = trained_agent.predict_for_api(dummy_request)
+    print(f"  推荐结果: {result}")
