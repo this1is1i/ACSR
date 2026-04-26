@@ -151,11 +151,13 @@ import { normalizePaper, SEARCH_STATE_KEY } from '@/utils/paper'
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const defaultFilters = { time: '全部时间', type: '全部类型', field: '全部领域', sort: '相关度' }
+const defaultTags = ['深度学习', '神经网络', '计算机视觉']
 const keyword = ref('')
 const results = ref([])
 const loading = ref(false)
-const filters = ref({ time: '全部时间', type: '全部类型', field: '全部领域', sort: '相关度' })
-const tags = ref(['深度学习','神经网络','计算机视觉'])
+const filters = ref({ ...defaultFilters })
+const tags = ref([...defaultTags])
 const trending = ref([
   { keyword: '大语言模型', count: '12.5k' },
   { keyword: 'Transformer架构', count: '8.3k' },
@@ -180,6 +182,8 @@ function saveSearchState() {
     keyword: keyword.value,
     results: results.value,
     currentPage: currentPage.value,
+    filters: { ...filters.value },
+    tags: [...tags.value],
   }))
 }
 
@@ -192,6 +196,11 @@ function restoreSearchState() {
     keyword.value = savedState.keyword || ''
     results.value = Array.isArray(savedState.results) ? savedState.results : []
     currentPage.value = savedState.currentPage || 1
+    filters.value = {
+      ...defaultFilters,
+      ...(savedState.filters && typeof savedState.filters === 'object' ? savedState.filters : {}),
+    }
+    tags.value = Array.isArray(savedState.tags) ? [...savedState.tags] : [...defaultTags]
   } catch {
     window.sessionStorage.removeItem(SEARCH_STATE_KEY)
   }

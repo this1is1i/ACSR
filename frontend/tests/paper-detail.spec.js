@@ -30,7 +30,7 @@ test('renders backend-shaped paper detail payload safely', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'DOI' })).toHaveCount(0);
 });
 
-test('restores search keyword and result after returning from paper detail', async ({ page }) => {
+test('restores visible search state after returning from paper detail', async ({ page }) => {
   await page.route('**/api/paper/search**', async (route) => {
     await route.fulfill({
       status: 200,
@@ -77,6 +77,12 @@ test('restores search keyword and result after returning from paper detail', asy
   await page.getByPlaceholder('输入关键词、论文标题、作者姓名或DOI...').fill('Transformer');
   await page.getByRole('button', { name: '智能搜索' }).click();
   await expect(page.getByText('Attention Is All You Need')).toBeVisible();
+  await page.locator('.filter-select').nth(0).selectOption({ label: '近三年' });
+  await page.locator('.filter-select').nth(1).selectOption({ label: '会议论文' });
+  await page.locator('.filter-select').nth(2).selectOption({ label: '自然语言处理' });
+  await page.locator('.filter-select').nth(3).selectOption({ label: '影响力' });
+  await page.locator('.filter-tag').nth(1).click();
+  await expect(page.locator('.filter-tag').nth(1)).toContainText('*神经网络');
   await page.getByRole('button', { name: '📖 查看详情' }).click();
 
   await expect(page).toHaveURL(/\/paper\/1$/);
@@ -87,5 +93,10 @@ test('restores search keyword and result after returning from paper detail', asy
 
   await expect(page).toHaveURL(/\/search/);
   await expect(page.getByPlaceholder('输入关键词、论文标题、作者姓名或DOI...')).toHaveValue('Transformer');
+  await expect(page.locator('.filter-select').nth(0)).toHaveValue('近三年');
+  await expect(page.locator('.filter-select').nth(1)).toHaveValue('会议论文');
+  await expect(page.locator('.filter-select').nth(2)).toHaveValue('自然语言处理');
+  await expect(page.locator('.filter-select').nth(3)).toHaveValue('影响力');
+  await expect(page.locator('.filter-tag').nth(1)).toContainText('*神经网络');
   await expect(page.getByText('Attention Is All You Need')).toBeVisible();
 });
