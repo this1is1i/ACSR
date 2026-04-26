@@ -140,13 +140,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
 import { searchPapers } from '@/api/paper'
 import { useUserStore } from '@/store/userStore'
+import { normalizePaper, SEARCH_STATE_KEY } from '@/utils/paper'
 
+const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const keyword = ref('')
@@ -173,24 +175,50 @@ const pagedResults = computed(() => {
 
 const favorites = ref(new Set(JSON.parse(localStorage.getItem('favorites') || '[]')))
 
+function saveSearchState() {
+  window.sessionStorage.setItem(SEARCH_STATE_KEY, JSON.stringify({
+    keyword: keyword.value,
+    results: results.value,
+    currentPage: currentPage.value,
+  }))
+}
+
+function restoreSearchState() {
+  const rawState = window.sessionStorage.getItem(SEARCH_STATE_KEY)
+  if (!rawState) return
+
+  try {
+    const savedState = JSON.parse(rawState)
+    keyword.value = savedState.keyword || ''
+    results.value = Array.isArray(savedState.results) ? savedState.results : []
+    currentPage.value = savedState.currentPage || 1
+  } catch {
+    window.sessionStorage.removeItem(SEARCH_STATE_KEY)
+  }
+}
+
 async function handleSearch() {
   if (!keyword.value.trim()) return
   loading.value = true
   try {
     const res = await searchPapers(keyword.value.trim(), 100)
-    results.value = (res.data || []).map(p => ({
-      id: p.id || p.paperId || Math.random().toString(36).slice(2,9),
-      title: p.title || p.paper_title || 'Untitled',
-      authors: (p.authors && p.authors.join(', ')) || p.authors || 'Unknown',
-      venue: p.venue || p.journal || '',
-      year: p.year || '2024',
-      abstract: p.abstract || p.summary || '无摘要',
-      tags: p.tags || ['深度学习'],
-      citations: p.citations || 0,
-      favorites: p.favorites || 0,
-      downloads: p.downloads || '0'
-    }))
+    results.value = (res.data || []).map(p => {
+      const normalized = normalizePaper(p)
+      return {
+        id: p.id || p.paperId || Math.random().toString(36).slice(2, 9),
+        title: p.title || p.paper_title || 'Untitled',
+        authors: normalized.authorText === '未知作者' ? 'Unknown' : normalized.authorText,
+        venue: p.venue || p.journal || '',
+        year: p.year || '2024',
+        abstract: normalized.abstractText || '无摘要',
+        tags: normalized.keywordsList.length ? normalized.keywordsList : ['深度学习'],
+        citations: p.citations || p.citationCount || 0,
+        favorites: p.favorites || 0,
+        downloads: p.downloads || '0',
+      }
+    })
     currentPage.value = 1
+    saveSearchState()
   } catch (e) {
     console.error(e)
   } finally {
@@ -200,6 +228,7 @@ async function handleSearch() {
 
 function changePage(page) {
   currentPage.value = page
+  saveSearchState()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -217,6 +246,7 @@ function applyTrend(keywordStr) {
 
 function openDetail(paper) {
   if (!paper) return
+  saveSearchState()
   router.push(`/paper/${paper.id}`)
 }
 
@@ -240,6 +270,12 @@ function toggleFavorite(paper) {
   }
   localStorage.setItem('favorites', JSON.stringify(Array.from(favorites.value)))
 }
+
+onMounted(() => {
+  if (route.query.restore === '1') {
+    restoreSearchState()
+  }
+})
 </script>
 
 <style scoped>

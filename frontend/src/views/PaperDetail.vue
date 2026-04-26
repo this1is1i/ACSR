@@ -2,7 +2,7 @@
   <div class="paper-detail-page">
     <div class="paper-detail-card">
       <div class="paper-detail-header">
-        <button class="back-btn" @click="router.push('/search')">← 返回搜索</button>
+        <button class="back-btn" @click="handleBack">← 返回搜索</button>
         <button class="download-btn" @click="handleDownload" :disabled="downloading || !paper">
           {{ downloading ? '下载中...' : '下载 TXT' }}
         </button>
@@ -15,19 +15,13 @@
 
         <div class="paper-section">
           <h2>摘要</h2>
-          <p>{{ paper.abstract || '暂无摘要' }}</p>
+          <p>{{ abstractText }}</p>
         </div>
 
-        <div class="paper-grid">
-          <div class="paper-section">
-            <h2>关键词</h2>
-            <div class="tag-list">
-              <span v-for="keyword in keywordList" :key="keyword" class="tag">{{ keyword }}</span>
-            </div>
-          </div>
-          <div class="paper-section">
-            <h2>DOI</h2>
-            <p>{{ paper.doi || '暂无 DOI' }}</p>
+        <div class="paper-section">
+          <h2>关键词</h2>
+          <div class="tag-list">
+            <span v-for="keyword in keywordList" :key="keyword" class="tag">{{ keyword }}</span>
           </div>
         </div>
       </div>
@@ -41,6 +35,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { downloadPaperTxt, getPaperById } from '@/api/paper'
+import { normalizePaper, SEARCH_STATE_KEY } from '@/utils/paper'
 
 const route = useRoute()
 const router = useRouter()
@@ -48,15 +43,14 @@ const loading = ref(false)
 const downloading = ref(false)
 const paper = ref(null)
 
+const abstractText = computed(() => paper.value?.abstractText || '暂无摘要')
+
 const authorText = computed(() => {
-  const authors = paper.value?.authors
-  if (Array.isArray(authors)) return authors.join(', ')
-  return authors || '未知作者'
+  return paper.value?.authorText || '未知作者'
 })
 
 const keywordList = computed(() => {
-  const keywords = paper.value?.keywords || paper.value?.tags || []
-  return Array.isArray(keywords) && keywords.length ? keywords : ['暂无关键词']
+  return paper.value?.keywordsList?.length ? paper.value.keywordsList : ['暂无关键词']
 })
 
 async function loadPaperDetail(id) {
@@ -64,12 +58,20 @@ async function loadPaperDetail(id) {
   loading.value = true
   try {
     const res = await getPaperById(id)
-    paper.value = res.data || null
+    paper.value = res.data ? normalizePaper(res.data) : null
   } catch (error) {
     paper.value = null
   } finally {
     loading.value = false
   }
+}
+
+function handleBack() {
+  const hasStoredSearch = window.sessionStorage.getItem(SEARCH_STATE_KEY)
+  router.push({
+    path: '/search',
+    query: hasStoredSearch ? { restore: '1' } : {},
+  })
 }
 
 async function handleDownload() {
