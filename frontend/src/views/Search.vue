@@ -134,23 +134,6 @@
           @current-change="changePage"
         />
 
-        <el-dialog v-model:visible="detailVisible" width="60%" :before-close="closeDetail">
-          <template #title>
-            <div style="display:flex; justify-content:space-between; align-items:center">
-              <div>
-                <h3 style="margin:0">{{ detailPaper?.title }}</h3>
-                <div style="color:var(--text-secondary); font-size:13px">{{ detailPaper?.authors }} · {{ detailPaper?.venue }} · {{ detailPaper?.year }}</div>
-              </div>
-              <div>
-                <el-button type="primary" @click="toggleFavorite(detailPaper)">{{ isFavorited(detailPaper) ? '取消收藏' : '收藏' }}</el-button>
-              </div>
-            </div>
-          </template>
-
-          <div style="margin-top:10px">
-            <p style="white-space:pre-wrap">{{ detailPaper?.abstract }}</p>
-          </div>
-        </el-dialog>
       </section>
     </main>
   </div>
@@ -159,10 +142,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
-import { searchPapers, getPaperById } from '@/api/paper'
+import { searchPapers } from '@/api/paper'
 import { useUserStore } from '@/store/userStore'
 
+const router = useRouter()
 const userStore = useUserStore()
 const keyword = ref('')
 const results = ref([])
@@ -185,9 +170,6 @@ const pagedResults = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
   return results.value.slice(start, start + pageSize.value)
 })
-
-const detailVisible = ref(false)
-const detailPaper = ref(null)
 
 const favorites = ref(new Set(JSON.parse(localStorage.getItem('favorites') || '[]')))
 
@@ -235,13 +217,7 @@ function applyTrend(keywordStr) {
 
 function openDetail(paper) {
   if (!paper) return
-  detailPaper.value = paper
-  detailVisible.value = true
-}
-
-function closeDetail() {
-  detailVisible.value = false
-  detailPaper.value = null
+  router.push(`/paper/${paper.id}`)
 }
 
 function isFavorited(paper) {
