@@ -6,6 +6,7 @@ import com.example.research.service.PaperService;
 import com.example.research.util.Result;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -60,12 +61,15 @@ public class PaperController {
     @GetMapping("/{id:\\d+}/download/txt")
     public ResponseEntity<String> downloadPaperTxt(@PathVariable Long id) {
         Paper paper = paperService.getPaperById(id);
-        String filename = sanitizeFilename(paper.getTitle());
+        String filename = sanitizeFilename(paper.getTitle()) + ".txt";
         String content = buildPaperTxtContent(paper);
+        ContentDisposition contentDisposition = ContentDisposition.attachment()
+                .filename(filename, StandardCharsets.UTF_8)
+                .build();
 
         return ResponseEntity.ok()
                 .contentType(new MediaType("text", "plain", StandardCharsets.UTF_8))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + ".txt\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
                 .body(content);
     }
 

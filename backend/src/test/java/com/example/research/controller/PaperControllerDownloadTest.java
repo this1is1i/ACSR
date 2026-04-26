@@ -15,9 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -81,5 +85,28 @@ class PaperControllerDownloadTest {
                 .andExpect(content().string(containsString("Attention Is All You Need")))
                 .andExpect(content().string(containsString("NeurIPS")))
                 .andExpect(content().string(containsString("Transformer")));
+    }
+
+    @Test
+    void downloadTxt_uses_utf8_safe_filename_for_non_ascii_title() throws Exception {
+        Paper paper = new Paper();
+        paper.setId(2L);
+        paper.setTitle("多模态/推荐:系统");
+        paper.setAuthors("作者");
+        paper.setVenue("会议");
+        paper.setYear(2024);
+        paper.setAbstrakt("摘要");
+
+        when(paperService.getPaperById(2L)).thenReturn(paper);
+
+        MvcResult result = mockMvc.perform(get("/api/paper/2/download/txt"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String disposition = result.getResponse().getHeader(HttpHeaders.CONTENT_DISPOSITION);
+        assertThat(disposition).contains("filename*=");
+
+        ContentDisposition contentDisposition = ContentDisposition.parse(disposition);
+        assertThat(contentDisposition.getFilename()).isEqualTo("多模态_推荐_系统.txt");
     }
 }

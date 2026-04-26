@@ -47,6 +47,7 @@ public class SecurityConfig {
             "/api/user/login",
             "/api/paper/list",
             "/api/paper/*",
+            "/api/paper/*/download/txt",
             "/api/paper/aminer/*",
             "/api/paper/search",
             "/actuator/health",
