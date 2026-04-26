@@ -21,6 +21,8 @@ public interface PaperMapper extends BaseMapper<Paper> {
             SELECT * FROM paper
             WHERE deleted = 0
               AND (
+                MATCH(title, abstract) AGAINST(#{keyword} IN BOOLEAN MODE)
+                OR
                 LOWER(title) LIKE CONCAT('%', LOWER(#{keyword}), '%')
                 OR LOWER(`abstract`) LIKE CONCAT('%', LOWER(#{keyword}), '%')
                 OR LOWER(COALESCE(authors, '')) LIKE CONCAT('%', LOWER(#{keyword}), '%')
