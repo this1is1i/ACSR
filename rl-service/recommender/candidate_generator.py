@@ -3,8 +3,11 @@
 
 from __future__ import annotations
 import numpy as np
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, TYPE_CHECKING
 from dataclasses import dataclass, field
+
+if TYPE_CHECKING:
+    from dataset.aminer_loader import Paper
 
 
 @dataclass
@@ -42,6 +45,7 @@ class CandidateGenerator:
         self,
         pool_size: int = 500,
         state_dim: int = 64,
+        paper_pool: Optional[List[CandidateItem]] = None,
         seed: int = 42,
     ):
         self.pool_size = pool_size
@@ -49,7 +53,23 @@ class CandidateGenerator:
         self.rng = np.random.default_rng(seed)
 
         # 模拟全量论文库（生产环境替换为数据库）
-        self._paper_pool = self._build_mock_pool()
+        self._paper_pool = paper_pool if paper_pool is not None else self._build_mock_pool()
+
+    @classmethod
+    def from_papers(
+        cls,
+        papers: List["Paper"],
+        state_dim: int = 64,
+        seed: int = 42,
+    ) -> "CandidateGenerator":
+        generator = cls(
+            pool_size=max(len(papers), 1),
+            state_dim=state_dim,
+            paper_pool=[],
+            seed=seed,
+        )
+        generator._paper_pool = generator._build_pool_from_papers(papers)
+        return generator
 
     # ── 主接口 ────────────────────────────────────────────────────
 
@@ -157,10 +177,7 @@ class CandidateGenerator:
         items = []
         for i in range(self.pool_size):
             topic = topics_pool[i % len(topics_pool)]
-            seed = (i * 31 + 7) % (2**31)
-            rng = np.random.default_rng(seed)
-            vec = rng.standard_normal(self.state_dim).astype(np.float32)
-            vec /= np.linalg.norm(vec) + 1e-8
+            vec = self._build_vector(f"paper_{i:04d}", topic)
 
             items.append(CandidateItem(
                 item_id=f"paper_{i:04d}",
@@ -174,3 +191,26 @@ class CandidateGenerator:
                 kg_node_id=f"kg_node_{i:04d}",
             ))
         return items
+
+    def _build_pool_from_papers(self, papers: List["Paper"]) -> List[CandidateItem]:
+        items: List[CandidateItem] = []
+        for paper in papers:
+            topics = paper.keywords[:5] if paper.keywords else ([paper.venue] if paper.venue else [])
+            items.append(CandidateItem(
+                item_id=paper.paper_id,
+                title=paper.title,
+                abstract=paper.abstract,
+                authors=paper.authors,
+                year=paper.year or 2024,
+                citation_count=paper.citation_count,
+                topics=topics,
+                topic_vector=self._build_vector(paper.paper_id, paper.text_for_embedding()),
+                kg_node_id=paper.paper_id,
+            ))
+        return items
+
+    def _build_vector(self, key: str, text: str) -> np.ndarray:
+        seed = hash(f"{key}:{text}") % (2**31)
+        rng = np.random.default_rng(seed)
+        vec = rng.standard_normal(self.state_dim).astype(np.float32)
+        return vec / (np.linalg.norm(vec) + 1e-8)

@@ -5,6 +5,7 @@ import com.example.research.service.RecommendService;
 import com.example.research.util.Result;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -82,6 +83,7 @@ public class RecommendController {
      * Response: { "code": 0, "message": "训练已在后台启动" }
      */
     @PostMapping("/train")
+    @PreAuthorize("hasRole('ADMIN')")
     public Result<String> triggerTraining(
             @RequestParam(required = false) Integer episodes) {
 

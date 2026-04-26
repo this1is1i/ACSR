@@ -23,6 +23,7 @@ class Paper:
     keywords: List[str] = field(default_factory=list)
     venue: str = ""
     year: int = 0
+    citation_count: int = 0
     references: List[str] = field(default_factory=list)  # 被引 paper_id 列表
     # 预留 embedding 接口
     embedding: Optional[List[float]] = None
@@ -61,15 +62,11 @@ class AMinerLoader:
       - AMiner V14 学术网络格式
       - 自定义 JSONL 格式（每行一个 JSON 对象）
 
-    数据集下载：
-        https://www.aminer.org/citation  → AMiner Citation Network Dataset
-        推荐使用 AMiner-v14（包含 5.26M 论文，4.90M 作者，36M 引用关系）
-
     本地测试：
         若无真实数据，调用 generate_mock_data() 生成符合同等格式的 mock 数据。
     """
 
-    def __init__(self, data_dir: str = "data/aminer"):
+    def __init__(self, data_dir: str = "data/A+9+Miner"):
         self.data_dir = data_dir
         self.papers_path   = os.path.join(data_dir, "papers.json")
         self.authors_path  = os.path.join(data_dir, "authors.json")
@@ -182,6 +179,7 @@ class AMinerLoader:
             keywords  = keywords,
             venue     = str(record.get("venue") or record.get("journal") or ""),
             year      = int(record.get("year") or 0),
+            citation_count = int(record.get("n_citation") or record.get("citation_count") or 0),
             references= references,
         )
 
@@ -270,6 +268,7 @@ class AMinerLoader:
                 keywords  = selected_kws + [topic],
                 venue     = random.choice(venues),
                 year      = random.randint(2015, 2024),
+                citation_count = random.randint(10, 5000),
                 references= refs,
             ))
         logger.info(f"生成 mock 论文 {len(papers)} 篇")
@@ -305,7 +304,7 @@ class AMinerLoader:
                 "id": p.paper_id, "title": p.title,
                 "abstract": p.abstract, "authors": p.authors,
                 "keywords": p.keywords, "venue": p.venue,
-                "year": p.year, "references": p.references,
+                "year": p.year, "citation_count": p.citation_count, "references": p.references,
             }
 
         def author_to_dict(a: Author) -> dict:

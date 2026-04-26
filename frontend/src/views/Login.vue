@@ -22,6 +22,7 @@
             注册账号
           </el-button>
         </el-form-item>
+        <div class="hint">新注册账号默认为学生用户，可由管理员升级为研究者或管理员。</div>
       </el-form>
     </div>
   </div>
@@ -51,9 +52,9 @@ async function handleLogin() {
   loading.value = true
   try {
     const res = await login(form)
-    userStore.setToken(res.data.token)
+    userStore.setAuth(res.data)
     ElMessage.success('登录成功')
-    router.push('/home')
+    router.push(res.data.role === 'ADMIN' ? '/admin' : '/home')
   } finally {
     loading.value = false
   }
@@ -98,5 +99,6 @@ async function handleRegister() {
   font-size: 13px;
   margin-bottom: 28px;
 }
+.hint { color:#8b949e; font-size:12px; line-height:1.5; margin-top:8px; text-align:center }
 .btn-full { width: 100%; }
 </style>

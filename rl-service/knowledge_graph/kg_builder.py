@@ -182,7 +182,7 @@ class KGBuilder:
                     "year": p.year,
                     "venue": p.venue,
                     "keywords": p.keywords,
-                    "citation_count": 0,  # 稍后更新
+                    "citation_count": p.citation_count,
                 },
             ))
 

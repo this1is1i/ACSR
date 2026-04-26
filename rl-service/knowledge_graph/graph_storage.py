@@ -6,7 +6,7 @@ import os
 import json
 import logging
 import pickle
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from knowledge_graph.kg_builder import KnowledgeGraph, KGNode, KGEdge
 
@@ -117,29 +117,136 @@ class GraphStorage:
         logger.info(f"NetworkX 图创建完成：{G.number_of_nodes()} 节点，{G.number_of_edges()} 边")
         return G
 
-    # ── Neo4j 接入接口（预留）─────────────────────────────────────
+    # ── Neo4j 接入接口 ──────────────────────────────────────────────
 
-    def save_to_neo4j(self, kg: KnowledgeGraph, uri: str, user: str, password: str) -> None:
-        """
-        将知识图谱导入 Neo4j 图数据库（预留接口）。
+    def save_to_neo4j(
+        self,
+        kg: KnowledgeGraph,
+        uri: str,
+        user: str,
+        password: str,
+        database: str = "neo4j",
+        clear_existing: bool = False,
+        batch_size: int = 500,
+    ) -> None:
+        """将知识图谱导入 Neo4j 图数据库。"""
+        try:
+            from neo4j import GraphDatabase
+        except ImportError:
+            raise ImportError("请安装 neo4j 驱动：pip install neo4j")
 
-        接入步骤：
-          1. 安装 Neo4j Desktop：https://neo4j.com/download/
-          2. 安装驱动：pip install neo4j
-          3. 创建图谱实例，配置 uri/user/password
-          4. 取消注释并运行本方法
+        driver = GraphDatabase.driver(uri, auth=(user, password))
+        try:
+            with driver.session(database=database) as session:
+                session.run(
+                    "CREATE CONSTRAINT graph_node_id IF NOT EXISTS "
+                    "FOR (n:GraphNode) REQUIRE n.node_id IS UNIQUE"
+                )
+                if clear_existing:
+                    session.run("MATCH (n:GraphNode) DETACH DELETE n")
 
-        Cypher 示例：
-            CREATE (p:Paper {paper_id: $id, title: $title})
-            CREATE (a:Author {author_id: $id, name: $name})
-            MATCH (a:Author {author_id: $aid}), (p:Paper {paper_id: $pid})
-            CREATE (a)-[:AUTHOR_OF]->(p)
-        """
-        raise NotImplementedError("Neo4j 导入接口待实现")
+                grouped_nodes: Dict[str, list] = {}
+                for node in kg.nodes.values():
+                    grouped_nodes.setdefault(node.node_type, []).append({
+                        "node_id": node.node_id,
+                        "node_type": node.node_type,
+                        "label": node.label,
+                        "flat_properties": self._to_neo4j_properties(node.properties),
+                        "embedding": node.embedding,
+                        "properties_json": json.dumps(node.properties, ensure_ascii=False),
+                    })
 
-    def load_from_neo4j(self, uri: str, user: str, password: str) -> KnowledgeGraph:
-        """从 Neo4j 加载知识图谱（预留）。"""
-        raise NotImplementedError("Neo4j 加载接口待实现")
+                for node_type, rows in grouped_nodes.items():
+                    label = self._neo4j_label(node_type)
+                    query = f"""
+                    UNWIND $rows AS row
+                    MERGE (n:GraphNode:{label} {{node_id: row.node_id}})
+                    SET n.node_type = row.node_type,
+                        n.label = row.label,
+                        n.properties_json = row.properties_json
+                    SET n += row.flat_properties
+                    FOREACH (_ IN CASE WHEN row.embedding IS NULL THEN [] ELSE [1] END |
+                        SET n.embedding = row.embedding)
+                    """
+                    for chunk in self._chunks(rows, batch_size):
+                        session.run(query, rows=chunk)
+
+                grouped_edges: Dict[str, list] = {}
+                for edge in kg.edges:
+                    grouped_edges.setdefault(edge.relation, []).append({
+                        "src_id": edge.src_id,
+                        "dst_id": edge.dst_id,
+                        "relation": edge.relation,
+                        "weight": edge.weight,
+                        "properties_json": json.dumps(edge.properties, ensure_ascii=False),
+                    })
+
+                for relation, rows in grouped_edges.items():
+                    rel_type = self._neo4j_rel_type(relation)
+                    query = f"""
+                    UNWIND $rows AS row
+                    MATCH (src:GraphNode {{node_id: row.src_id}})
+                    MATCH (dst:GraphNode {{node_id: row.dst_id}})
+                    MERGE (src)-[r:{rel_type} {{src_id: row.src_id, dst_id: row.dst_id}}]->(dst)
+                    SET r.relation = row.relation,
+                        r.weight = row.weight,
+                        r.properties_json = row.properties_json
+                    """
+                    for chunk in self._chunks(rows, batch_size):
+                        session.run(query, rows=chunk)
+        finally:
+            driver.close()
+
+    def load_from_neo4j(
+        self,
+        uri: str,
+        user: str,
+        password: str,
+        database: str = "neo4j",
+    ) -> KnowledgeGraph:
+        """从 Neo4j 加载知识图谱。"""
+        try:
+            from neo4j import GraphDatabase
+        except ImportError:
+            raise ImportError("请安装 neo4j 驱动：pip install neo4j")
+
+        driver = GraphDatabase.driver(uri, auth=(user, password))
+        try:
+            kg = KnowledgeGraph()
+            with driver.session(database=database) as session:
+                node_rows = session.run("MATCH (n:GraphNode) RETURN n").data()
+                for row in node_rows:
+                    node = row["n"]
+                    reserved = {"node_id", "node_type", "label", "embedding", "properties_json"}
+                    properties = {
+                        key: value for key, value in dict(node).items()
+                        if key not in reserved
+                    }
+                    if node.get("properties_json"):
+                        try:
+                            properties.update(json.loads(node["properties_json"]))
+                        except json.JSONDecodeError:
+                            pass
+                    kg.add_node(KGNode(
+                        node_id=node["node_id"],
+                        node_type=node.get("node_type", "unknown"),
+                        label=node.get("label", node["node_id"]),
+                        properties=properties,
+                        embedding=node.get("embedding"),
+                    ))
+
+                edge_rows = session.run("""
+                    MATCH (src:GraphNode)-[r]->(dst:GraphNode)
+                    RETURN src.node_id AS src_id,
+                           dst.node_id AS dst_id,
+                           type(r) AS rel_type,
+                           properties(r) AS rel_props
+                """).data()
+                for row in edge_rows:
+                    kg.add_edge(self._edge_from_row(row))
+            return kg
+        finally:
+            driver.close()
 
     # ── 便捷方法 ──────────────────────────────────────────────────
 
@@ -161,3 +268,47 @@ class GraphStorage:
     def exists(self) -> bool:
         """检查是否已有保存的知识图谱。"""
         return os.path.exists(self.pickle_path) or os.path.exists(self.json_path)
+
+    @staticmethod
+    def _neo4j_label(node_type: str) -> str:
+        mapping = {
+            "paper": "Paper",
+            "author": "Author",
+            "keyword": "Keyword",
+            "venue": "Venue",
+        }
+        return mapping.get(node_type, "GraphNode")
+
+    @staticmethod
+    def _neo4j_rel_type(relation: str) -> str:
+        cleaned = "".join(ch if ch.isalnum() else "_" for ch in relation.upper())
+        return cleaned or "RELATED_TO"
+
+    @staticmethod
+    def _to_neo4j_properties(properties: Dict[str, Any]) -> Dict[str, Any]:
+        flattened: Dict[str, Any] = {}
+        for key, value in properties.items():
+            if value is None:
+                continue
+            if isinstance(value, (str, int, float, bool)):
+                flattened[key] = value
+            elif isinstance(value, list) and all(isinstance(item, (str, int, float, bool)) for item in value):
+                flattened[key] = value
+        return flattened
+
+    @staticmethod
+    def _chunks(rows: list, batch_size: int):
+        for idx in range(0, len(rows), batch_size):
+            yield rows[idx: idx + batch_size]
+
+    @staticmethod
+    def _edge_from_row(row: Dict[str, Any]) -> KGEdge:
+        rel_props = row.get("rel_props") or {}
+        relation = rel_props.get("relation") or row.get("rel_type") or "RELATED_TO"
+        weight = rel_props.get("weight", 1.0)
+        return KGEdge(
+            src_id=row["src_id"],
+            dst_id=row["dst_id"],
+            relation=str(relation),
+            weight=float(weight if weight is not None else 1.0),
+        )

@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import Config, default_config
 from agent import ActorCriticAgent
+from dataset.aminer_loader import Paper as SourcePaper
 from features.feature_builder import FeatureBuilder, UserFeatures
 from recommender.candidate_generator import CandidateGenerator, CandidateItem
 from recommender.ranker import RLRanker, RankedItem
@@ -74,6 +75,7 @@ class RecommendationService:
         self._agent: Optional[ActorCriticAgent] = None
         self._ranker: Optional[RLRanker] = None
         self._kg_embedder = None
+        self._paper_catalog: List[SourcePaper] = []
 
         # 初始化 KG（可选）
         self._init_kg(config)
@@ -85,7 +87,11 @@ class RecommendationService:
             kg_dim=kg_dim,
             kg_embedder=self._kg_embedder,
         )
-        self.candidate_gen = CandidateGenerator(state_dim=config.base_state_dim)
+        self.candidate_gen = (
+            CandidateGenerator.from_papers(self._paper_catalog, state_dim=config.base_state_dim)
+            if self._paper_catalog else
+            CandidateGenerator(state_dim=config.base_state_dim)
+        )
         self.explain_gen   = ExplanationGenerator()
 
         self._load_agent()
@@ -231,8 +237,22 @@ class RecommendationService:
             return
         try:
             from dataset.aminer_loader import AMinerLoader
+            from knowledge_graph.graph_storage import GraphStorage
             from knowledge_graph.kg_builder import KGBuilder
             from knowledge_graph.kg_embedder import KGEmbedder
+
+            if config.graph_backend == "neo4j":
+                storage = GraphStorage()
+                kg = storage.load_from_neo4j(
+                    uri=config.neo4j_uri,
+                    user=config.neo4j_user,
+                    password=config.neo4j_password,
+                    database=config.neo4j_database,
+                )
+                self._paper_catalog = self._extract_papers_from_kg(kg)
+                self._kg_embedder = KGEmbedder(kg, embed_dim=config.kg_embedding_dim)
+                logger.info(f"KG 从 Neo4j 加载完成：{len(self._paper_catalog)} 篇论文")
+                return
 
             loader = AMinerLoader()
             papers = loader.load_papers(limit=500)
@@ -240,11 +260,40 @@ class RecommendationService:
             citations = loader.load_citations(papers)
 
             kg = KGBuilder(min_keyword_freq=1).build(papers, authors, citations)
+            self._paper_catalog = papers
             self._kg_embedder = KGEmbedder(kg, embed_dim=config.kg_embedding_dim)
             logger.info(f"KG Embedder 构建完成：{len(papers)} 篇论文")
         except Exception as e:
             logger.warning(f"KG Embedder 构建失败，回退为无 KG 模式: {e}")
             self._kg_embedder = None
+            self._paper_catalog = []
+
+    @staticmethod
+    def _extract_papers_from_kg(kg) -> List[SourcePaper]:
+        papers: List[SourcePaper] = []
+        for node in kg.nodes.values():
+            if node.node_type != "paper":
+                continue
+
+            authors = node.properties.get("authors") or []
+            keywords = node.properties.get("keywords") or []
+            if isinstance(authors, str):
+                authors = [authors]
+            if isinstance(keywords, str):
+                keywords = [keywords]
+
+            papers.append(SourcePaper(
+                paper_id=node.properties.get("aminer_id") or node.node_id,
+                title=node.properties.get("title") or node.label,
+                abstract=node.properties.get("abstract") or "",
+                authors=[str(author) for author in authors],
+                keywords=[str(keyword) for keyword in keywords],
+                venue=str(node.properties.get("venue") or ""),
+                year=int(node.properties.get("year") or 0),
+                citation_count=int(node.properties.get("citation_count") or 0),
+                references=[],
+            ))
+        return papers
 
     def _load_agent(self) -> None:
         """加载或初始化 Agent。"""

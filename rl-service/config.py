@@ -1,6 +1,7 @@
 # config.py
 # 系统全局配置文件
 
+import os
 from dataclasses import dataclass, field
 from typing import Dict
 
@@ -15,6 +16,12 @@ class Config:
     # ── 知识图谱 ──────────────────────────────────────────────────
     kg_embedding_dim: int = 32   # 知识图谱 embedding 维度
     use_kg: bool = True          # 启用知识图谱特征
+    graph_backend: str = field(default_factory=lambda: os.getenv("REC_GRAPH_BACKEND", "json"))  # json | pickle | neo4j
+    neo4j_uri: str = field(default_factory=lambda: os.getenv("GRAPH_NEO4J_URI", "bolt://localhost:7687"))
+    neo4j_user: str = field(default_factory=lambda: os.getenv("GRAPH_NEO4J_USERNAME", "neo4j"))
+    neo4j_password: str = field(default_factory=lambda: os.getenv("GRAPH_NEO4J_PASSWORD", ""))
+    neo4j_database: str = field(default_factory=lambda: os.getenv("GRAPH_NEO4J_DATABASE", "neo4j"))
+    neo4j_batch_size: int = field(default_factory=lambda: int(os.getenv("GRAPH_NEO4J_BATCH_SIZE", "500")))
 
     # ── 网络结构 ──────────────────────────────────────────────────
     actor_hidden: int = 128

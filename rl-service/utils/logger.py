@@ -25,17 +25,18 @@ class TrainingLogger:
         self.history: Dict[str, list] = defaultdict(list)
         self.start_time = time.time()
 
-        # 配置 Python logging
         log_path = os.path.join(log_dir, f"{experiment_name}.log")
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s [%(levelname)s] %(message)s",
-            handlers=[
-                logging.FileHandler(log_path),
-                logging.StreamHandler(),
-            ],
-        )
-        self.logger = logging.getLogger(experiment_name)
+        formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+        self.logger = logging.getLogger(f"{experiment_name}.{id(self)}")
+        self.logger.setLevel(logging.INFO)
+        self.logger.propagate = False
+
+        file_handler = logging.FileHandler(log_path, encoding="utf-8")
+        stream_handler = logging.StreamHandler()
+        for handler in (file_handler, stream_handler):
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+
         self.logger.info(f"实验 [{experiment_name}] 开始，日志保存至 {log_path}")
 
     # ── 核心记录接口 ──────────────────────────────────────────────
@@ -61,6 +62,12 @@ class TrainingLogger:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(self.history, f, ensure_ascii=False, indent=2)
         self.logger.info(f"训练历史已保存至 {path}")
+
+    def close(self) -> None:
+        for handler in list(self.logger.handlers):
+            handler.flush()
+            handler.close()
+            self.logger.removeHandler(handler)
 
     # ── 预留扩展接口 ──────────────────────────────────────────────
 

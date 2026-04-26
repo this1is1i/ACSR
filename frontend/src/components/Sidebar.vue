@@ -6,10 +6,13 @@
     </div>
     <div class="user-box">
       <div class="user-avatar-sm">{{ displayAvatar }}</div>
-      <div class="user-name">{{ username }}</div>
+      <div>
+        <div class="user-name">{{ username }}</div>
+        <div class="user-role">{{ roleLabel }}</div>
+      </div>
     </div>
     <nav class="nav-menu">
-      <router-link to="/home" class="nav-item" :class="{ active: isActive('/home') }">
+      <router-link v-if="isLoggedIn" to="/home" class="nav-item" :class="{ active: isActive('/home') }">
         <span class="nav-icon">🏠</span>
         <span>首页推荐</span>
       </router-link>
@@ -21,17 +24,21 @@
         <span class="nav-icon">📊</span>
         <span>数据可视化</span>
       </router-link>
-      <router-link to="/community" class="nav-item">
+      <router-link v-if="isLoggedIn" to="/community" class="nav-item" :class="{ active: isActive('/community') }">
         <span class="nav-icon">💬</span>
         <span>科研社区</span>
       </router-link>
-      <router-link to="/messages" class="nav-item" :class="{ active: isActive('/messages') }">
+      <router-link v-if="isLoggedIn" to="/messages" class="nav-item" :class="{ active: isActive('/messages') }">
         <span class="nav-icon">✉️</span>
         <span>实时私信</span>
       </router-link>
-      <router-link to="/profile" class="nav-item">
+      <router-link v-if="isLoggedIn" to="/profile" class="nav-item" :class="{ active: isActive('/profile') }">
         <span class="nav-icon">👤</span>
         <span>个人中心</span>
+      </router-link>
+      <router-link v-if="isAdmin" to="/admin" class="nav-item" :class="{ active: isActive('/admin') }">
+        <span class="nav-icon">🛡️</span>
+        <span>管理员后台</span>
       </router-link>
     </nav>
 
@@ -44,11 +51,13 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, onMounted, computed } from 'vue'
-import { getProfile } from '@/api/user'
+import { storeToRefs } from 'pinia'
+import { useUserStore } from '@/store/userStore'
+
 const router = useRouter()
+const userStore = useUserStore()
+const { userInfo, token } = storeToRefs(userStore)
 const themeLabel = ref('切换为浅色')
-const username = ref('访客')
-const avatar = ref('')
 
 function isActive(path) {
   return router.currentRoute.value.path === path
@@ -66,21 +75,24 @@ function toggleTheme() {
 }
 
 const displayAvatar = computed(() => {
-  if (avatar.value) return ''
   return username.value ? username.value.charAt(0).toUpperCase() : 'U'
 })
+
+const username = computed(() => userInfo.value?.username || '访客')
+const roleLabel = computed(() => userInfo.value?.roleLabel || 'Guest')
+const isLoggedIn = computed(() => !!token.value)
+const isAdmin = computed(() => userInfo.value?.role === 'ADMIN')
 
 onMounted(async () => {
   const saved = localStorage.getItem('theme')
   if (saved) applyTheme(saved)
 
-  try {
-    const res = await getProfile()
-    const d = res.data || res
-    username.value = d.username || username.value
-    avatar.value = d.avatar || ''
-  } catch (e) {
-    // ignore — user may be unauthenticated
+  if (token.value && !userInfo.value) {
+    try {
+      await userStore.fetchProfile()
+    } catch {
+      userStore.clearToken()
+    }
   }
 })
 </script>
@@ -104,6 +116,7 @@ onMounted(async () => {
 .user-box { padding: 10px 20px; display:flex; align-items:center; gap:12px }
 .user-avatar-sm { width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; color:white; font-weight:700 }
 .user-name { color:var(--text-primary); font-weight:600 }
+.user-role { color: var(--text-secondary); font-size: 12px; margin-top: 2px }
 .nav-menu { padding: 6px 20px }
 .nav-item { display:flex; align-items:center; gap:14px; padding:14px 20px; margin:6px 0; border-radius:12px; color: #94a3b8; text-decoration:none; font-size:15px }
 .nav-item.active { background: rgba(99,102,241,0.15); color: #f8fafc; border:1px solid rgba(99,102,241,0.3) }

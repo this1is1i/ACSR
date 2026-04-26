@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 public class UserDto {
 
     @Data
@@ -31,6 +33,7 @@ public class UserDto {
         private Long userId;
         private String username;
         private String role;
+        private String roleLabel;
     }
 
     @Data
@@ -39,9 +42,29 @@ public class UserDto {
         private String username;
         private String email;
         private String role;
+        private String roleLabel;
         private String avatar;
         private String bio;
         private String researchInterests;
+    }
+
+    @Data
+    public static class UserRoleUpdateRequest {
+        @NotBlank
+        private String role;
+    }
+
+    @Data
+    public static class AdminUserItem {
+        private Long id;
+        private String username;
+        private String email;
+        private String role;
+        private String roleLabel;
+        private String avatar;
+        private String bio;
+        private String researchInterests;
+        private LocalDateTime createTime;
     }
 
     @Data

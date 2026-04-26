@@ -48,6 +48,14 @@ python:
     timeout: 5000           # 连接超时（ms）
     read-timeout: 10000     # 读取超时（ms）
 
+graph:
+  neo4j:
+    enabled: true
+    uri: bolt://localhost:7687
+    username: neo4j
+    password: seeworld123
+    database: neo4j
+
 # ── 日志配置 ──────────────────────────────────────────────────
 logging:
   level:

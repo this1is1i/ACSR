@@ -106,8 +106,10 @@ import { useRouter } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
 import RecommendList from '@/components/RecommendList.vue'
 import { getRecommendations } from '@/api/recommend'
+import { useUserStore } from '@/store/userStore'
 
 const router = useRouter()
+const userStore = useUserStore()
 const recommendations = ref([])
 const loading = ref(false)
 const collaborators = ref([
@@ -128,7 +130,7 @@ async function loadRecommendations() {
 }
 
 function logout() {
-  localStorage.removeItem('token')
+  userStore.clearToken()
   router.push('/login')
 }
 

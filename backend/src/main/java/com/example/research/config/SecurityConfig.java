@@ -1,5 +1,6 @@
 package com.example.research.config;
 
+import com.example.research.enums.UserRole;
 import com.example.research.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -45,7 +46,8 @@ public class SecurityConfig {
             "/api/user/register",
             "/api/user/login",
             "/api/paper/list",
-            "/api/paper/{id}",
+            "/api/paper/*",
+            "/api/paper/aminer/*",
             "/api/paper/search",
             "/actuator/health",
             "/ws-messages/**",  // WebSocket 端点
@@ -133,7 +135,7 @@ class JwtFilter extends OncePerRequestFilter {
             try {
                 Long userId   = jwtUtil.getUserIdFromToken(token);
                 String username = jwtUtil.getUsernameFromToken(token);
-                String role   = jwtUtil.getRoleFromToken(token);
+                String role   = UserRole.from(jwtUtil.getRoleFromToken(token)).name();
 
                 // 将认证信息放入 SecurityContext
                 var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));

@@ -47,10 +47,15 @@ public class PaperController {
      *
      * 示例：GET /api/paper/1
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     public Result<Paper> getPaper(@PathVariable Long id) {
         Paper paper = paperService.getPaperById(id);
         return Result.success(paper);
+    }
+
+    @GetMapping("/aminer/{aminerId}")
+    public Result<Paper> getPaperByAminer(@PathVariable String aminerId) {
+        return Result.success(paperService.getPaperByAminerId(aminerId));
     }
 
     /**

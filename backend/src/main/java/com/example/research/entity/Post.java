@@ -15,6 +15,10 @@ public class Post {
     private String content;
     private Integer likeCount;
     private Integer replyCount;
+    private Integer status;
+    private String reviewComment;
+    private Long reviewedBy;
+    private LocalDateTime reviewedTime;
     @TableLogic
     private Integer deleted;
     @TableField(fill = FieldFill.INSERT)

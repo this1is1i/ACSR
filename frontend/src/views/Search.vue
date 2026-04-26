@@ -158,9 +158,12 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { ElMessage } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
 import { searchPapers, getPaperById } from '@/api/paper'
+import { useUserStore } from '@/store/userStore'
 
+const userStore = useUserStore()
 const keyword = ref('')
 const results = ref([])
 const loading = ref(false)
@@ -247,6 +250,10 @@ function isFavorited(paper) {
 }
 
 function toggleFavorite(paper) {
+  if (!userStore.isLoggedIn()) {
+    ElMessage.warning('游客仅可搜索和查看详情，收藏功能需要登录')
+    return
+  }
   if (!paper) return
   if (favorites.value.has(paper.id)) {
     favorites.value.delete(paper.id)

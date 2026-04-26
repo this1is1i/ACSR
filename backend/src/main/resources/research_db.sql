@@ -290,6 +290,10 @@ CREATE TABLE `post`  (
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '帖子内容',
   `like_count` int NOT NULL DEFAULT 0 COMMENT '点赞数',
   `reply_count` int NOT NULL DEFAULT 0 COMMENT '回复数',
+  `status` tinyint NOT NULL DEFAULT 0 COMMENT '帖子状态: 0=待审核 1=已发布 2=已驳回',
+  `review_comment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '审核备注',
+  `reviewed_by` bigint NULL DEFAULT NULL COMMENT '审核管理员ID',
+  `reviewed_time` datetime NULL DEFAULT NULL COMMENT '审核时间',
   `deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '逻辑删除',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -363,7 +367,7 @@ CREATE TABLE `user`  (
   `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '用户名',
   `password` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'BCrypt 加密密码',
   `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '邮箱',
-  `role` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'USER' COMMENT '角色: USER / ADMIN',
+  `role` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'STUDENT' COMMENT '角色: STUDENT / RESEARCHER / ADMIN',
   `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '头像 URL',
   `bio` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '个人简介',
   `research_interests` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '研究方向（逗号分隔）',
@@ -379,8 +383,8 @@ CREATE TABLE `user`  (
 -- Records of user
 -- ----------------------------
 INSERT INTO `user` VALUES (1, 'admin', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'admin@research.com', 'ADMIN', NULL, NULL, 'Machine Learning,Reinforcement Learning', 0, '2026-03-21 22:28:30', '2026-03-21 22:56:01');
-INSERT INTO `user` VALUES (2, 'test_user', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'test@research.com', 'USER', NULL, NULL, 'NLP,Graph Neural Networks', 0, '2026-03-21 22:28:30', '2026-03-21 22:56:01');
-INSERT INTO `user` VALUES (3, 'xixihaha', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', NULL, 'USER', NULL, NULL, NULL, 0, '2026-03-21 22:54:42', '2026-03-21 22:54:42');
+INSERT INTO `user` VALUES (2, 'test_user', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'test@research.com', 'RESEARCHER', NULL, NULL, 'NLP,Graph Neural Networks', 0, '2026-03-21 22:28:30', '2026-03-21 22:56:01');
+INSERT INTO `user` VALUES (3, 'xixihaha', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', NULL, 'STUDENT', NULL, NULL, NULL, 0, '2026-03-21 22:54:42', '2026-03-21 22:54:42');
 
 -- ----------------------------
 -- Table structure for user_contacts

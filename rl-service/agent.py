@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 import os
+from dataclasses import asdict, is_dataclass
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -196,7 +197,7 @@ class ActorCriticAgent:
                 "critic_state_dict": self.critic.state_dict(),
                 "train_step":        self.train_step,
                 "episode_count":     self.episode_count,
-                "config":            self.config,
+                "config":            asdict(self.config) if is_dataclass(self.config) else self.config,
             },
             path,
         )
@@ -205,7 +206,10 @@ class ActorCriticAgent:
     def load_model(self, path: Optional[str] = None) -> None:
         """加载已保存的模型权重。"""
         path = path or self.config.model_save_path
-        checkpoint = torch.load(path, map_location=self.device)
+        try:
+            checkpoint = torch.load(path, map_location=self.device, weights_only=False)
+        except TypeError:
+            checkpoint = torch.load(path, map_location=self.device)
         self.actor.load_state_dict(checkpoint["actor_state_dict"])
         self.critic.load_state_dict(checkpoint["critic_state_dict"])
         self.train_step    = checkpoint.get("train_step", 0)

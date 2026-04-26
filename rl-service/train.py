@@ -4,6 +4,7 @@
 from __future__ import annotations
 import sys
 import os
+import signal
 
 # 将项目根目录加入 Python 路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -20,6 +21,44 @@ from utils.logger import TrainingLogger
 from utils.reward import WeightedRewardFunction
 
 logger = logging.getLogger(__name__)
+
+
+class GracefulStopController:
+    def __init__(self):
+        self._stop_requested = False
+        self.reason: Optional[str] = None
+        self._signal_count = 0
+
+    @property
+    def stop_requested(self) -> bool:
+        return self._stop_requested
+
+    def request_stop(self, reason: str = "stop requested") -> None:
+        self._stop_requested = True
+        self.reason = reason
+
+    def install_signal_handlers(self):
+        previous_handlers = {}
+
+        def handler(signum, _frame):
+            self._signal_count += 1
+            if self._signal_count == 1:
+                self.request_stop(f"received signal {signum}")
+                print("\n[Train] 收到停止信号，将在当前安全点保存模型并退出。再次按 Ctrl+C 将立即中断。")
+                return
+            raise KeyboardInterrupt
+
+        for signame in ("SIGINT", "SIGTERM"):
+            sig = getattr(signal, signame, None)
+            if sig is not None:
+                previous_handlers[sig] = signal.getsignal(sig)
+                signal.signal(sig, handler)
+        return previous_handlers
+
+    @staticmethod
+    def restore_signal_handlers(previous_handlers) -> None:
+        for sig, handler in (previous_handlers or {}).items():
+            signal.signal(sig, handler)
 
 
 def _build_kg_embedder(config: Config):
@@ -45,7 +84,10 @@ def _build_kg_embedder(config: Config):
         return None
 
 
-def train(config: Optional[Config] = None) -> ActorCriticAgent:
+def train(
+    config: Optional[Config] = None,
+    stop_controller: Optional[GracefulStopController] = None,
+) -> ActorCriticAgent:
     """
     Actor–Critic 训练主循环。
 
@@ -59,6 +101,7 @@ def train(config: Optional[Config] = None) -> ActorCriticAgent:
                 state = next_state
     """
     config = config or default_config
+    stop_controller = stop_controller or GracefulStopController()
     torch.manual_seed(42)
     np.random.seed(42)
 
@@ -75,9 +118,14 @@ def train(config: Optional[Config] = None) -> ActorCriticAgent:
     )
 
     best_reward = float("-inf")
+    stop_reason = None
 
     # ── 主训练循环 ────────────────────────────────────────────────
     for episode in range(1, config.max_episodes + 1):
+        if stop_controller.stop_requested:
+            stop_reason = stop_controller.reason or "stop requested before next episode"
+            break
+
         state, info = env.reset()
 
         episode_reward   = 0.0
@@ -86,6 +134,10 @@ def train(config: Optional[Config] = None) -> ActorCriticAgent:
         total_td_error   = 0.0
 
         for step in range(config.max_steps):
+            if stop_controller.stop_requested:
+                stop_reason = stop_controller.reason or "stop requested during episode"
+                break
+
             action, log_prob = agent.select_action(state)
             next_state, reward, done, step_info = env.step(action)
 
@@ -114,6 +166,9 @@ def train(config: Optional[Config] = None) -> ActorCriticAgent:
             if done:
                 break
 
+        if episode_steps == 0 and stop_reason:
+            break
+
         # ── Episode 统计 ──────────────────────────────────────────
         agent.episode_count += 1
         avg_actor_loss = total_actor_loss / episode_steps
@@ -138,9 +193,15 @@ def train(config: Optional[Config] = None) -> ActorCriticAgent:
             _demo_recommendation(agent, env, train_logger, config)
 
     # ── 训练结束 ──────────────────────────────────────────────────
-    train_logger.save_history()
-    train_logger.logger.info(f"训练完成！最优 Episode Reward: {best_reward:.3f}")
-    return agent
+    try:
+        if stop_reason:
+            agent.save_model()
+            train_logger.logger.info(f"训练已优雅停止：{stop_reason}")
+        train_logger.save_history()
+        train_logger.logger.info(f"训练完成！最优 Episode Reward: {best_reward:.3f}")
+        return agent
+    finally:
+        train_logger.close()
 
 
 def _demo_recommendation(
@@ -170,7 +231,12 @@ if __name__ == "__main__":
     print("=" * 60)
     print("  Actor–Critic 科研推荐系统  开始训练")
     print("=" * 60)
-    trained_agent = train(default_config)
+    controller = GracefulStopController()
+    previous_handlers = controller.install_signal_handlers()
+    try:
+        trained_agent = train(default_config, stop_controller=controller)
+    finally:
+        controller.restore_signal_handlers(previous_handlers)
 
     # ── 推理演示 ──────────────────────────────────────────────────
     print("\n[推理演示] 调用 REST API 接口格式：")
