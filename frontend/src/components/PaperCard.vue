@@ -50,28 +50,42 @@
 <script setup>
 import { InfoFilled, Star } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 import { recordClick, recordFavorite } from '@/api/recommend'
 
 const props = defineProps({
   paper: { type: Object, required: true },
   source: { type: String, default: 'recommend' },
 })
+const router = useRouter()
 
 function formatAuthors(authors) {
   if (Array.isArray(authors)) return authors.slice(0, 3).join(', ')
   try { return JSON.parse(authors).slice(0, 3).join(', ') } catch { return authors }
 }
 
+function getPaperId() {
+  return props.paper.paperId || props.paper.id
+}
+
 async function handleClick() {
+  const paperId = getPaperId()
+  if (!paperId) return
+
   try {
-    await recordClick(props.paper.paperId || props.paper.id, props.source)
+    await recordClick(paperId, props.source)
     ElMessage.success('已记录阅读行为')
   } catch {}
+
+  router.push(`/paper/${paperId}`)
 }
 
 async function handleFavorite() {
+  const paperId = getPaperId()
+  if (!paperId) return
+
   try {
-    await recordFavorite(props.paper.paperId || props.paper.id, props.source)
+    await recordFavorite(paperId, props.source)
     ElMessage.success('收藏成功')
   } catch {}
 }
