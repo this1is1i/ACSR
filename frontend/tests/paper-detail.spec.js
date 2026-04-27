@@ -89,9 +89,9 @@ test('restores visible search state after returning from paper detail', async ({
   await expect(page.getByRole('heading', { name: 'Attention Is All You Need' })).toBeVisible();
   await expect(page.getByRole('button', { name: '下载 TXT' })).toBeVisible();
 
-  await page.getByRole('button', { name: '← 返回搜索' }).click();
+  await page.goBack();
 
-  await expect(page).toHaveURL(/\/search/);
+  await expect(page).toHaveURL(/\/search$/);
   await expect(page.getByPlaceholder('输入关键词、论文标题、作者姓名或DOI...')).toHaveValue('Transformer');
   await expect(page.locator('.filter-select').nth(0)).toHaveValue('近三年');
   await expect(page.locator('.filter-select').nth(1)).toHaveValue('会议论文');
@@ -99,4 +99,59 @@ test('restores visible search state after returning from paper detail', async ({
   await expect(page.locator('.filter-select').nth(3)).toHaveValue('影响力');
   await expect(page.locator('.filter-tag').nth(1)).toContainText('*神经网络');
   await expect(page.getByText('Attention Is All You Need')).toBeVisible();
+});
+
+test('uses download filename from response headers', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__downloadRecords = [];
+    const originalClick = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function patchedClick() {
+      window.__downloadRecords.push({ href: this.href, download: this.download });
+    };
+    window.__restoreAnchorClick = () => {
+      HTMLAnchorElement.prototype.click = originalClick;
+    };
+  });
+
+  await page.route('**/api/paper/1', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        code: 200,
+        message: 'success',
+        data: {
+          id: 1,
+          title: 'Attention/Is:All*You?Need',
+          authors: '["Ashish Vaswani"]',
+          venue: 'NeurIPS',
+          year: 2017,
+          abstrakt: 'Transformer paper abstract',
+          keywords: '["Transformer","Attention"]',
+        },
+      }),
+    });
+  });
+
+  await page.route('**/api/paper/1/download/txt', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/plain; charset=utf-8',
+      headers: {
+        'content-disposition': "attachment; filename*=UTF-8''paper-safe-title.txt",
+      },
+      body: 'demo content',
+    });
+  });
+
+  await page.goto('/paper/1');
+  await page.getByRole('button', { name: '下载 TXT' }).click();
+
+  await expect.poll(async () => {
+    return page.evaluate(() => window.__downloadRecords.length);
+  }).toBe(1);
+
+  await expect.poll(async () => {
+    return page.evaluate(() => window.__downloadRecords[0]?.download ?? null);
+  }).toBe('paper-safe-title.txt');
 });

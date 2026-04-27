@@ -146,7 +146,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
 import { searchPapers } from '@/api/paper'
 import { useUserStore } from '@/store/userStore'
-import { normalizePaper, SEARCH_STATE_KEY } from '@/utils/paper'
+import { normalizePaper, SEARCH_RESTORE_PENDING_KEY, SEARCH_STATE_KEY } from '@/utils/paper'
 
 const route = useRoute()
 const router = useRouter()
@@ -201,8 +201,10 @@ function restoreSearchState() {
       ...(savedState.filters && typeof savedState.filters === 'object' ? savedState.filters : {}),
     }
     tags.value = Array.isArray(savedState.tags) ? [...savedState.tags] : [...defaultTags]
+    window.sessionStorage.removeItem(SEARCH_RESTORE_PENDING_KEY)
   } catch {
     window.sessionStorage.removeItem(SEARCH_STATE_KEY)
+    window.sessionStorage.removeItem(SEARCH_RESTORE_PENDING_KEY)
   }
 }
 
@@ -256,6 +258,7 @@ function applyTrend(keywordStr) {
 function openDetail(paper) {
   if (!paper) return
   saveSearchState()
+  window.sessionStorage.setItem(SEARCH_RESTORE_PENDING_KEY, '1')
   router.push(`/paper/${paper.id}`)
 }
 
@@ -281,7 +284,8 @@ function toggleFavorite(paper) {
 }
 
 onMounted(() => {
-  if (route.query.restore === '1') {
+  const shouldRestore = route.query.restore === '1' || window.sessionStorage.getItem(SEARCH_RESTORE_PENDING_KEY) === '1'
+  if (shouldRestore) {
     restoreSearchState()
   }
 })

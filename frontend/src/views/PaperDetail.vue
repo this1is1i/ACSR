@@ -35,7 +35,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { downloadPaperTxt, getPaperById } from '@/api/paper'
-import { normalizePaper, SEARCH_STATE_KEY } from '@/utils/paper'
+import { getDownloadFilename, normalizePaper, SEARCH_RESTORE_PENDING_KEY } from '@/utils/paper'
 
 const route = useRoute()
 const router = useRouter()
@@ -67,22 +67,27 @@ async function loadPaperDetail(id) {
 }
 
 function handleBack() {
-  const hasStoredSearch = window.sessionStorage.getItem(SEARCH_STATE_KEY)
-  router.push({
-    path: '/search',
-    query: hasStoredSearch ? { restore: '1' } : {},
-  })
+  const shouldReturnToSearch = window.sessionStorage.getItem(SEARCH_RESTORE_PENDING_KEY) === '1'
+  if (shouldReturnToSearch) {
+    router.back()
+    return
+  }
+
+  router.push('/search')
 }
 
 async function handleDownload() {
   if (!paper.value) return
   downloading.value = true
   try {
-    const blob = await downloadPaperTxt(route.params.id)
-    const url = window.URL.createObjectURL(blob)
+    const response = await downloadPaperTxt(route.params.id)
+    const url = window.URL.createObjectURL(response.data)
     const link = document.createElement('a')
     link.href = url
-    link.download = `${paper.value.title || `paper-${route.params.id}`}.txt`
+    link.download = getDownloadFilename(
+      response.headers?.['content-disposition'],
+      `${paper.value.title || `paper-${route.params.id}`}.txt`
+    )
     link.click()
     window.URL.revokeObjectURL(url)
   } catch (error) {
