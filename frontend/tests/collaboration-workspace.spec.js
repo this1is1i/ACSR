@@ -153,20 +153,31 @@ async function stubMessagingWorkspace(page, sentMessages) {
   })
 }
 
-test('community reframes the feed as a collaboration workspace with a contextual discussion rail', async ({ page }) => {
+test('community focuses on the publishing and feed workflow without unfinished draft side cards', async ({ page }) => {
   await seedSession(page)
   await stubCommunityWorkspace(page)
 
   await page.goto('/community')
 
   await expect(page.getByTestId('community-collaboration-workspace')).toBeVisible()
-  await expect(page.getByTestId('discussion-context-rail')).toContainText('Practical PPO for Collaborative Research')
-  await expect(page.getByTestId('discussion-context-rail')).toContainText('Actor-Critic')
+  await expect(page.getByTestId('discussion-context-rail')).toHaveCount(0)
   await expect(page.getByText('组会：Actor-Critic 复现实验')).toBeVisible()
 
   await page.getByRole('button', { name: '查看评论' }).first().click()
 
   await expect(page.getByText('我们先对照 PPO baseline 看看。')).toBeVisible()
+})
+
+test('community removes unfinished draft explainer cards while keeping the feed workflow intact', async ({ page }) => {
+  await seedSession(page)
+  await stubCommunityWorkspace(page)
+
+  await page.goto('/community')
+
+  await expect(page.locator('.workspace-header.card.glass')).toHaveCount(0)
+  await expect(page.locator('.workspace-badges')).toHaveCount(0)
+  await expect(page.getByText('组会：Actor-Critic 复现实验')).toBeVisible()
+  await expect(page.getByRole('button', { name: '查看评论' }).first()).toBeVisible()
 })
 
 test('messaging becomes a collaboration workspace without breaking the existing conversation flow', async ({ page }) => {

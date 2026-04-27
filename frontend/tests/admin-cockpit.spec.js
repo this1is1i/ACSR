@@ -136,14 +136,13 @@ test('admin console lands on a cockpit summary before the existing operational t
 
   const hero = page.getByTestId('admin-cockpit-hero')
   const kpiGrid = page.getByTestId('admin-kpi-grid')
-  const rail = page.getByTestId('admin-action-rail')
   const operations = page.getByTestId('admin-operations')
 
   await expect(hero).toBeVisible()
   await expect(hero).toContainText('控制台总览')
   await expect(kpiGrid).toContainText('待审核帖子')
   await expect(kpiGrid).toContainText('在管账号')
-  await expect(rail).toContainText('高优先级动作')
+  await expect(page.getByText('高优先级动作')).toHaveCount(0)
   await expect(operations).toBeVisible()
   await expect(page.getByText('待审核的图谱帖子')).toBeVisible()
 
@@ -233,4 +232,20 @@ test('successful moderation keeps the table updated and shows an accurate overvi
   await expect(page.getByText('待审核的图谱帖子')).toHaveCount(0)
   await expect(page.getByText('帖子状态已更新，总览同步稍后重试')).toBeVisible()
   await expect(page.locator('.el-message--error')).toHaveCount(0)
+})
+
+test('admin console removes unfinished draft rail cards and keeps tables inside the operations panel', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 960 })
+  await seedAdminSession(page)
+  await stubAdminApis(page)
+
+  await page.goto('/admin')
+
+  const operations = page.getByTestId('admin-operations')
+  await expect(operations).toBeVisible()
+  await expect(page.getByText('高优先级动作')).toHaveCount(0)
+  await expect(page.getByText('接口约束')).toHaveCount(0)
+
+  const operationsOverflows = await operations.evaluate((element) => element.scrollWidth > element.clientWidth)
+  expect(operationsOverflows).toBe(false)
 })

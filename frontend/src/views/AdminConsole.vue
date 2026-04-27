@@ -32,37 +32,39 @@
 
       <AdminKpiGrid :items="kpiItems" :loading="dashboardLoading" />
 
-      <div class="admin-workspace">
-        <section ref="operationsSection" class="admin-operations card glass" data-testid="admin-operations">
-          <div class="admin-operations__intro">
-            <p class="admin-operations__eyebrow">Operations Deck</p>
-            <h2>执行面板</h2>
-            <p>以下保留原有的后台操作流：筛选审核、提交导入、修改角色均继续走现有接口。</p>
-          </div>
+        <div class="admin-workspace">
+          <section ref="operationsSection" class="admin-operations card glass" data-testid="admin-operations">
+            <div class="admin-operations__intro">
+              <p class="admin-operations__eyebrow">Operations Deck</p>
+              <h2>执行面板</h2>
+              <p>以下保留原有的后台操作流：筛选审核、提交导入、修改角色均继续走现有接口。</p>
+            </div>
 
-          <el-tabs v-model="activeTab" class="admin-tabs">
-            <el-tab-pane label="帖子审核" name="posts">
-              <div class="toolbar">
-                <el-select v-model="postStatusFilter" placeholder="筛选状态" style="width: 180px" @change="loadPosts">
-                  <el-option label="全部" value="" />
-                  <el-option label="待审核" value="PENDING" />
-                  <el-option label="已发布" value="APPROVED" />
-                  <el-option label="已驳回" value="REJECTED" />
-                </el-select>
-              </div>
-              <el-table :data="adminPosts" v-loading="loadingPosts" border>
-                <el-table-column prop="title" label="标题" min-width="180" />
-                <el-table-column prop="author.username" label="作者" min-width="120" />
-                <el-table-column prop="statusLabel" label="状态" width="100" />
-                <el-table-column prop="reviewComment" label="审核备注" min-width="180" />
-                <el-table-column label="操作" width="220">
-                  <template #default="{ row }">
-                    <el-button size="small" type="success" @click="updatePostStatus(row, 'APPROVED')">通过</el-button>
-                    <el-button size="small" type="danger" @click="updatePostStatus(row, 'REJECTED')">驳回</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-tab-pane>
+            <el-tabs v-model="activeTab" class="admin-tabs">
+              <el-tab-pane label="帖子审核" name="posts">
+                <div class="toolbar">
+                  <el-select v-model="postStatusFilter" placeholder="筛选状态" style="width: 180px" @change="loadPosts">
+                    <el-option label="全部" value="" />
+                    <el-option label="待审核" value="PENDING" />
+                    <el-option label="已发布" value="APPROVED" />
+                    <el-option label="已驳回" value="REJECTED" />
+                  </el-select>
+                </div>
+                <div class="admin-table-wrap">
+                  <el-table :data="adminPosts" v-loading="loadingPosts" border>
+                    <el-table-column prop="title" label="标题" min-width="180" />
+                    <el-table-column prop="author.username" label="作者" min-width="120" />
+                    <el-table-column prop="statusLabel" label="状态" width="100" />
+                    <el-table-column prop="reviewComment" label="审核备注" min-width="180" />
+                    <el-table-column label="操作" width="220">
+                      <template #default="{ row }">
+                        <el-button size="small" type="success" @click="updatePostStatus(row, 'APPROVED')">通过</el-button>
+                        <el-button size="small" type="danger" @click="updatePostStatus(row, 'REJECTED')">驳回</el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </div>
+              </el-tab-pane>
 
             <el-tab-pane label="论文导入" name="papers">
               <div class="import-card">
@@ -75,34 +77,29 @@
             </el-tab-pane>
 
             <el-tab-pane label="账号权限" name="users">
-              <el-table :data="adminUsers" v-loading="loadingUsers" border>
-                <el-table-column prop="username" label="用户名" min-width="120" />
-                <el-table-column prop="email" label="邮箱" min-width="180" />
-                <el-table-column prop="roleLabel" label="当前角色" width="120" />
-                <el-table-column prop="researchInterests" label="研究方向" min-width="180" />
-                <el-table-column label="修改角色" width="220">
-                  <template #default="{ row }">
-                    <div class="role-action">
-                      <el-select v-model="roleDrafts[row.id]" style="width: 130px">
-                        <el-option label="学生" value="STUDENT" />
-                        <el-option label="研究者" value="RESEARCHER" />
-                        <el-option label="管理员" value="ADMIN" />
-                      </el-select>
-                      <el-button size="small" type="primary" @click="saveUserRole(row)">保存</el-button>
-                    </div>
-                  </template>
-                </el-table-column>
-              </el-table>
+              <div class="admin-table-wrap">
+                <el-table :data="adminUsers" v-loading="loadingUsers" border>
+                  <el-table-column prop="username" label="用户名" min-width="120" />
+                  <el-table-column prop="email" label="邮箱" min-width="180" />
+                  <el-table-column prop="roleLabel" label="当前角色" width="120" />
+                  <el-table-column prop="researchInterests" label="研究方向" min-width="180" />
+                  <el-table-column label="修改角色" width="220">
+                    <template #default="{ row }">
+                      <div class="role-action">
+                        <el-select v-model="roleDrafts[row.id]" style="width: 130px">
+                          <el-option label="学生" value="STUDENT" />
+                          <el-option label="研究者" value="RESEARCHER" />
+                          <el-option label="管理员" value="ADMIN" />
+                        </el-select>
+                        <el-button size="small" type="primary" @click="saveUserRole(row)">保存</el-button>
+                      </div>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
             </el-tab-pane>
           </el-tabs>
         </section>
-
-        <AdminActionRail
-          :actions="railActions"
-          :statuses="railStatuses"
-          :notes="railNotes"
-          @select-tab="focusTab"
-        />
       </div>
     </main>
   </div>
@@ -112,7 +109,6 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
-import AdminActionRail from '@/components/admin/AdminActionRail.vue'
 import AdminCockpitHero from '@/components/admin/AdminCockpitHero.vue'
 import AdminKpiGrid from '@/components/admin/AdminKpiGrid.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
@@ -228,23 +224,6 @@ const dashboardActions = computed(() => ([
     detail: pendingRoleChanges.value ? `${pendingRoleChanges.value} 项角色变更待保存` : '查看当前角色矩阵',
   },
 ]))
-const railActions = computed(() => ([
-  {
-    tab: 'posts',
-    label: '切至帖子审核',
-    detail: postCounts.value.pending ? `${postCounts.value.pending} 条待处理` : '查看审核历史',
-  },
-  {
-    tab: 'papers',
-    label: '切至论文导入',
-    detail: paperDraftState.value.isValid ? `${paperDraftState.value.count} 篇草稿已就绪` : paperDraftState.value.message,
-  },
-  {
-    tab: 'users',
-    label: '切至账号权限',
-    detail: pendingRoleChanges.value ? `${pendingRoleChanges.value} 项角色变更待保存` : '查看当前角色矩阵',
-  },
-]))
 const kpiItems = computed(() => ([
   {
     label: '待审核帖子',
@@ -273,34 +252,6 @@ const kpiItems = computed(() => ([
     tone: paperDraftState.value.isValid ? 'success' : 'danger',
   },
 ]))
-const railStatuses = computed(() => ([
-  {
-    label: '审核队列',
-    value: postCounts.value.pending ? `${postCounts.value.pending} 条待处理` : '当前已清空',
-    detail: `已发布 ${postCounts.value.approved} · 已驳回 ${postCounts.value.rejected}`,
-    tone: postCounts.value.pending ? 'danger' : 'success',
-  },
-  {
-    label: '权限矩阵',
-    value: `${roleCounts.value.ADMIN || 0} 位管理员`,
-    detail: pendingRoleChanges.value ? `${pendingRoleChanges.value} 项角色调整待保存` : '角色草稿与线上数据一致',
-    tone: pendingRoleChanges.value ? 'accent' : 'success',
-  },
-  {
-    label: '导入仓位',
-    value: paperDraftState.value.isValid ? `${paperDraftState.value.count} 篇待导入` : '草稿需校验',
-    detail: lastImportSummary.value
-      ? `最近一次成功导入 ${lastImportSummary.value.count} 篇`
-      : paperDraftState.value.message,
-    tone: paperDraftState.value.isValid ? 'accent' : 'danger',
-  },
-]))
-const railNotes = [
-  '帖子审核继续调用 /api/admin/posts 与状态更新接口。',
-  '论文导入仍提交到既有 /api/admin/papers/import。',
-  '账号权限保存保持使用 /api/admin/users/{id}/role。',
-]
-
 onMounted(async () => {
   await Promise.all([loadPosts(), loadUsers()])
 })
@@ -433,14 +384,13 @@ async function saveUserRole(user) {
 
 .admin-workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.8fr);
-  gap: var(--space-5);
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .admin-operations {
   display: grid;
   gap: var(--space-5);
+  min-width: 0;
   padding: clamp(1.25rem, 2vw, 1.65rem);
 }
 
@@ -491,6 +441,11 @@ async function saveUserRole(user) {
   align-items: center;
 }
 
+.admin-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 :deep(.admin-tabs .el-tabs__header) {
   margin-bottom: var(--space-5);
 }
@@ -514,6 +469,7 @@ async function saveUserRole(user) {
   --el-table-tr-bg-color: transparent;
   --el-table-text-color: var(--color-text-primary);
   --el-table-header-text-color: var(--color-text-secondary);
+  min-width: 760px;
 }
 
 @media (max-width: 1180px) {

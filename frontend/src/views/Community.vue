@@ -3,18 +3,11 @@
     <div class="bg-animation"></div>
     <Sidebar />
     <main class="main-content">
-      <header class="workspace-header card glass">
-        <div class="page-title">
-          <p class="workspace-eyebrow">Collaboration Workspace</p>
-          <h2>💬 科研社区工作台</h2>
-          <p>把社区动态、论文线索与评论协作合并在一个未来实验室工作区里。</p>
-        </div>
-        <div class="workspace-badges">
-          <span class="workspace-badge">论文协作</span>
-          <span class="workspace-badge">主题同步</span>
-          <span class="workspace-badge">路径推进</span>
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Future Lab"
+        title="科研社区工作台"
+        description="聚焦帖子、评论与审核后的社区互动，不再让说明性设计卡片占据主界面。"
+      />
 
       <div class="workspace-grid">
         <section class="workspace-main">
@@ -87,13 +80,6 @@
             </article>
           </section>
         </section>
-
-        <DiscussionContextRail
-          :posts="posts"
-          :active-tab="activeTab"
-          :publish-hint="publishHint"
-          :selected-post="selectedPost"
-        />
       </div>
     </main>
 
@@ -144,7 +130,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
 import CommunityCommentTree from '@/components/CommunityCommentTree.vue'
-import DiscussionContextRail from '@/components/community/DiscussionContextRail.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
 import { createCommunityPost, createPostComment, getCommunityPosts, getPostComments } from '@/api/community'
 import { useUserStore } from '@/store/userStore'
 
@@ -286,11 +272,7 @@ function formatTime(value) {
 @import '@/style.css';
 
 .main-content { margin-left: 260px; min-height: 100vh; padding: 30px 40px; color: var(--text-primary); }
-.workspace-header { margin-bottom: 24px; padding: 24px; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
-.workspace-eyebrow { margin-bottom: 8px; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent-secondary); }
-.workspace-badges { display: flex; flex-wrap: wrap; gap: 10px; }
-.workspace-badge { padding: 10px 14px; border-radius: 999px; border: 1px solid var(--color-border-subtle); background: rgba(124, 140, 255, 0.12); color: var(--color-text-primary); }
-.workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+.workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; }
 .workspace-main { min-width: 0; }
 .post-creator,
 .post-card { padding: 20px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--design-border); margin-bottom: 18px; }
@@ -331,7 +313,6 @@ function formatTime(value) {
 
 @media (max-width: 1180px) {
   .workspace-grid { grid-template-columns: 1fr; }
-  .workspace-header { flex-direction: column; align-items: flex-start; }
 }
 
 @media (max-width: 980px) {

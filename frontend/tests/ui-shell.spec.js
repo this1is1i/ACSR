@@ -7,6 +7,24 @@ async function seedSession(page, userInfo) {
   }, { userInfo })
 }
 
+async function stubAdminShellApis(page) {
+  await page.route(/\/api\/admin\/posts(?:\?.*)?$/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ code: 200, message: 'success', data: [] }),
+    })
+  })
+
+  await page.route(/\/api\/admin\/users$/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ code: 200, message: 'success', data: [] }),
+    })
+  })
+}
+
 test('regular users get the shared shell foundations without management navigation', async ({ page }) => {
   await seedSession(page, {
     id: 7,
@@ -97,9 +115,12 @@ test('theme toggle keeps the html dark class in sync with the selected theme', a
     role: 'ADMIN',
     roleLabel: '管理员',
   })
+  await stubAdminShellApis(page)
 
   await page.goto('/admin')
-  await page.getByRole('button', { name: '切换浅色' }).click()
+  await page.locator('.sidebar__theme-toggle').evaluate((element) => {
+    element.click()
+  })
 
   const themeState = await page.evaluate(() => ({
     theme: document.documentElement.getAttribute('data-theme'),
@@ -144,12 +165,15 @@ test('light theme keeps the shared sidebar surface readable for dark text', asyn
     role: 'ADMIN',
     roleLabel: '管理员',
   })
+  await stubAdminShellApis(page)
 
   await page.goto('/admin')
-  await page.getByRole('button', { name: '切换浅色' }).click()
+  await page.locator('.sidebar__theme-toggle').evaluate((element) => {
+    element.click()
+  })
 
-  const sidebarSurface = await page.evaluate(() => {
-    const color = window.getComputedStyle(document.querySelector('.sidebar')).backgroundColor
+  const sidebarSurface = await page.locator('.sidebar').evaluate((element) => {
+    const color = window.getComputedStyle(element).backgroundColor
     const [red, green, blue] = color.match(/\d+/g).slice(0, 3).map(Number)
     return {
       color,

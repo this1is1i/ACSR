@@ -168,6 +168,30 @@ test('knowledge graph foregrounds the learning path with recommendation assets',
   await expect(rail).toContainText('Entropy-Regularized Actor-Critic')
 })
 
+test('knowledge graph keeps the top controls compact on wide screens', async ({ page }) => {
+  await page.setViewportSize({ width: 2000, height: 1200 })
+  await stubSharedApis(page)
+
+  await page.goto('/knowledge-graph')
+
+  const mainSurface = page.locator('.viz-surface-layout__main')
+  const timeFilter = page.locator('.time-filter')
+  const firstStatCard = page.locator('.stats-row .stat-card').first()
+
+  await expect(timeFilter).toBeVisible()
+  await expect(firstStatCard).toBeVisible()
+
+  const mainSurfaceBox = await mainSurface.boundingBox()
+  const timeFilterBox = await timeFilter.boundingBox()
+  const firstStatCardBox = await firstStatCard.boundingBox()
+
+  expect(mainSurfaceBox).not.toBeNull()
+  expect(timeFilterBox).not.toBeNull()
+  expect(firstStatCardBox).not.toBeNull()
+  expect(timeFilterBox.width).toBeLessThan(mainSurfaceBox.width * 0.6)
+  expect(firstStatCardBox.width).toBeLessThan(280)
+})
+
 test('profile foregrounds research assets before legacy cards', async ({ page }) => {
   await stubSharedApis(page)
 
