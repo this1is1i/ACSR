@@ -11,7 +11,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from dataset.aminer_loader import AMinerLoader, Author, Citation
+from dataset.aminer_loader import AMinerLoader, Author, Citation, resolve_aminer_data_dir
 
 
 @dataclass
@@ -39,7 +39,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mysql-db", default=os.getenv("MYSQL_DB", "research_db"))
     parser.add_argument("--mysql-user", default=os.getenv("MYSQL_USER", "root"))
     parser.add_argument("--mysql-password", default=os.getenv("MYSQL_PASSWORD", ""))
-    parser.add_argument("--data-dir", default=os.path.join(ROOT_DIR, "data", "A+9+Miner"))
+    parser.add_argument("--data-dir", default=resolve_aminer_data_dir(ROOT_DIR))
     parser.add_argument("--paper-limit", type=int, default=1000)
     parser.add_argument("--clear", action="store_true")
     parser.add_argument("--skip-mysql", action="store_true")

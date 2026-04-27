@@ -20,6 +20,21 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def build_paper_fetch_query() -> str:
+    return """
+        MATCH (p:Paper)
+        RETURN p.aminer_id AS aminer_id,
+               p.title AS title,
+               p.abstract AS abstract,
+               p.keywords AS keywords,
+               p.authors AS authors,
+               p.venue AS venue,
+               p.year AS year,
+               coalesce(p.citation_count, 0) AS citation_count,
+               p['embedding'] AS embedding
+    """
+
+
 def main() -> None:
     args = parse_args()
 
@@ -39,18 +54,7 @@ def main() -> None:
 
     try:
         with driver.session(database=args.neo4j_database) as session:
-            records = session.run("""
-                MATCH (p:Paper)
-                RETURN p.aminer_id AS aminer_id,
-                       p.title AS title,
-                       p.abstract AS abstract,
-                       p.keywords AS keywords,
-                       p.authors AS authors,
-                       p.venue AS venue,
-                       p.year AS year,
-                       coalesce(p.citation_count, 0) AS citation_count,
-                       p.embedding AS embedding
-            """).data()
+            records = session.run(build_paper_fetch_query()).data()
 
         sql = """
             INSERT INTO paper (aminer_id, title, abstract, keywords, authors, venue, year, citation_count, embedding)

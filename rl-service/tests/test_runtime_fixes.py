@@ -6,6 +6,8 @@ from unittest.mock import patch
 
 import train as train_module
 import agent as agent_module
+import scripts.migrate_to_neo4j as migrate_to_neo4j_module
+import scripts.backfill_mysql_shadow_papers as backfill_mysql_shadow_papers_module
 from agent import ActorCriticAgent
 from config import Config
 import config as config_module
@@ -100,6 +102,25 @@ class RuntimeFixesTest(unittest.TestCase):
         self.assertEqual(cfg.neo4j_user, "neo4j-user")
         self.assertEqual(cfg.neo4j_password, "secret-from-env")
         self.assertEqual(cfg.neo4j_database, "graphdb")
+
+    def test_migrate_to_neo4j_defaults_to_existing_aminer_directory(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            os.makedirs(os.path.join(temp_dir, "data", "AMiner"))
+
+            with patch.object(migrate_to_neo4j_module, "ROOT_DIR", temp_dir):
+                with patch("sys.argv", ["migrate_to_neo4j.py"]):
+                    args = migrate_to_neo4j_module.parse_args()
+
+            self.assertEqual(args.data_dir, os.path.join(temp_dir, "data", "AMiner"))
+
+    def test_backfill_script_exposes_warning_free_paper_query(self):
+        self.assertTrue(
+            hasattr(backfill_mysql_shadow_papers_module, "build_paper_fetch_query")
+        )
+        if hasattr(backfill_mysql_shadow_papers_module, "build_paper_fetch_query"):
+            query = backfill_mysql_shadow_papers_module.build_paper_fetch_query()
+            self.assertIn("p['embedding'] AS embedding", query)
+            self.assertNotIn("p.embedding AS embedding", query)
 
 
 if __name__ == "__main__":

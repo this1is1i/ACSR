@@ -1,1 +1,16 @@
 .worktrees/
+
+# Frontend build and test artifacts
+frontend/dist/
+frontend/dist-ssr/
+frontend/test-results/
+frontend/playwright-report/
+
+# Backend build artifacts
+backend/target/
+
+# Python / RL service artifacts
+**/__pycache__/
+*.py[cod]
+rl-service/logs/
+rl-service/checkpoints/

@@ -11,6 +11,19 @@ from typing import List, Dict, Optional, Iterator, Any
 logger = logging.getLogger(__name__)
 
 
+def resolve_aminer_data_dir(base_dir: Optional[str] = None) -> str:
+    """解析默认 AMiner 数据目录，优先使用仓库中实际存在的目录名。"""
+    root = os.path.abspath(base_dir or os.getcwd())
+    candidates = [
+        os.path.join(root, "data", "AMiner"),
+        os.path.join(root, "data", "A+9+Miner"),
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    return candidates[0]
+
+
 # ── 数据模型 ──────────────────────────────────────────────────────
 
 @dataclass
@@ -66,11 +79,11 @@ class AMinerLoader:
         若无真实数据，调用 generate_mock_data() 生成符合同等格式的 mock 数据。
     """
 
-    def __init__(self, data_dir: str = "data/A+9+Miner"):
-        self.data_dir = data_dir
-        self.papers_path   = os.path.join(data_dir, "papers.json")
-        self.authors_path  = os.path.join(data_dir, "authors.json")
-        self.citations_path = os.path.join(data_dir, "citations.json")
+    def __init__(self, data_dir: Optional[str] = None):
+        self.data_dir = data_dir or resolve_aminer_data_dir()
+        self.papers_path   = os.path.join(self.data_dir, "papers.json")
+        self.authors_path  = os.path.join(self.data_dir, "authors.json")
+        self.citations_path = os.path.join(self.data_dir, "citations.json")
 
     # ── 主加载接口 ────────────────────────────────────────────────
 
