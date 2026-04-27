@@ -19,7 +19,7 @@ request.interceptors.request.use(config => {
 
 // 响应拦截器：统一错误处理
 request.interceptors.response.use(
-  res => res.data,
+  res => (res.config?.rawResponse ? res : res.data),
   err => {
     const status = err.response?.status
     if (status === 401) {

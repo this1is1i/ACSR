@@ -134,41 +134,30 @@
           @current-change="changePage"
         />
 
-        <el-dialog v-model:visible="detailVisible" width="60%" :before-close="closeDetail">
-          <template #title>
-            <div style="display:flex; justify-content:space-between; align-items:center">
-              <div>
-                <h3 style="margin:0">{{ detailPaper?.title }}</h3>
-                <div style="color:var(--text-secondary); font-size:13px">{{ detailPaper?.authors }} · {{ detailPaper?.venue }} · {{ detailPaper?.year }}</div>
-              </div>
-              <div>
-                <el-button type="primary" @click="toggleFavorite(detailPaper)">{{ isFavorited(detailPaper) ? '取消收藏' : '收藏' }}</el-button>
-              </div>
-            </div>
-          </template>
-
-          <div style="margin-top:10px">
-            <p style="white-space:pre-wrap">{{ detailPaper?.abstract }}</p>
-          </div>
-        </el-dialog>
       </section>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRoute, useRouter } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
-import { searchPapers, getPaperById } from '@/api/paper'
+import { searchPapers } from '@/api/paper'
 import { useUserStore } from '@/store/userStore'
+import { normalizePaper, SEARCH_RESTORE_PENDING_KEY, SEARCH_STATE_KEY } from '@/utils/paper'
 
+const route = useRoute()
+const router = useRouter()
 const userStore = useUserStore()
+const defaultFilters = { time: '全部时间', type: '全部类型', field: '全部领域', sort: '相关度' }
+const defaultTags = ['深度学习', '神经网络', '计算机视觉']
 const keyword = ref('')
 const results = ref([])
 const loading = ref(false)
-const filters = ref({ time: '全部时间', type: '全部类型', field: '全部领域', sort: '相关度' })
-const tags = ref(['深度学习','神经网络','计算机视觉'])
+const filters = ref({ ...defaultFilters })
+const tags = ref([...defaultTags])
 const trending = ref([
   { keyword: '大语言模型', count: '12.5k' },
   { keyword: 'Transformer架构', count: '8.3k' },
@@ -186,29 +175,61 @@ const pagedResults = computed(() => {
   return results.value.slice(start, start + pageSize.value)
 })
 
-const detailVisible = ref(false)
-const detailPaper = ref(null)
-
 const favorites = ref(new Set(JSON.parse(localStorage.getItem('favorites') || '[]')))
+
+function saveSearchState() {
+  window.sessionStorage.setItem(SEARCH_STATE_KEY, JSON.stringify({
+    keyword: keyword.value,
+    results: results.value,
+    currentPage: currentPage.value,
+    filters: { ...filters.value },
+    tags: [...tags.value],
+  }))
+}
+
+function restoreSearchState() {
+  const rawState = window.sessionStorage.getItem(SEARCH_STATE_KEY)
+  if (!rawState) return
+
+  try {
+    const savedState = JSON.parse(rawState)
+    keyword.value = savedState.keyword || ''
+    results.value = Array.isArray(savedState.results) ? savedState.results : []
+    currentPage.value = savedState.currentPage || 1
+    filters.value = {
+      ...defaultFilters,
+      ...(savedState.filters && typeof savedState.filters === 'object' ? savedState.filters : {}),
+    }
+    tags.value = Array.isArray(savedState.tags) ? [...savedState.tags] : [...defaultTags]
+    window.sessionStorage.removeItem(SEARCH_RESTORE_PENDING_KEY)
+  } catch {
+    window.sessionStorage.removeItem(SEARCH_STATE_KEY)
+    window.sessionStorage.removeItem(SEARCH_RESTORE_PENDING_KEY)
+  }
+}
 
 async function handleSearch() {
   if (!keyword.value.trim()) return
   loading.value = true
   try {
     const res = await searchPapers(keyword.value.trim(), 100)
-    results.value = (res.data || []).map(p => ({
-      id: p.id || p.paperId || Math.random().toString(36).slice(2,9),
-      title: p.title || p.paper_title || 'Untitled',
-      authors: (p.authors && p.authors.join(', ')) || p.authors || 'Unknown',
-      venue: p.venue || p.journal || '',
-      year: p.year || '2024',
-      abstract: p.abstract || p.summary || '无摘要',
-      tags: p.tags || ['深度学习'],
-      citations: p.citations || 0,
-      favorites: p.favorites || 0,
-      downloads: p.downloads || '0'
-    }))
+    results.value = (res.data || []).map(p => {
+      const normalized = normalizePaper(p)
+      return {
+        id: p.id || p.paperId || Math.random().toString(36).slice(2, 9),
+        title: p.title || p.paper_title || 'Untitled',
+        authors: normalized.authorText === '未知作者' ? 'Unknown' : normalized.authorText,
+        venue: p.venue || p.journal || '',
+        year: p.year || '2024',
+        abstract: normalized.abstractText || '无摘要',
+        tags: normalized.keywordsList.length ? normalized.keywordsList : ['深度学习'],
+        citations: p.citations || p.citationCount || 0,
+        favorites: p.favorites || 0,
+        downloads: p.downloads || '0',
+      }
+    })
     currentPage.value = 1
+    saveSearchState()
   } catch (e) {
     console.error(e)
   } finally {
@@ -218,6 +239,7 @@ async function handleSearch() {
 
 function changePage(page) {
   currentPage.value = page
+  saveSearchState()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -235,13 +257,9 @@ function applyTrend(keywordStr) {
 
 function openDetail(paper) {
   if (!paper) return
-  detailPaper.value = paper
-  detailVisible.value = true
-}
-
-function closeDetail() {
-  detailVisible.value = false
-  detailPaper.value = null
+  saveSearchState()
+  window.sessionStorage.setItem(SEARCH_RESTORE_PENDING_KEY, '1')
+  router.push(`/paper/${paper.id}`)
 }
 
 function isFavorited(paper) {
@@ -264,6 +282,13 @@ function toggleFavorite(paper) {
   }
   localStorage.setItem('favorites', JSON.stringify(Array.from(favorites.value)))
 }
+
+onMounted(() => {
+  const shouldRestore = route.query.restore === '1' || window.sessionStorage.getItem(SEARCH_RESTORE_PENDING_KEY) === '1'
+  if (shouldRestore) {
+    restoreSearchState()
+  }
+})
 </script>
 
 <style scoped>

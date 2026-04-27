@@ -6,8 +6,13 @@ import com.example.research.service.PaperService;
 import com.example.research.util.Result;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -53,6 +58,21 @@ public class PaperController {
         return Result.success(paper);
     }
 
+    @GetMapping("/{id:\\d+}/download/txt")
+    public ResponseEntity<String> downloadPaperTxt(@PathVariable Long id) {
+        Paper paper = paperService.getPaperById(id);
+        String filename = sanitizeFilename(paper.getTitle()) + ".txt";
+        String content = buildPaperTxtContent(paper);
+        ContentDisposition contentDisposition = ContentDisposition.attachment()
+                .filename(filename, StandardCharsets.UTF_8)
+                .build();
+
+        return ResponseEntity.ok()
+                .contentType(new MediaType("text", "plain", StandardCharsets.UTF_8))
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
+                .body(content);
+    }
+
     @GetMapping("/aminer/{aminerId}")
     public Result<Paper> getPaperByAminer(@PathVariable String aminerId) {
         return Result.success(paperService.getPaperByAminerId(aminerId));
@@ -70,5 +90,29 @@ public class PaperController {
 
         List<Paper> results = paperService.searchPapers(keyword, Math.min(limit, 50));
         return Result.success(results);
+    }
+
+    private String buildPaperTxtContent(Paper paper) {
+        return String.join("\n",
+                "Title: " + valueOrEmpty(paper.getTitle()),
+                "Authors: " + valueOrEmpty(paper.getAuthors()),
+                "Venue: " + valueOrEmpty(paper.getVenue()),
+                "Year: " + valueOrEmpty(paper.getYear()),
+                "AMiner ID: " + valueOrEmpty(paper.getAminerId()),
+                "Citation Count: " + valueOrEmpty(paper.getCitationCount()),
+                "Keywords: " + valueOrEmpty(paper.getKeywords()),
+                "Abstract: " + valueOrEmpty(paper.getAbstrakt()));
+    }
+
+    private String sanitizeFilename(String title) {
+        String baseName = valueOrEmpty(title).trim();
+        if (baseName.isEmpty()) {
+            baseName = "paper";
+        }
+        return baseName.replaceAll("[\\\\/:*?\"<>|]", "_");
+    }
+
+    private String valueOrEmpty(Object value) {
+        return value == null ? "" : value.toString();
     }
 }

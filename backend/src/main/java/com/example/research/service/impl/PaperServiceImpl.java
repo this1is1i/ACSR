@@ -66,15 +66,19 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     public List<Paper> searchPapers(String keyword, int limit) {
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        if (normalizedKeyword.isBlank()) {
+            return List.of();
+        }
         if (graphPaperService.isEnabled()) {
-            List<GraphPaper> graphResults = graphPaperService.search(keyword, limit);
+            List<GraphPaper> graphResults = graphPaperService.search(normalizedKeyword, limit);
             if (!graphResults.isEmpty()) {
                 return graphResults.stream()
                         .map(this::upsertShadowPaper)
                         .collect(Collectors.toList());
             }
         }
-        return paperMapper.searchByKeyword(keyword, limit);
+        return paperMapper.searchByKeywordExpanded(normalizedKeyword, limit);
     }
 
     @Override
