@@ -3,127 +3,110 @@
     <div class="bg-animation"></div>
     <Sidebar />
     <main class="main-content">
-      <header class="header">
-        <div class="user-info">
-          <div class="user-avatar">A</div>
-          <div class="user-details">
-            <h4>欢迎回来，用户A</h4>
-            <p>研究方向：机器学习 · 深度学习</p>
-          </div>
+      <header class="header home-header">
+        <div class="page-title">
+          <p class="home-header__eyebrow">Future Lab</p>
+          <h2>研究中心</h2>
+          <p>让推荐流与学习路径在同一个工作台里持续衔接。</p>
         </div>
         <div class="header-actions">
-          <button class="icon-btn">🔔<span class="badge">3</span></button>
-          <button class="icon-btn">⚙️</button>
-          <button class="icon-btn" @click="logout">🚪</button>
+          <button class="btn secondary" type="button" @click="logout">退出登录</button>
         </div>
       </header>
 
-      <div class="quick-actions">
-        <div class="action-card" @click="$router.push('/search')">
-          <div class="action-icon purple">🔍</div>
-          <h4>智能检索</h4>
-          <p>基于语义理解的论文搜索</p>
-        </div>
-        <div class="action-card" @click="$router.push('/knowledge-graph')">
-          <div class="action-icon blue">📈</div>
-          <h4>趋势分析</h4>
-          <p>追踪研究热点与兴趣演化</p>
-        </div>
-        <div class="action-card">
-          <div class="action-icon cyan">🌐</div>
-          <h4>学术交流</h4>
-          <p>与同行探讨前沿话题</p>
-        </div>
-        <div class="action-card">
-          <div class="action-icon green">🤝</div>
-          <h4>合作匹配</h4>
-          <p>发现潜在研究合作伙伴</p>
-        </div>
-      </div>
+      <HubHero
+        :user-name="userName"
+        :loading="loading"
+        :metrics="heroMetrics"
+        :path-summary="pathSummary"
+        @explore="router.push('/search')"
+        @view-path="router.push('/knowledge-graph')"
+      />
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-label">本周阅读论文</span>
-            <div class="stat-icon">📄</div>
-          </div>
-          <div class="stat-value">24</div>
-          <div class="stat-change">↑ 12% 较上周</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-label">收藏文献</span>
-            <div class="stat-icon">⭐</div>
-          </div>
-          <div class="stat-value">156</div>
-          <div class="stat-change">↑ 8 新增</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-label">学术影响力</span>
-            <div class="stat-icon">🎯</div>
-          </div>
-          <div class="stat-value">892</div>
-          <div class="stat-change">↑ 23 本周互动</div>
-        </div>
-      </div>
+      <p v-if="loadError" class="home-error">{{ loadError }}</p>
 
-      <div class="dashboard-grid">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title"><div class="card-title-icon">📌</div>个性化推荐</div>
-            <a href="#" class="view-all">查看全部 →</a>
-          </div>
-
-          <RecommendList :items="recommendations" :loading="loading" />
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title"><div class="card-title-icon">🤝</div>推荐合作者</div>
-            <a href="#" class="view-all">更多 →</a>
-          </div>
-
-          <div class="collaborator-grid">
-            <div class="collaborator-item" v-for="c in collaborators" :key="c.name">
-              <div class="collab-avatar">{{ c.initial }}</div>
-              <div class="collab-info">
-                <h5>{{ c.name }}</h5>
-                <p>{{ c.affiliation }} · {{ c.field }}</p>
-              </div>
-              <div class="match-score">{{ c.score }}%匹配</div>
-            </div>
-          </div>
-        </div>
+      <div class="hub-layout">
+        <RecommendationStream
+          :items="recommendations"
+          :loading="loading"
+          :focus-topic="pathSummary.topic"
+          @explore="router.push('/search')"
+        />
+        <LearningPathPanel
+          :loading="loading"
+          :summary="pathSummary"
+          @view-path="router.push('/knowledge-graph')"
+        />
       </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
-import RecommendList from '@/components/RecommendList.vue'
+import HubHero from '@/components/home/HubHero.vue'
+import LearningPathPanel from '@/components/home/LearningPathPanel.vue'
+import RecommendationStream from '@/components/home/RecommendationStream.vue'
 import { getRecommendations } from '@/api/recommend'
+import { getVisualizationData } from '@/api/visualization'
 import { useUserStore } from '@/store/userStore'
+import { buildLearningPathSummary } from '@/utils/path'
 
 const router = useRouter()
 const userStore = useUserStore()
 const recommendations = ref([])
 const loading = ref(false)
-const collaborators = ref([
-  { name: '张三 教授', initial: '张', affiliation: '清华大学', field: '机器学习', score: 95 },
-  { name: '李四 博士', initial: '李', affiliation: '中科院', field: '数据挖掘', score: 88 },
-  { name: '王五 研究员', initial: '王', affiliation: '北大', field: '计算机视觉', score: 82 },
-  { name: '赵六 副教授', initial: '赵', affiliation: '浙大', field: '自然语言处理', score: 76 },
-])
+const visualizationData = ref({})
+const loadError = ref('')
 
-async function loadRecommendations() {
+const userName = computed(() => userStore.userInfo?.username || '研究者')
+const pathSummary = computed(() => buildLearningPathSummary(visualizationData.value))
+const stats = computed(() => visualizationData.value?.stats || {})
+const heroMetrics = computed(() => ([
+  {
+    label: '推荐候选',
+    value: `${recommendations.value.length} 篇`,
+    caption: recommendations.value.length ? '已按近期行为完成排序' : '浏览或收藏更多论文后会刷新',
+  },
+  {
+    label: '路径进度',
+    value: `${pathSummary.value.completionPercent}%`,
+    caption: `当前主线：${pathSummary.value.topic}`,
+  },
+  {
+    label: '下一节点',
+    value: pathSummary.value.isComplete ? '当前路径已完成' : (pathSummary.value.nextStep?.name || '待生成'),
+    caption: pathSummary.value.nextStepCaption,
+  },
+  {
+    label: '学习热度',
+    value: stats.value.readCount ? `${stats.value.readCount} 篇` : '—',
+    caption: stats.value.readTime ? `累计阅读 ${stats.value.readTime}` : '等待可视化数据同步',
+  },
+]))
+
+async function loadHomeHub() {
   loading.value = true
+  loadError.value = ''
   try {
-    const res = await getRecommendations(10)
-    recommendations.value = res.data?.recommendations || []
+    const [recommendResult, visualizationResult] = await Promise.allSettled([
+      getRecommendations(10),
+      getVisualizationData(),
+    ])
+
+    recommendations.value = recommendResult.status === 'fulfilled'
+      ? recommendResult.value?.data?.recommendations || []
+      : []
+
+    visualizationData.value = visualizationResult.status === 'fulfilled'
+      ? visualizationResult.value?.data || {}
+      : {}
+
+    if (recommendResult.status === 'rejected' && visualizationResult.status === 'rejected') {
+      loadError.value = '研究中心暂时不可用，请稍后重试。'
+    }
   } finally {
     loading.value = false
   }
@@ -134,25 +117,56 @@ function logout() {
   router.push('/login')
 }
 
-onMounted(loadRecommendations)
+onMounted(loadHomeHub)
 </script>
 
 <style scoped>
-:root { --primary: #6366f1; --secondary:#8b5cf6; --accent:#06b6d4; --bg-dark:#0f172a; --bg-card:rgba(30,41,59,0.7); --border: rgba(148,163,184,0.1) }
-.home-root { min-height:100vh; background:var(--bg-dark); color:var(--text-primary); overflow-x:hidden }
-.bg-animation { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; background: radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.15) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(6,182,212,0.1) 0%, transparent 50%) }
-.main-content { margin-left:260px; min-height:100vh; padding:30px 40px }
-.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; padding:20px 30px; background:var(--bg-card); backdrop-filter: blur(20px); border-radius:20px; border:1px solid var(--border) }
-.user-avatar { width:45px; height:45px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center; font-weight:600 }
-.quick-actions { display:grid; grid-template-columns: repeat(4,1fr); gap:20px; margin-bottom:30px }
-.action-card { background:var(--bg-card); border-radius:20px; padding:25px; border:1px solid var(--border); text-align:center; cursor:pointer }
-.action-icon { width:60px; height:60px; border-radius:16px; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; font-size:28px }
-.action-icon.purple { background: linear-gradient(135deg, #8b5cf6, #a78bfa) }
-.action-icon.blue { background: linear-gradient(135deg, #3b82f6, #60a5fa) }
-.action-icon.cyan { background: linear-gradient(135deg, #06b6d4, #22d3ee) }
-.action-icon.green { background: linear-gradient(135deg, #10b981, #34d399) }
-.stats-grid { display:grid; grid-template-columns: repeat(3,1fr); gap:25px; margin-bottom:30px }
-.stat-card { background:var(--bg-card); border-radius:20px; padding:25px; border:1px solid var(--border) }
-.dashboard-grid { display:grid; grid-template-columns: 2fr 1fr; gap:30px }
-.card { background:var(--bg-card); border-radius:24px; padding:30px; border:1px solid var(--border) }
+.home-root {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.bg-animation {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(124, 140, 255, 0.16), transparent 28%),
+    radial-gradient(circle at 82% 12%, rgba(55, 213, 255, 0.12), transparent 24%),
+    radial-gradient(circle at 50% 80%, rgba(94, 234, 212, 0.08), transparent 24%);
+}
+
+.main-content {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.home-header__eyebrow {
+  margin-bottom: var(--space-2);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent-secondary);
+}
+
+.hub-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.9fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.home-error {
+  padding: var(--space-4);
+  border: 1px solid rgba(251, 113, 133, 0.28);
+  border-radius: var(--radius-lg);
+  background: rgba(127, 29, 29, 0.16);
+  color: #fecdd3;
+}
+
+@media (max-width: 1120px) {
+  .hub-layout {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

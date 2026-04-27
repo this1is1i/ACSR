@@ -1,33 +1,37 @@
 <template>
-  <div class="paper-card">
-    <div class="card-header">
-      <h3 class="title">{{ paper.title }}</h3>
-      <el-tag size="small" type="info" v-if="paper.year">{{ paper.year }}</el-tag>
+  <article class="paper-card" :class="`paper-card--${variant}`">
+    <div class="paper-card__header">
+      <div class="paper-card__title-group">
+        <span class="paper-card__eyebrow">Personalized Pick</span>
+        <h3 class="title">{{ paper.title }}</h3>
+      </div>
+
+      <div class="paper-card__meta-tags">
+        <el-tag size="small" effect="dark" class="meta-tag" v-if="paper.year">{{ paper.year }}</el-tag>
+        <el-tag size="small" type="info" class="meta-tag" v-if="paper.venue">{{ paper.venue }}</el-tag>
+      </div>
     </div>
 
     <p class="authors" v-if="paper.authors">
       {{ formatAuthors(paper.authors) }}
     </p>
-    <p class="venue" v-if="paper.venue">{{ paper.venue }}</p>
 
     <p class="abstract" v-if="paper.abstrakt || paper.abstract">
       {{ paper.abstrakt || paper.abstract }}
     </p>
 
-    <!-- 推荐理由 -->
     <div class="reason" v-if="paper.reason">
       <el-icon><InfoFilled /></el-icon>
       <span>{{ paper.reason }}</span>
     </div>
 
-    <div class="reason-details" v-if="paper.reasonDetails?.length">
+    <div class="reason-details" v-if="displayTags.length">
       <el-tag
-        v-for="(d, i) in paper.reasonDetails"
-        :key="i"
+        v-for="(tag, index) in displayTags"
+        :key="`${tag}-${index}`"
         size="small"
-        type="success"
         class="detail-tag"
-      >{{ d }}</el-tag>
+      >{{ tag }}</el-tag>
     </div>
 
     <div class="card-footer">
@@ -41,13 +45,14 @@
       </div>
       <div class="actions">
         <el-button size="small" @click="handleClick">阅读</el-button>
-        <el-button size="small" type="warning" @click="handleFavorite">收藏</el-button>
+        <el-button size="small" type="warning" plain @click="handleFavorite">收藏</el-button>
       </div>
     </div>
-  </div>
+  </article>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { InfoFilled, Star } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
@@ -56,6 +61,7 @@ import { recordClick, recordFavorite } from '@/api/recommend'
 const props = defineProps({
   paper: { type: Object, required: true },
   source: { type: String, default: 'recommend' },
+  variant: { type: String, default: 'default' },
 })
 const router = useRouter()
 
@@ -64,9 +70,29 @@ function formatAuthors(authors) {
   try { return JSON.parse(authors).slice(0, 3).join(', ') } catch { return authors }
 }
 
+function parseList(value) {
+  if (Array.isArray(value)) return value
+  if (!value) return []
+
+  try {
+    return JSON.parse(value)
+  } catch {
+    return String(value)
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+  }
+}
+
 function getPaperId() {
   return props.paper.paperId || props.paper.id
 }
+
+const displayTags = computed(() => {
+  const reasonDetails = Array.isArray(props.paper.reasonDetails) ? props.paper.reasonDetails : []
+  if (reasonDetails.length) return reasonDetails.slice(0, 3)
+  return parseList(props.paper.keywords).slice(0, 3)
+})
 
 async function handleClick() {
   const paperId = getPaperId()
@@ -93,32 +119,120 @@ async function handleFavorite() {
 
 <style scoped>
 .paper-card {
-  background: #1c2128;
-  border: 1px solid #30363d;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 16px;
-  transition: border-color 0.2s;
+  position: relative;
+  display: grid;
+  gap: var(--space-3);
+  padding: clamp(1.2rem, 2vw, 1.5rem);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(180deg, rgba(124, 140, 255, 0.08), transparent 75%),
+    rgba(255, 255, 255, 0.03);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.18s ease, border-color 0.18s ease;
 }
-.paper-card:hover { border-color: #58a6ff; }
-.card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.title { color: #e6edf3; font-size: 15px; margin: 0 0 8px; line-height: 1.5; }
-.authors { color: #8b949e; font-size: 13px; margin: 4px 0; }
-.venue { color: #58a6ff; font-size: 12px; margin: 2px 0 8px; }
+
+.paper-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-border-strong);
+}
+
+.paper-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.paper-card__title-group {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.paper-card__eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent-secondary);
+}
+
+.paper-card__meta-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.title {
+  color: var(--color-text-primary);
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+.authors {
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+}
+
 .abstract {
-  color: #8b949e; font-size: 13px; line-height: 1.6;
-  display: -webkit-box; -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical; overflow: hidden;
-  margin-bottom: 12px;
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
+
 .reason {
-  display: flex; align-items: center; gap: 6px;
-  color: #3fb950; font-size: 13px; margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #8bf0c5;
+  font-size: 0.9rem;
 }
-.reason-details { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-.detail-tag { font-size: 11px; }
-.card-footer { display: flex; align-items: center; justify-content: space-between; }
-.meta { display: flex; gap: 16px; color: #8b949e; font-size: 12px; align-items: center; }
-.meta b { color: #58a6ff; }
-.actions { display: flex; gap: 8px; }
+
+.reason-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.detail-tag,
+.meta-tag {
+  border-color: rgba(124, 140, 255, 0.22);
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  align-items: center;
+}
+
+.meta b {
+  color: var(--color-accent-secondary);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+@media (max-width: 640px) {
+  .paper-card__header,
+  .card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 </style>

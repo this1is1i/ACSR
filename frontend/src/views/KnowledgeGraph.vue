@@ -5,54 +5,66 @@
     <main class="main-content">
       <header class="header">
         <div class="page-title">
-          <h2>📊 兴趣演化与行为分析</h2>
-          <p>深度洞察您的学术兴趣轨迹与阅读行为模式</p>
+          <p class="page-title__eyebrow">Future Lab</p>
+          <h2>🧭 路径沉浸与行为洞察</h2>
+          <p>让学习路径、推荐资产与图谱探索在同一个沉浸式画布里持续联动。</p>
         </div>
         <div class="user-info">
           <div class="user-avatar">A</div>
         </div>
       </header>
 
-      <div class="time-filter">
-        <button class="time-btn" :class="{ active: activeRange === '7d' }" @click="setRange('7d')">近7天</button>
-        <button class="time-btn" :class="{ active: activeRange === '30d' }" @click="setRange('30d')">近30天</button>
-        <button class="time-btn" :class="{ active: activeRange === '3m' }" @click="setRange('3m')">近3个月</button>
-        <button class="time-btn" :class="{ active: activeRange === '6m' }" @click="setRange('6m')">近6个月</button>
-        <button class="time-btn" :class="{ active: activeRange === '1y' }" @click="setRange('1y')">近1年</button>
-      </div>
+      <div class="viz-surface-layout">
+        <PathInsightRail
+          :loading="surfaceLoading"
+          :summary="pathSummary"
+          :recommendations="recommendations"
+          :active-node="insightNode"
+        />
 
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-label">总阅读时长</span>
-            <div class="stat-icon-box">⏱️</div>
+        <div class="viz-surface-layout__main">
+          <div class="time-filter">
+            <button class="time-btn" :class="{ active: activeRange === '7d' }" @click="setRange('7d')">近7天</button>
+            <button class="time-btn" :class="{ active: activeRange === '30d' }" @click="setRange('30d')">近30天</button>
+            <button class="time-btn" :class="{ active: activeRange === '3m' }" @click="setRange('3m')">近3个月</button>
+            <button class="time-btn" :class="{ active: activeRange === '6m' }" @click="setRange('6m')">近6个月</button>
+            <button class="time-btn" :class="{ active: activeRange === '1y' }" @click="setRange('1y')">近1年</button>
           </div>
-          <div class="stat-value">{{ stats.readTime }}</div>
-          <div class="stat-change positive">↑ {{ stats.readTimeChange }} 较上月</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-label">阅读论文数</span>
-            <div class="stat-icon-box">📄</div>
+
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">总阅读时长</span>
+                <div class="stat-icon-box">⏱️</div>
+              </div>
+              <div class="stat-value">{{ stats.readTime }}</div>
+              <div class="stat-change positive">↑ {{ stats.readTimeChange }} 较上月</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">阅读论文数</span>
+                <div class="stat-icon-box">📄</div>
+              </div>
+              <div class="stat-value">{{ stats.readCount }}</div>
+              <div class="stat-change positive">↑ {{ stats.readCountChange }} 新增</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">活跃领域</span>
+                <div class="stat-icon-box">🎯</div>
+              </div>
+              <div class="stat-value">{{ stats.activeFields }}</div>
+              <div class="stat-change positive">↑ {{ stats.activeFieldsChange }} 新领域</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">研究深度</span>
+                <div class="stat-icon-box">📈</div>
+              </div>
+              <div class="stat-value">{{ stats.depth }}</div>
+              <div class="stat-change positive">↑ {{ stats.depthChange }} 提升</div>
+            </div>
           </div>
-          <div class="stat-value">{{ stats.readCount }}</div>
-          <div class="stat-change positive">↑ {{ stats.readCountChange }} 新增</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-label">活跃领域</span>
-            <div class="stat-icon-box">🎯</div>
-          </div>
-          <div class="stat-value">{{ stats.activeFields }}</div>
-          <div class="stat-change positive">↑ {{ stats.activeFieldsChange }} 新领域</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-label">研究深度</span>
-            <div class="stat-icon-box">📈</div>
-          </div>
-          <div class="stat-value">{{ stats.depth }}</div>
-          <div class="stat-change positive">↑ {{ stats.depthChange }} 提升</div>
         </div>
       </div>
 
@@ -168,15 +180,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onBeforeUnmount, watch } from 'vue'
+import { computed, ref, reactive, onMounted, onBeforeUnmount, watch } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
+import PathInsightRail from '@/components/path/PathInsightRail.vue'
 import Chart from 'chart.js/auto'
 import * as THREE from 'three'
+import { getPathSurfaceData } from '@/api/visualization'
+import { buildLearningPathSummary } from '@/utils/path'
 
 const activeRange = ref('30d')
 const stats = ref({ readTime: '42.5h', readTimeChange: '18%', readCount: 128, readCountChange: '24', activeFields: 6, activeFieldsChange: 2, depth: 85.3, depthChange: '5.2' })
-
-import { getVisualizationData } from '@/api/visualization'
 
 const interestChartRef = ref(null)
 const fieldChartRef = ref(null)
@@ -199,6 +212,16 @@ const currentRoute = ref([])
 const selectedNode = ref(null)
 const pathMeta = reactive({ topic: '', estimatedHours: 0, coverage: 0 })
 const progressPercent = ref(0)
+const visualizationData = ref({})
+const recommendations = ref([])
+const surfaceLoading = ref(false)
+
+const pathSummary = computed(() => buildLearningPathSummary(visualizationData.value))
+const insightNode = computed(() => {
+  if (selectedNode.value) return selectedNode.value
+  const activeId = currentRoute.value[currentStep.value]
+  return pathSummary.value.steps.find((step) => String(step.id) === String(activeId)) || null
+})
 
 const tagCloud = ref([
   { text: '深度学习', size: 5 },{ text: '神经网络', size: 4 },{ text: '计算机视觉', size: 4 },{ text: 'Transformer', size: 3 },{ text: '强化学习', size: 3 },{ text: 'GAN', size: 3 },{ text: '目标检测', size: 2 },{ text: '语义分割', size: 2 },{ text: '迁移学习', size: 2 },{ text: '联邦学习', size: 1 },{ text: '自监督', size: 1 },{ text: '对比学习', size: 1 },{ text: '多模态', size: 1 },{ text: '知识蒸馏', size: 1 }
@@ -542,9 +565,12 @@ watch(playbackSpeed, () => {
 
 onMounted(async () => {
   document.addEventListener('fullscreenchange', onFullscreenChange)
+  surfaceLoading.value = true
   try {
-    const res = await getVisualizationData()
-    const data = res.data || res || {}
+    const surface = await getPathSurfaceData()
+    const data = surface.visualization || {}
+    visualizationData.value = data
+    recommendations.value = surface.recommendations || []
 
     if (data.stats) stats.value = data.stats
 
@@ -603,6 +629,8 @@ onMounted(async () => {
     }
   } catch (e) {
     console.error('Failed to load visualization data', e)
+  } finally {
+    surfaceLoading.value = false
   }
 })
 
@@ -623,9 +651,13 @@ onBeforeUnmount(() => {
 .main-content { margin-left:260px; min-height:100vh; padding:30px 40px }
 .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; padding:20px 30px; background:var(--bg-card); backdrop-filter: blur(20px); border-radius:20px; border:1px solid var(--border) }
 .page-title h2 { font-size:28px; font-weight:700; margin-bottom:8px }
+.page-title__eyebrow { margin-bottom: 8px; font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent-secondary) }
 .page-title p { color:var(--text-secondary); font-size:15px }
 .user-avatar { width:45px; height:45px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center; font-weight:600 }
+.viz-surface-layout { display:grid; grid-template-columns:minmax(320px, 0.95fr) minmax(0, 1.55fr); gap:24px; margin-bottom:30px }
+.viz-surface-layout__main { display:grid; gap:24px }
 .time-filter { display:flex; gap:10px; margin-bottom:30px }
+.viz-surface-layout__main .time-filter { margin-bottom:0 }
 .time-btn { padding:12px 24px; border-radius:12px; border:1px solid var(--border); background: rgba(255,255,255,0.05); color:var(--text-secondary); font-size:14px; cursor:pointer; transition: all 0.2s }
 .time-btn.active, .time-btn:hover { background:var(--primary); color:white; border-color:var(--primary); transform: translateY(-2px) }
 .charts-grid { display:grid; grid-template-columns:2fr 1fr; gap:30px; margin-bottom:30px }
@@ -782,10 +814,10 @@ onBeforeUnmount(() => {
 .detail-id { font-family:monospace; font-size:11px; color:var(--text-secondary); word-break:break-all }
 
 @media (max-width:1200px) {
+  .viz-surface-layout { grid-template-columns:1fr }
   .charts-grid { grid-template-columns:1fr }
   .stats-row { grid-template-columns:repeat(2,1fr) }
   .main-content { margin-left:0; padding:20px }
-  .sidebar { transform: translateX(-100%) }
   .kg-layout { flex-direction:column }
   .node-detail { width:100% }
   .kg-controls { align-items:flex-start }

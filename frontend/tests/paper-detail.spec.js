@@ -23,7 +23,11 @@ test('renders backend-shaped paper detail payload safely', async ({ page }) => {
 
   await page.goto('/paper/1');
 
+  await expect(page.getByTestId('paper-reading-canvas')).toBeVisible();
+  await expect(page.getByTestId('paper-path-rail')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Attention Is All You Need' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '路径上下文' })).toBeVisible();
+  await expect(page.getByText('独立阅读模式', { exact: true })).toBeVisible();
   await expect(page.getByText('Ashish Vaswani, Noam Shazeer · NeurIPS · 2017')).toBeVisible();
   await expect(page.getByText('Transformer paper abstract')).toBeVisible();
   await expect(page.locator('.tag')).toHaveText(['Transformer', 'Attention']);
@@ -86,6 +90,15 @@ test('restores visible search state after returning from paper detail', async ({
   await page.getByRole('button', { name: '📖 查看详情' }).click();
 
   await expect(page).toHaveURL(/\/paper\/1$/);
+  await expect(page.getByTestId('paper-path-rail')).toBeVisible();
+  await expect(page.getByText('来自辅助检索工作区')).toBeVisible();
+  await expect(page.getByText('检索词：Transformer')).toBeVisible();
+  await expect(page.getByText('近三年')).toBeVisible();
+  await expect(page.getByText('会议论文')).toBeVisible();
+  await expect(page.getByText('自然语言处理')).toBeVisible();
+  await expect(page.getByText('影响力')).toBeVisible();
+  await expect(page.getByText('神经网络', { exact: true })).toBeVisible();
+  await expect(page.getByText('回到 Transformer 检索结果')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Attention Is All You Need' })).toBeVisible();
   await expect(page.getByRole('button', { name: '下载 TXT' })).toBeVisible();
 

@@ -5,8 +5,9 @@
     <main class="main-content">
       <header class="header">
         <div class="page-title">
-          <h2>👤 个人中心</h2>
-          <p>管理您的学术档案与个性化设置</p>
+          <p class="page-title__eyebrow">Future Lab</p>
+          <h2>👤 研究身份与资产</h2>
+          <p>优先展示与你当前路径、推荐流与研究画像直接相关的核心资产。</p>
         </div>
         <div class="header-actions">
           <button class="btn secondary" @click="logout">退出登录</button>
@@ -34,6 +35,15 @@
       </div>
 
       <div class="profile-grid">
+        <ResearchAssetsPanel
+          :loading="assetsLoading"
+          :profile="profile"
+          :summary="pathSummary"
+          :recommendations="recommendations"
+          :interests="interestItems"
+          @view-path="router.push('/knowledge-graph')"
+        />
+
         <div class="profile-card card animate-fade-up">
           <div class="card-header">
             <div class="card-title">
@@ -44,7 +54,7 @@
           </div>
 
           <div class="interest-list">
-            <div v-for="(i, idx) in interests" :key="idx" class="interest-item">
+            <div v-for="(i, idx) in interestItems" :key="idx" class="interest-item">
               <span class="interest-label">{{ i.name }}</span>
               <div class="interest-bar">
                 <div class="interest-fill" :style="{ width: i.percent + '%', background: i.color }"></div>
@@ -116,21 +126,47 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
+import ResearchAssetsPanel from '@/components/profile/ResearchAssetsPanel.vue'
+import { getPathSurfaceData } from '@/api/visualization'
+import { buildLearningPathSummary } from '@/utils/path'
 
 const router = useRouter()
-const interests = ref([
+const defaultInterests = [
   { name: '深度学习', percent: 85, color: 'linear-gradient(90deg, #6366f1, #8b5cf6)' },
   { name: '计算机视觉', percent: 72, color: 'linear-gradient(90deg, #06b6d4, #22d3ee)' },
   { name: '强化学习', percent: 45, color: 'linear-gradient(90deg, #10b981, #34d399)' },
   { name: '自然语言处理', percent: 38, color: 'linear-gradient(90deg, #f59e0b, #fbbf24)' },
   { name: '数据挖掘', percent: 25, color: 'linear-gradient(90deg, #ec4899, #f472b6)' }
-])
+]
+const interestPalette = [
+  'linear-gradient(90deg, #6366f1, #8b5cf6)',
+  'linear-gradient(90deg, #06b6d4, #22d3ee)',
+  'linear-gradient(90deg, #10b981, #34d399)',
+  'linear-gradient(90deg, #f59e0b, #fbbf24)',
+  'linear-gradient(90deg, #ec4899, #f472b6)',
+]
 
 const profile = ref({ id: null, username: '', avatar: '', email: '', bio: '', researchInterests: '' })
+const visualizationData = ref({})
+const recommendations = ref([])
+const assetsLoading = ref(false)
+const pathSummary = computed(() => buildLearningPathSummary(visualizationData.value))
+const interestItems = computed(() => {
+  const labels = visualizationData.value?.field?.labels || []
+  const values = visualizationData.value?.field?.data || []
+
+  if (!labels.length || !values.length) return defaultInterests
+
+  return labels.map((label, index) => ({
+    name: label,
+    percent: Number(values[index] || 0),
+    color: interestPalette[index % interestPalette.length],
+  }))
+})
 
 const collections = ref([
   { title: 'Attention Is All You Need', meta: 'Vaswani et al. · NeurIPS 2017' },
@@ -159,6 +195,15 @@ function viewAllCollections() { console.log('view all') }
 function toggleSetting(i) { settings.value[i].enabled = !settings.value[i].enabled }
 function clearHistory() { history.value = [] }
 
+function animateInterestBars() {
+  const fills = document.querySelectorAll('.interest-fill')
+  fills.forEach(fill => {
+    const width = fill.style.width
+    fill.style.width = '0'
+    setTimeout(() => { fill.style.width = width }, 300)
+  })
+}
+
 function logout() {
   localStorage.removeItem('token')
   localStorage.removeItem('userId')
@@ -168,23 +213,35 @@ function logout() {
 
 import { getProfile } from '@/api/user'
 
-onMounted(async () => {
-  // load real profile from backend
-  try {
-    const res = await getProfile()
-    const data = res.data || res
-    profile.value = { id: data.id, username: data.username, avatar: data.avatar, email: data.email, bio: data.bio, researchInterests: data.researchInterests }
-  } catch (e) {
-    console.error('failed to load profile', e)
-  }
+watch(interestItems, async () => {
+  await nextTick()
+  animateInterestBars()
+}, { flush: 'post' })
 
-  // animate fills like original template
-  const fills = document.querySelectorAll('.interest-fill')
-  fills.forEach(fill => {
-    const width = fill.style.width
-    fill.style.width = '0'
-    setTimeout(() => { fill.style.width = width }, 300)
-  })
+onMounted(async () => {
+  await Promise.allSettled([
+    (async () => {
+      try {
+        const res = await getProfile()
+        const data = res.data || res
+        profile.value = { id: data.id, username: data.username, avatar: data.avatar, email: data.email, bio: data.bio, researchInterests: data.researchInterests }
+      } catch (e) {
+        console.error('failed to load profile', e)
+      }
+    })(),
+    (async () => {
+      assetsLoading.value = true
+      try {
+        const surface = await getPathSurfaceData()
+        visualizationData.value = surface.visualization || {}
+        recommendations.value = surface.recommendations || []
+      } catch (e) {
+        console.error('failed to load research assets', e)
+      } finally {
+        assetsLoading.value = false
+      }
+    })(),
+  ])
 })
 </script>
 
@@ -230,6 +287,14 @@ onMounted(async () => {
   font-size: 22px;
   margin: 0 0 4px;
   color: var(--text-h);
+}
+
+.page-title__eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent-secondary);
 }
 
 .page-title p {

@@ -1,5 +1,4 @@
 import './style.css'
-import './design-tokens.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
@@ -13,7 +12,8 @@ app.use(createPinia())
 app.use(router)
 app.use(ElementPlus)
 
-// 启用深色主题
-document.documentElement.classList.add('dark')
+const initialTheme = localStorage.getItem('theme') || 'dark'
+document.documentElement.setAttribute('data-theme', initialTheme)
+document.documentElement.classList.toggle('dark', initialTheme !== 'light')
 
 app.mount('#app')

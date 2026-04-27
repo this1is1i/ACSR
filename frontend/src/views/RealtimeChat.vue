@@ -1,22 +1,44 @@
 <template>
-  <div class="chat-root">
+  <div class="chat-root" data-testid="chat-collaboration-workspace">
     <Sidebar />
     <main class="main-content">
-      <header class="header"><h2>💬 实时私信</h2><p class="hint">通过 WebSocket/STOMP 与后端实时通信</p></header>
+      <header class="workspace-header card glass">
+        <div>
+          <p class="workspace-eyebrow">Realtime Collaboration</p>
+          <h2>💬 协作消息工作台</h2>
+          <p class="hint">沿用当前 REST + WebSocket/STOMP 流程，把会话、论文线索与路径推进放进一个共享工作区。</p>
+        </div>
+        <div class="thread-pills">
+          <span class="thread-pill">实时同步</span>
+          <span class="thread-pill">论文线索</span>
+          <span class="thread-pill">行动路径</span>
+        </div>
+      </header>
 
       <div class="chat-panel">
-        <aside class="contacts">
-          <div class="contacts-header">联系人</div>
-          <div class="contact" v-for="c in contacts" :key="c.id" :class="{ active: selected === c.id }" @click="selectContact(c.id)">
-            <div class="avatar">{{ c.name.charAt(0) }}</div>
-            <div class="meta">
-              <div class="name">{{ c.name }}</div>
-              <div class="status" :class="{ online: onlineSet.has(c.id) }">{{ onlineSet.has(c.id) ? '在线' : '离线' }}</div>
+        <ConversationRail
+          :contacts="contacts"
+          :selected-contact-id="selected"
+          :messages="messages"
+          :online-set="onlineSet"
+          @select="selectContact"
+        />
+
+        <section class="chat-area card glass">
+          <div class="thread-header">
+            <div>
+              <p class="workspace-eyebrow">Shared Thread</p>
+              <h3>{{ selectedContact ? `${selectedContact.name} 协作线程` : '选择一个协作线程' }}</h3>
+              <p class="thread-summary">{{ selectedSummary }}</p>
+            </div>
+            <div class="thread-pills">
+              <span class="thread-pill" :class="{ online: selectedContact && onlineSet.has(selectedContact.id) }">
+                {{ selectedContact ? (onlineSet.has(selectedContact.id) ? '在线协作中' : '异步协作中') : '等待选择联系人' }}
+              </span>
+              <span class="thread-pill" :class="{ online: connected }">{{ connected ? '实时同步已连接' : '离线消息模式' }}</span>
             </div>
           </div>
-        </aside>
 
-        <section class="chat-area">
           <div class="messages" ref="messagesEl">
             <div v-if="!selected" class="empty">请选择联系人开始聊天</div>
             <div v-else>
@@ -40,9 +62,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { computed, ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
+import ConversationRail from '@/components/chat/ConversationRail.vue'
 import { getConversations, getChatHistory, sendMessageRest, markMessageRead } from '@/api/message'
 import { getKnowledgeGraph } from '@/api/recommend'
 
@@ -58,6 +81,13 @@ const messagesEl = ref(null)
 // get user id from token if present (backend expects numeric id)
 const token = localStorage.getItem('token') || ''
 const meId = localStorage.getItem('userId') ? Number(localStorage.getItem('userId')) : 1
+
+const selectedContact = computed(() => contacts.value.find(contact => contact.id == selected.value) || null)
+const selectedSummary = computed(() => {
+  if (!selectedContact.value) return '选择左侧会话后，消息、论文线索与行动路径会在这里保持同步。'
+  if (selectedContact.value.lastMessage) return selectedContact.value.lastMessage
+  return '当前会话还没有消息，发送第一条协作信息开始同步。'
+})
 
 function conversationFor(id) {
   return messages[id] || []
@@ -251,22 +281,15 @@ onBeforeUnmount(() => { if (stompClient && stompClient.deactivate) stompClient.d
 
 <style scoped>
 .main-content { margin-left:260px; padding:28px }
-.header { padding:18px; margin-bottom:18px }
-.chat-panel { display:flex; gap:18px }
-.contacts { width:280px; background:var(--bg-card); padding:12px; border-radius:12px }
-.contacts-header { font-weight:700; margin-bottom:8px }
-.contact { display:flex; gap:10px; padding:10px; border-radius:10px; cursor:pointer; align-items:center; transition:transform .12s ease, background .12s }
-.contact:hover { transform: translateX(4px) }
-.contact.active { background: rgba(99,102,241,0.14) }
-.avatar { width:42px; height:42px; border-radius:10px; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center; color:white; font-weight:700 }
-.meta { flex:1; overflow:hidden }
-.meta .name { font-weight:600; display:flex; align-items:center; gap:8px }
-.badge { background:#ff4d4f; color:white; font-size:12px; padding:2px 8px; border-radius:999px }
-.meta .preview { font-size:13px; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
-.meta .status { font-size:12px; color:var(--text-secondary) }
-.meta .status.online { color:#10b981 }
-.contact .last { font-size:12px; color:var(--text-secondary) }
-.chat-area { flex:1; display:flex; flex-direction:column; background:var(--bg-card); border-radius:12px; padding:12px }
+.workspace-header { margin-bottom:18px; padding:24px; display:flex; justify-content:space-between; gap:16px; align-items:center }
+.workspace-eyebrow { margin-bottom:8px; font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-accent-secondary) }
+.chat-panel { display:grid; grid-template-columns: 340px minmax(0, 1fr); gap:18px; align-items:start }
+.chat-area { min-width:0; display:flex; flex-direction:column; padding:18px }
+.thread-header { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; padding:0 4px 12px; border-bottom:1px solid var(--design-border) }
+.thread-summary { max-width:56ch }
+.thread-pills { display:flex; flex-wrap:wrap; gap:10px }
+.thread-pill { padding:8px 12px; border-radius:999px; border:1px solid var(--design-border); background:rgba(124,140,255,0.12); color:var(--color-text-primary) }
+.thread-pill.online { color:#10b981 }
 .messages { flex:1; overflow:auto; padding:12px; display:flex; flex-direction:column; gap:10px }
 .msg { display:flex; flex-direction:column; max-width:70%; animation: fadeInUp .18s ease }
 .msg.in { align-items:flex-start }
@@ -282,9 +305,17 @@ onBeforeUnmount(() => { if (stompClient && stompClient.deactivate) stompClient.d
 .ws-status { margin-top:12px; color:var(--text-secondary) }
 .ws-status .online { color:#10b981 }
 .empty { padding:40px; text-align:center; color:var(--text-secondary) }
-.badge.pulse { position:relative }
-.badge.pulse::after { content:''; position:absolute; left:50%; top:50%; width:100%; height:100%; transform:translate(-50%,-50%); border-radius:999px; box-shadow: 0 0 0 0 rgba(255,77,79,0.5); animation: pulse 1.8s infinite }
-@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,77,79,0.35) } 70% { box-shadow: 0 0 0 12px rgba(255,77,79,0) } 100% { box-shadow: 0 0 0 0 rgba(255,77,79,0) } }
 @keyframes popIn { to { transform:none; opacity:1 } }
 @keyframes fadeInUp { from { opacity:0; transform: translateY(6px) } to { opacity:1; transform:none } }
+
+@media (max-width: 1180px) {
+  .workspace-header,
+  .chat-panel { grid-template-columns: 1fr; }
+  .workspace-header,
+  .thread-header { flex-direction:column; align-items:flex-start }
+}
+
+@media (max-width: 980px) {
+  .main-content { margin-left:0; padding:18px }
+}
 </style>

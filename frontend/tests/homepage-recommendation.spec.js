@@ -32,6 +32,28 @@ test('homepage recommendation read action records click and opens detail route',
     })
   })
 
+  await page.route(/\/api\/visualization\/data$/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        code: 200,
+        message: 'success',
+        data: {
+          knowledge: {
+            learningPath: {
+              topic: 'Shared Recommendation Flow',
+              estimatedHours: 12,
+              coverage: 0.5,
+              route: [],
+            },
+            nodes: [],
+          },
+        },
+      }),
+    })
+  })
+
   await page.route(/\/api\/behavior\/click$/, async (route) => {
     clickPayload = route.request().postDataJSON()
     await route.fulfill({
@@ -62,6 +84,10 @@ test('homepage recommendation read action records click and opens detail route',
   })
 
   await page.goto('/home')
+  await expect(page.getByTestId('home-hub-hero')).toBeVisible()
+  await expect(page.getByTestId('recommendation-stream')).toBeVisible()
+  await expect(page.getByRole('heading', { name: '推荐流' })).toBeVisible()
+  await expect(page.getByTestId('recommendation-stream').getByText('当前主线：Shared Recommendation Flow')).toBeVisible()
   await expect(page.getByText('Shared Recommendation Flow Paper')).toBeVisible()
   await expect(page.getByRole('button', { name: '下载 TXT' })).toHaveCount(0)
 
@@ -69,5 +95,6 @@ test('homepage recommendation read action records click and opens detail route',
 
   await expect.poll(() => clickPayload).toEqual({ paperId: 1, source: 'recommend' })
   await expect(page).toHaveURL(/\/paper\/1$/)
+  await expect(page.getByTestId('paper-reading-canvas')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Shared Recommendation Flow Paper' })).toBeVisible()
 })

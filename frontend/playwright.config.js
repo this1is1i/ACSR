@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   testDir: './tests',
   timeout: 30000,
   webServer: {
@@ -10,4 +10,4 @@ module.exports = {
     headless: true,
     baseURL: 'http://localhost:5173',
   },
-};
+}

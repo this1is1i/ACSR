@@ -1,83 +1,100 @@
 <template>
-  <div class="community-root">
+  <div class="community-root" data-testid="community-collaboration-workspace">
     <div class="bg-animation"></div>
     <Sidebar />
     <main class="main-content">
-      <header class="header">
+      <header class="workspace-header card glass">
         <div class="page-title">
-          <h2>💬 科研社区</h2>
-          <p>研究者与学生用户均可参与讨论；学生发帖需管理员审核，研究者可直接发布。</p>
+          <p class="workspace-eyebrow">Collaboration Workspace</p>
+          <h2>💬 科研社区工作台</h2>
+          <p>把社区动态、论文线索与评论协作合并在一个未来实验室工作区里。</p>
+        </div>
+        <div class="workspace-badges">
+          <span class="workspace-badge">论文协作</span>
+          <span class="workspace-badge">主题同步</span>
+          <span class="workspace-badge">路径推进</span>
         </div>
       </header>
 
-      <section class="post-creator card">
-        <div class="creator-header">
-          <div class="creator-avatar">{{ userStore.userInfo?.username?.charAt(0)?.toUpperCase() || 'U' }}</div>
-          <div class="creator-form">
-            <input v-model="postForm.title" class="creator-title" placeholder="帖子标题（可选）" maxlength="200" />
-            <textarea
-              v-model="postForm.content"
-              class="creator-input"
-              rows="4"
-              maxlength="5000"
-              placeholder="分享你的科研观点、论文推荐或研究心得..."
-            />
-            <input v-model="postForm.paperId" class="creator-title" placeholder="关联论文 ID（可选）" />
-          </div>
-        </div>
-        <div class="creator-actions">
-          <span class="creator-hint">{{ publishHint }}</span>
-          <button class="post-btn btn" :disabled="submitting" @click="submitPost">
-            {{ submitting ? '提交中...' : '发布动态' }}
-          </button>
-        </div>
-      </section>
-
-      <section class="feed-section">
-        <div class="feed-tabs">
-          <button class="feed-tab" :class="{ active: activeTab === 'latest' }" @click="activeTab = 'latest'">最新</button>
-          <button class="feed-tab" :class="{ active: activeTab === 'hot' }" @click="activeTab = 'hot'">热门</button>
-        </div>
-
-        <div v-if="loading" class="empty-state">社区内容加载中...</div>
-        <div v-else-if="!posts.length" class="empty-state">还没有社区帖子，发一条试试。</div>
-
-        <article v-for="post in posts" :key="post.id" class="post-card">
-          <div class="post-header">
-            <div class="post-author">
-              <div class="author-avatar">{{ post.author?.username?.charAt(0)?.toUpperCase() || 'U' }}</div>
-              <div class="author-info">
-                <h4>{{ post.author?.username || '未知用户' }}</h4>
-                <p>{{ post.author?.roleLabel || '' }}</p>
+      <div class="workspace-grid">
+        <section class="workspace-main">
+          <section class="post-creator card">
+            <div class="creator-header">
+              <div class="creator-avatar">{{ userStore.userInfo?.username?.charAt(0)?.toUpperCase() || 'U' }}</div>
+              <div class="creator-form">
+                <input v-model="postForm.title" class="creator-title" placeholder="帖子标题（可选）" maxlength="200" />
+                <textarea
+                  v-model="postForm.content"
+                  class="creator-input"
+                  rows="4"
+                  maxlength="5000"
+                  placeholder="分享你的科研观点、论文推荐或研究心得..."
+                />
+                <input v-model="postForm.paperId" class="creator-title" placeholder="关联论文 ID（可选）" />
               </div>
             </div>
-            <div class="post-meta">
-              <el-tag size="small" :type="statusTagType(post.statusName)">{{ post.statusLabel }}</el-tag>
-              <span class="post-time">{{ formatTime(post.createTime) }}</span>
+            <div class="creator-actions">
+              <span class="creator-hint">{{ publishHint }}</span>
+              <button class="post-btn btn" :disabled="submitting" @click="submitPost">
+                {{ submitting ? '提交中...' : '发布动态' }}
+              </button>
             </div>
-          </div>
+          </section>
 
-          <h3 v-if="post.title" class="post-title">{{ post.title }}</h3>
-          <div class="post-content">{{ post.content }}</div>
-
-          <div v-if="post.paper" class="post-paper">
-            <div class="paper-title-small">📄 {{ post.paper.title }}</div>
-            <div class="paper-meta-small">
-              {{ post.paper.venue || '未指定 venue' }} · {{ post.paper.year || '未知年份' }} · 被引 {{ post.paper.citationCount || 0 }}
+          <section class="feed-section">
+            <div class="feed-tabs">
+              <button class="feed-tab" :class="{ active: activeTab === 'latest' }" @click="activeTab = 'latest'">最新</button>
+              <button class="feed-tab" :class="{ active: activeTab === 'hot' }" @click="activeTab = 'hot'">热门</button>
             </div>
-          </div>
 
-          <div v-if="post.reviewComment && post.statusName !== 'APPROVED'" class="review-note">
-            审核备注：{{ post.reviewComment }}
-          </div>
+            <div v-if="loading" class="empty-state">社区内容加载中...</div>
+            <div v-else-if="!posts.length" class="empty-state">还没有社区帖子，发一条试试。</div>
 
-          <div class="post-actions">
-            <span class="post-stat">回复 {{ post.replyCount }}</span>
-            <span class="post-stat">点赞 {{ post.likeCount }}</span>
-            <button class="comment-btn" @click="openComments(post)">查看评论</button>
-          </div>
-        </article>
-      </section>
+            <article v-for="post in posts" :key="post.id" class="post-card">
+              <div class="post-header">
+                <div class="post-author">
+                  <div class="author-avatar">{{ post.author?.username?.charAt(0)?.toUpperCase() || 'U' }}</div>
+                  <div class="author-info">
+                    <h4>{{ post.author?.username || '未知用户' }}</h4>
+                    <p>{{ post.author?.roleLabel || '' }}</p>
+                  </div>
+                </div>
+                <div class="post-meta">
+                  <el-tag size="small" :type="statusTagType(post.statusName)">{{ post.statusLabel }}</el-tag>
+                  <span class="post-time">{{ formatTime(post.createTime) }}</span>
+                </div>
+              </div>
+
+              <h3 v-if="post.title" class="post-title">{{ post.title }}</h3>
+              <div class="post-content">{{ post.content }}</div>
+
+              <div v-if="post.paper" class="post-paper">
+                <div class="paper-title-small">📄 {{ post.paper.title }}</div>
+                <div class="paper-meta-small">
+                  {{ post.paper.venue || '未指定 venue' }} · {{ post.paper.year || '未知年份' }} · 被引 {{ post.paper.citationCount || 0 }}
+                </div>
+              </div>
+
+              <div v-if="post.reviewComment && post.statusName !== 'APPROVED'" class="review-note">
+                审核备注：{{ post.reviewComment }}
+              </div>
+
+              <div class="post-actions">
+                <span class="post-stat">回复 {{ post.replyCount }}</span>
+                <span class="post-stat">点赞 {{ post.likeCount }}</span>
+                <button class="comment-btn" @click="openComments(post)">查看评论</button>
+              </div>
+            </article>
+          </section>
+        </section>
+
+        <DiscussionContextRail
+          :posts="posts"
+          :active-tab="activeTab"
+          :publish-hint="publishHint"
+          :selected-post="selectedPost"
+        />
+      </div>
     </main>
 
     <el-dialog v-model="commentDialogVisible" width="720px" destroy-on-close>
@@ -127,6 +144,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
 import CommunityCommentTree from '@/components/CommunityCommentTree.vue'
+import DiscussionContextRail from '@/components/community/DiscussionContextRail.vue'
 import { createCommunityPost, createPostComment, getCommunityPosts, getPostComments } from '@/api/community'
 import { useUserStore } from '@/store/userStore'
 
@@ -268,7 +286,12 @@ function formatTime(value) {
 @import '@/style.css';
 
 .main-content { margin-left: 260px; min-height: 100vh; padding: 30px 40px; color: var(--text-primary); }
-.header { margin-bottom: 24px; }
+.workspace-header { margin-bottom: 24px; padding: 24px; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+.workspace-eyebrow { margin-bottom: 8px; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent-secondary); }
+.workspace-badges { display: flex; flex-wrap: wrap; gap: 10px; }
+.workspace-badge { padding: 10px 14px; border-radius: 999px; border: 1px solid var(--color-border-subtle); background: rgba(124, 140, 255, 0.12); color: var(--color-text-primary); }
+.workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+.workspace-main { min-width: 0; }
 .post-creator,
 .post-card { padding: 20px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--design-border); margin-bottom: 18px; }
 .creator-header { display: flex; gap: 14px; align-items: flex-start; }
@@ -305,6 +328,11 @@ function formatTime(value) {
 .dialog-title { display: flex; flex-direction: column; gap: 4px; }
 .comment-panel { max-height: 70vh; overflow: auto; }
 .comment-editor { margin-top: 16px; }
+
+@media (max-width: 1180px) {
+  .workspace-grid { grid-template-columns: 1fr; }
+  .workspace-header { flex-direction: column; align-items: flex-start; }
+}
 
 @media (max-width: 980px) {
   .main-content { margin-left: 0; padding: 18px; }
