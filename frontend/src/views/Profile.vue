@@ -73,14 +73,20 @@
             <button class="edit-btn btn secondary" @click="viewAllCollections">查看全部</button>
           </div>
 
-          <div class="collection-list">
-            <div v-for="(c, idx) in collections" :key="idx" class="collection-item">
+          <div class="collection-list" v-if="collectionsLoading">
+            <div class="empty-hint">加载中...</div>
+          </div>
+          <div class="collection-list" v-else-if="collections.length">
+            <div v-for="(c, idx) in collections" :key="idx" class="collection-item" @click="c.id && router.push(`/paper/${c.id}`)">
               <div class="collection-thumb">📄</div>
               <div class="collection-info">
                 <div class="collection-title">{{ c.title }}</div>
                 <div class="collection-meta">{{ c.meta }}</div>
               </div>
             </div>
+          </div>
+          <div class="collection-list" v-else>
+            <div class="empty-hint">还没有收藏论文</div>
           </div>
         </div>
 
@@ -109,15 +115,34 @@
               <div class="card-icon">🕐</div>
               最近活动
             </div>
-            <button class="edit-btn btn secondary" @click="clearHistory">清空</button>
+            <button class="edit-btn btn secondary" @click="doClearHistory">清空</button>
           </div>
 
-          <div class="history-list">
+          <div class="history-list" v-if="historyLoading">
+            <div class="empty-hint">加载中...</div>
+          </div>
+          <div class="history-list" v-else-if="history.length">
             <div v-for="(h, idx) in history" :key="idx" class="history-item">
               <div class="history-icon">{{ h.icon }}</div>
               <div class="history-text">{{ h.text }}</div>
               <div class="history-time">{{ h.time }}</div>
             </div>
+          </div>
+          <div class="history-list" v-else>
+            <div class="empty-hint">暂无活动记录</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interests edit dialog -->
+      <div class="dialog-overlay" v-if="interestsEditVisible" @click.self="interestsEditVisible = false">
+        <div class="dialog-card">
+          <h3>管理研究兴趣</h3>
+          <p class="dialog-desc">用逗号分隔多个研究方向</p>
+          <input v-model="interestsEditValue" class="dialog-input" placeholder="例如：深度学习, 强化学习, 计算机视觉" @keyup.enter="saveInterests" />
+          <div class="dialog-actions">
+            <button class="btn secondary" @click="interestsEditVisible = false">取消</button>
+            <button class="btn primary" @click="saveInterests">保存</button>
           </div>
         </div>
       </div>
@@ -128,11 +153,13 @@
 <script setup>
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
 import ResearchAssetsPanel from '@/components/profile/ResearchAssetsPanel.vue'
 import { getPathSurfaceData } from '@/api/visualization'
 import { buildLearningPathSummary } from '@/utils/path'
+import { getProfile, updateProfile, getFavorites } from '@/api/user'
+import { getActivityHistory, clearActivityHistory } from '@/api/recommend'
 
 const router = useRouter()
 const defaultInterests = [
@@ -154,6 +181,8 @@ const profile = ref({ id: null, username: '', avatar: '', email: '', bio: '', re
 const visualizationData = ref({})
 const recommendations = ref([])
 const assetsLoading = ref(false)
+const collectionsLoading = ref(false)
+const historyLoading = ref(false)
 const pathSummary = computed(() => buildLearningPathSummary(visualizationData.value))
 const interestItems = computed(() => {
   const labels = visualizationData.value?.field?.labels || []
@@ -168,40 +197,131 @@ const interestItems = computed(() => {
   }))
 })
 
-const collections = ref([
-  { title: 'Attention Is All You Need', meta: 'Vaswani et al. · NeurIPS 2017' },
-  { title: 'Deep Residual Learning for Image Recognition', meta: 'He et al. · CVPR 2016' },
-  { title: 'BERT: Pre-training of Deep Bidirectional Transformers', meta: 'Devlin et al. · NAACL 2019' }
-])
+const collections = ref([])
+const history = ref([])
+const interestsEditVisible = ref(false)
+const interestsEditValue = ref('')
 
-const settings = ref([
-  { title: '个性化推荐', desc: '基于阅读历史智能推荐论文', enabled: true },
-  { title: '邮件通知', desc: '接收关注领域的新论文提醒', enabled: true },
-  { title: '社区互动', desc: '允许其他用户查看我的动态', enabled: false },
-  { title: '数据同步', desc: '跨设备同步阅读记录和收藏', enabled: true }
-])
+const settings = ref(loadSettings())
 
-const history = ref([
-  { icon: '👁️', text: '阅读了《Graph Neural Networks Survey》', time: '2小时前' },
-  { icon: '⭐', text: '收藏了《Transformer Architecture》', time: '5小时前' },
-  { icon: '💬', text: '评论了李四的论文分享', time: '昨天' },
-  { icon: '🔍', text: '搜索了"自监督学习"', time: '昨天' }
-])
+function loadSettings() {
+  try {
+    const saved = localStorage.getItem('profileSettings')
+    if (saved) return JSON.parse(saved)
+  } catch (e) { /* ignore */ }
+  return [
+    { title: '个性化推荐', desc: '基于阅读历史智能推荐论文', enabled: true },
+    { title: '邮件通知', desc: '接收关注领域的新论文提醒', enabled: true },
+    { title: '社区互动', desc: '允许其他用户查看我的动态', enabled: false },
+    { title: '数据同步', desc: '跨设备同步阅读记录和收藏', enabled: true }
+  ]
+}
 
-function editProfile() { console.log('edit') }
-function shareProfile() { console.log('share') }
-function manageInterests() { console.log('manage interests') }
-function viewAllCollections() { console.log('view all') }
-function toggleSetting(i) { settings.value[i].enabled = !settings.value[i].enabled }
-function clearHistory() { history.value = [] }
+function saveSettings() {
+  localStorage.setItem('profileSettings', JSON.stringify(settings.value))
+}
 
-function animateInterestBars() {
-  const fills = document.querySelectorAll('.interest-fill')
-  fills.forEach(fill => {
-    const width = fill.style.width
-    fill.style.width = '0'
-    setTimeout(() => { fill.style.width = width }, 300)
-  })
+function toggleSetting(i) {
+  settings.value[i].enabled = !settings.value[i].enabled
+  saveSettings()
+}
+
+async function fetchFavorites() {
+  collectionsLoading.value = true
+  try {
+    const res = await getFavorites()
+    const data = res.data || res
+    collections.value = (data || []).map(p => ({
+      id: p.id,
+      title: p.title || 'Untitled',
+      meta: [p.authors, p.venue, p.year].filter(Boolean).join(' · ') || '—'
+    }))
+  } catch (e) {
+    console.error('Failed to load favorites', e)
+    collections.value = []
+  } finally {
+    collectionsLoading.value = false
+  }
+}
+
+async function fetchHistory() {
+  historyLoading.value = true
+  try {
+    const res = await getActivityHistory(20)
+    const data = res.data || res
+    const actionIcons = { click: '👁️', favorite: '⭐', read: '📖' }
+    const actionLabels = { click: '浏览了', favorite: '收藏了', read: '阅读了' }
+    history.value = (data || []).map(item => {
+      const action = item.action || 'click'
+      return {
+        icon: actionIcons[action] || '📌',
+        text: `${actionLabels[action] || '查看了'}《${item.paper_title || 'Unknown'}》`,
+        time: formatRelativeTime(item.timestamp)
+      }
+    })
+  } catch (e) {
+    console.error('Failed to load history', e)
+    history.value = []
+  } finally {
+    historyLoading.value = false
+  }
+}
+
+function formatRelativeTime(timestamp) {
+  if (!timestamp) return ''
+  const now = Date.now()
+  const then = new Date(timestamp).getTime()
+  const diff = now - then
+  const minutes = Math.floor(diff / 60000)
+  if (minutes < 1) return '刚刚'
+  if (minutes < 60) return `${minutes}分钟前`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}小时前`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days}天前`
+  return new Date(timestamp).toLocaleDateString()
+}
+
+function shareProfile() {
+  // Browser share API — no-op when unsupported
+  if (navigator.share) {
+    navigator.share({ title: profile.value.username + ' 的研究主页', url: window.location.href }).catch(() => {})
+  } else {
+    ElMessage.info('复制链接分享给好友')
+  }
+}
+
+function manageInterests() {
+  interestsEditValue.value = profile.value.researchInterests || ''
+  interestsEditVisible.value = true
+}
+
+async function saveInterests() {
+  try {
+    await updateProfile({ researchInterests: interestsEditValue.value })
+    profile.value.researchInterests = interestsEditValue.value
+    interestsEditVisible.value = false
+    ElMessage.success('研究兴趣已更新')
+  } catch (e) {
+    ElMessage.error('保存失败，请重试')
+  }
+}
+
+function viewAllCollections() {
+  const el = document.querySelector('.collection-list')
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
+async function doClearHistory() {
+  try {
+    await ElMessageBox.confirm('确定要清空所有活动记录吗？', '确认', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' })
+    await clearActivityHistory()
+    history.value = []
+    ElMessage.success('已清空')
+  } catch (e) {
+    // cancelled or error
+    if (e !== 'cancel') console.error('Failed to clear history', e)
+  }
 }
 
 function logout() {
@@ -211,7 +331,14 @@ function logout() {
   router.push('/login')
 }
 
-import { getProfile } from '@/api/user'
+function animateInterestBars() {
+  const fills = document.querySelectorAll('.interest-fill')
+  fills.forEach(fill => {
+    const width = fill.style.width
+    fill.style.width = '0'
+    setTimeout(() => { fill.style.width = width }, 300)
+  })
+}
 
 watch(interestItems, async () => {
   await nextTick()
@@ -241,6 +368,8 @@ onMounted(async () => {
         assetsLoading.value = false
       }
     })(),
+    fetchFavorites(),
+    fetchHistory(),
   ])
 })
 </script>
@@ -655,6 +784,30 @@ onMounted(async () => {
   font-size: 12px;
   color: var(--text);
   flex-shrink: 0;
+}
+
+/* ─── Dialog ─────────────────────────────────────────────────── */
+.dialog-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+}
+.dialog-card {
+  background: var(--bg-card); padding: 28px 32px; border-radius: 16px;
+  width: 90%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.dialog-card h3 { margin: 0 0 8px; font-size: 18px; color: var(--text-h); }
+.dialog-desc { margin: 0 0 16px; font-size: 13px; color: var(--text); }
+.dialog-input {
+  width: 100%; height: 42px; padding: 0 14px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text-h);
+  font-size: 14px; outline: none; margin-bottom: 20px;
+}
+.dialog-input:focus { border-color: var(--primary); }
+.dialog-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ─── Empty state ────────────────────────────────────────────── */
+.empty-hint {
+  text-align: center; padding: 20px 0; font-size: 13px; color: var(--text);
 }
 
 /* ─── Animation Delays ───────────────────────────────────────── */

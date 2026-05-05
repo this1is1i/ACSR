@@ -234,8 +234,46 @@ const behaviors = ref([
   { icon: '⚡', title: '峰值活跃时段', desc: '最高频阅读时间', value: '20:00-22:00' },
 ])
 
+const chartView = ref('month')
+
 function setRange(r) { activeRange.value = r }
-function setChartView(v) { console.log('set view', v) }
+function setChartView(v) {
+  chartView.value = v
+  if (interestChart && visualizationData.value?.interest) {
+    rebuildInterestChart(visualizationData.value.interest)
+  }
+}
+
+function rebuildInterestChart(interestData) {
+  if (!interestChartRef.value || !interestData) return
+  const ctx = interestChartRef.value.getContext('2d')
+  interestChart.destroy()
+  const labels = interestData.labels || []
+  const datasets = (interestData.datasets || []).map((s, idx) => {
+    const allData = s.data || []
+    // Week view: show last 4 data points; Month view: show all
+    const sliceCount = chartView.value === 'week' ? Math.min(4, allData.length) : allData.length
+    const slicedData = allData.slice(-sliceCount)
+    const slicedLabels = labels.slice(-sliceCount)
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400)
+    gradient.addColorStop(0, idx === 0 ? 'rgba(99,102,241,0.3)' : 'rgba(6,182,212,0.3)')
+    gradient.addColorStop(1, 'rgba(0,0,0,0)')
+    return {
+      label: s.label,
+      data: slicedData,
+      borderColor: idx === 0 ? '#6366f1' : '#06b6d4',
+      backgroundColor: gradient,
+      fill: true,
+      tension: 0.4
+    }
+  })
+  const sliceCount = chartView.value === 'week' ? Math.min(4, labels.length) : labels.length
+  interestChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: labels.slice(-sliceCount), datasets },
+    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,0.1)' } }, x: { grid: { display: false } } } }
+  })
+}
 function exportData() {
   const data = { stats: stats.value, tags: tagCloud.value, behaviors: behaviors.value }
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -654,7 +692,7 @@ onBeforeUnmount(() => {
 .page-title__eyebrow { margin-bottom: 8px; font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent-secondary) }
 .page-title p { color:var(--text-secondary); font-size:15px }
 .user-avatar { width:45px; height:45px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center; font-weight:600 }
-.viz-surface-layout { display:grid; grid-template-columns:minmax(320px, 0.95fr) minmax(0, 1.55fr); gap:24px; margin-bottom:30px }
+.viz-surface-layout { display:grid; gap:24px; margin-bottom:30px }
 .viz-surface-layout__main { display:grid; gap:24px; align-content:start }
 .time-filter { display:flex; flex-wrap:wrap; gap:10px; width:fit-content; max-width:min(100%, 34rem); margin-bottom:30px }
 .viz-surface-layout__main .time-filter { margin-bottom:0 }
@@ -814,7 +852,6 @@ onBeforeUnmount(() => {
 .detail-id { font-family:monospace; font-size:11px; color:var(--text-secondary); word-break:break-all }
 
 @media (max-width:1200px) {
-  .viz-surface-layout { grid-template-columns:1fr }
   .charts-grid { grid-template-columns:1fr }
   .stats-row { grid-template-columns:repeat(2,1fr) }
   .main-content { margin-left:0; padding:20px }

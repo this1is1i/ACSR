@@ -1,20 +1,35 @@
 package com.example.research.service.impl;
 
 import com.example.research.dto.UserDto;
+import com.example.research.entity.Paper;
 import com.example.research.enums.UserRole;
 import com.example.research.entity.User;
+import com.example.research.repository.BehaviorLogMapper;
 import com.example.research.repository.UserMapper;
 import com.example.research.service.UserService;
 import com.example.research.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.UUID;
+
+@Slf4j
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
+    private final BehaviorLogMapper behaviorLogMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -78,5 +93,47 @@ public class UserServiceImpl implements UserService {
         if (req.getBio() != null) user.setBio(req.getBio());
         if (req.getResearchInterests() != null) user.setResearchInterests(req.getResearchInterests());
         userMapper.updateById(user);
+    }
+
+    @Override
+    public List<Paper> getFavoritePapers(Long userId) {
+        return behaviorLogMapper.findFavoritesByUserId(userId);
+    }
+
+    @Override
+    public String uploadAvatar(Long userId, MultipartFile file) {
+        User user = userMapper.selectById(userId);
+        if (user == null) throw new IllegalArgumentException("用户不存在");
+
+        // Validate file type
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("仅支持图片文件");
+        }
+
+        // Generate unique filename
+        String originalName = file.getOriginalFilename();
+        String ext = ".png";
+        if (originalName != null && originalName.contains(".")) {
+            ext = originalName.substring(originalName.lastIndexOf("."));
+        }
+        String filename = "avatar_" + userId + "_" + UUID.randomUUID().toString().substring(0, 8) + ext;
+
+        // Save to uploads/avatars/
+        try {
+            Path uploadDir = Paths.get("uploads", "avatars");
+            Files.createDirectories(uploadDir);
+            Path targetPath = uploadDir.resolve(filename);
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            String avatarUrl = "/uploads/avatars/" + filename;
+            user.setAvatar(avatarUrl);
+            userMapper.updateById(user);
+
+            log.info("Avatar uploaded: userId={}, url={}", userId, avatarUrl);
+            return avatarUrl;
+        } catch (IOException e) {
+            throw new RuntimeException("头像上传失败", e);
+        }
     }
 }

@@ -3,11 +3,13 @@ package com.example.research.controller;
 import com.example.research.dto.RecommendDto;
 import com.example.research.service.RecommendService;
 import com.example.research.util.Result;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 用户行为日志控制器
@@ -70,6 +72,21 @@ public class BehaviorController {
         Long userId = (Long) auth.getPrincipal();
         recommendService.logBehavior(userId, request.getPaperId(),
                 "read", request.getDuration(), request.getSource());
+        return Result.success();
+    }
+
+    @GetMapping("/history")
+    public Result<List<Map<String, Object>>> getHistory(
+            @RequestParam(defaultValue = "20") int limit,
+            Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
+        return Result.success(recommendService.getRecentHistory(userId, Math.min(limit, 50)));
+    }
+
+    @DeleteMapping("/history")
+    public Result<Void> clearHistory(Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
+        recommendService.clearHistory(userId);
         return Result.success();
     }
 }

@@ -168,6 +168,34 @@ test('knowledge graph foregrounds the learning path with recommendation assets',
   await expect(rail).toContainText('Entropy-Regularized Actor-Critic')
 })
 
+test('knowledge graph splits the learning path insight into compact cards on wide screens', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1100 })
+  await stubSharedApis(page)
+
+  await page.goto('/knowledge-graph')
+
+  const rail = page.getByTestId('path-insight-rail')
+  const insightGrid = page.getByTestId('path-insight-grid')
+  const spotlightCard = page.getByTestId('path-insight-card-spotlight')
+  const focusCard = page.getByTestId('path-insight-card-focus')
+  const resourceCard = page.getByTestId('path-insight-card-resources')
+  const routeCard = page.getByTestId('path-insight-card-route')
+
+  await expect(spotlightCard).toBeVisible()
+  await expect(focusCard).toBeVisible()
+  await expect(resourceCard).toBeVisible()
+  await expect(routeCard).toBeVisible()
+
+  const gridColumnCount = await insightGrid.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(' ').length)
+  const railBox = await rail.boundingBox()
+  const spotlightBox = await spotlightCard.boundingBox()
+
+  expect(gridColumnCount).toBeGreaterThan(1)
+  expect(railBox).not.toBeNull()
+  expect(spotlightBox).not.toBeNull()
+  expect(spotlightBox.height).toBeLessThan(railBox.height * 0.6)
+})
+
 test('knowledge graph keeps the top controls compact on wide screens', async ({ page }) => {
   await page.setViewportSize({ width: 2000, height: 1200 })
   await stubSharedApis(page)

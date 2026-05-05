@@ -1,76 +1,141 @@
 <template>
-  <aside class="path-insight-rail card glass" data-testid="path-insight-rail">
-    <div class="path-insight-rail__header">
-      <div>
-        <p class="path-insight-rail__eyebrow">Path Immersion</p>
-        <h2>学习路径洞察</h2>
-        <p>{{ summary.headline }}</p>
-      </div>
-    </div>
-
+  <aside class="path-insight-rail" data-testid="path-insight-rail">
     <template v-if="loading">
-      <el-skeleton :rows="10" animated />
+      <section class="path-insight-rail__card path-insight-rail__card--loading">
+        <el-skeleton :rows="10" animated />
+      </section>
     </template>
 
-    <template v-else>
-      <section class="path-insight-rail__spotlight">
-        <span class="path-insight-rail__label">当前主线</span>
-        <strong>{{ summary.topic }}</strong>
-        <p>{{ summary.nextStepCaption }}</p>
-      </section>
+    <div v-else class="path-insight-rail__grid" data-testid="path-insight-grid">
+      <section
+        class="path-insight-rail__card path-insight-rail__card--spotlight"
+        data-testid="path-insight-card-spotlight"
+      >
+        <div class="path-insight-rail__header">
+          <div>
+            <p class="path-insight-rail__eyebrow">Path Immersion</p>
+            <h2>学习路径洞察</h2>
+            <p>{{ summary.headline }}</p>
+          </div>
+        </div>
 
-      <div class="path-insight-rail__metrics">
-        <article class="path-insight-rail__metric">
-          <span>完成度</span>
-          <strong>{{ summary.completionPercent }}%</strong>
-          <small>{{ summary.estimatedHoursLabel }}</small>
-        </article>
-        <article class="path-insight-rail__metric">
-          <span>当前聚焦</span>
-          <strong>{{ activeNodeLabel }}</strong>
-          <small>{{ activeNodeMeta }}</small>
-        </article>
-      </div>
+        <div class="path-insight-rail__spotlight">
+          <section class="path-insight-rail__spotlight-main">
+            <span class="path-insight-rail__label">当前主线</span>
+            <strong>{{ summary.topic }}</strong>
+            <p>{{ summary.nextStepCaption }}</p>
+          </section>
 
-      <section v-if="summary.focusAreas.length" class="path-insight-rail__section">
-        <h3>聚焦主题</h3>
-        <div class="path-insight-rail__chips">
-          <span v-for="step in summary.focusAreas" :key="step.id" class="path-insight-rail__chip">
-            {{ step.name }}
-          </span>
+          <div class="path-insight-rail__highlight-stack">
+            <article class="path-insight-rail__highlight">
+              <span>当前聚焦</span>
+              <strong>{{ activeNodeLabel }}</strong>
+              <small>{{ activeNodeMeta }}</small>
+            </article>
+            <article class="path-insight-rail__highlight">
+              <span>路径锚点</span>
+              <strong>{{ summary.paperCount }}</strong>
+              <small>{{ summary.paperCount ? '篇关键论文已纳入本轮路径' : '等待关键论文加入路径' }}</small>
+            </article>
+          </div>
         </div>
       </section>
 
-      <section v-if="summary.resourcePapers.length" class="path-insight-rail__section">
-        <h3>路径关键论文</h3>
-        <div class="path-insight-rail__stack">
-          <article
-            v-for="paper in summary.resourcePapers.slice(0, 3)"
-            :key="paper.id"
-            class="path-insight-rail__item"
-          >
-            <strong>{{ paper.name }}</strong>
-            <small>{{ getPathStepMeta(paper) }}</small>
+      <section
+        class="path-insight-rail__card path-insight-rail__card--focus"
+        data-testid="path-insight-card-focus"
+      >
+        <div class="path-insight-rail__section-head">
+          <div>
+            <p class="path-insight-rail__section-eyebrow">Path Progress</p>
+            <h3>推进节奏</h3>
+          </div>
+          <p>把完成度、预估投入与基础铺垫拆开观察，避免一条长卡吞掉重点。</p>
+        </div>
+
+        <div class="path-insight-rail__metrics">
+          <article class="path-insight-rail__metric">
+            <span>完成度</span>
+            <strong>{{ summary.completionPercent }}%</strong>
+            <small>路径覆盖率</small>
+          </article>
+          <article class="path-insight-rail__metric">
+            <span>预估投入</span>
+            <strong>{{ summary.estimatedHours || '—' }}</strong>
+            <small>{{ summary.estimatedHoursLabel }}</small>
+          </article>
+          <article class="path-insight-rail__metric">
+            <span>基础铺垫</span>
+            <strong>{{ summary.masteredFoundations }}/{{ summary.foundationCount }}</strong>
+            <small>已完成基础节点</small>
           </article>
         </div>
-      </section>
 
-      <section v-if="recommendations.length" class="path-insight-rail__section">
-        <h3>关联推荐资产</h3>
-        <div class="path-insight-rail__stack">
-          <article
-            v-for="paper in recommendations.slice(0, 2)"
-            :key="paper.paperId || paper.id"
-            class="path-insight-rail__item"
-          >
-            <strong>{{ paper.title }}</strong>
-            <small>{{ paper.reason || recommendationMeta(paper) }}</small>
-          </article>
+        <div v-if="summary.focusAreas.length" class="path-insight-rail__section">
+          <h4>聚焦主题</h4>
+          <div class="path-insight-rail__chips">
+            <span v-for="step in summary.focusAreas" :key="step.id" class="path-insight-rail__chip">
+              {{ step.name }}
+            </span>
+          </div>
         </div>
       </section>
 
-      <section v-if="summary.steps.length" class="path-insight-rail__section">
-        <h3>路径检查点</h3>
+      <section
+        class="path-insight-rail__card path-insight-rail__card--resources"
+        data-testid="path-insight-card-resources"
+      >
+        <div class="path-insight-rail__section-head">
+          <div>
+            <p class="path-insight-rail__section-eyebrow">Resource Stack</p>
+            <h3>关键资源</h3>
+          </div>
+          <p>把路径论文与推荐资产放进并列资源视图，保持信息密度但不再拉成长列。</p>
+        </div>
+
+        <div class="path-insight-rail__resource-columns">
+          <section v-if="summary.resourcePapers.length" class="path-insight-rail__section">
+            <h4>路径关键论文</h4>
+            <div class="path-insight-rail__stack">
+              <article
+                v-for="paper in summary.resourcePapers.slice(0, 3)"
+                :key="paper.id"
+                class="path-insight-rail__item"
+              >
+                <strong>{{ paper.name }}</strong>
+                <small>{{ getPathStepMeta(paper) }}</small>
+              </article>
+            </div>
+          </section>
+
+          <section v-if="recommendations.length" class="path-insight-rail__section">
+            <h4>关联推荐资产</h4>
+            <div class="path-insight-rail__stack">
+              <article
+                v-for="paper in recommendations.slice(0, 2)"
+                :key="paper.paperId || paper.id"
+                class="path-insight-rail__item"
+              >
+                <strong>{{ paper.title }}</strong>
+                <small>{{ paper.reason || recommendationMeta(paper) }}</small>
+              </article>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section
+        class="path-insight-rail__card path-insight-rail__card--route"
+        data-testid="path-insight-card-route"
+      >
+        <div class="path-insight-rail__section-head">
+          <div>
+            <p class="path-insight-rail__section-eyebrow">Route Checkpoints</p>
+            <h3>路径检查点</h3>
+          </div>
+          <p>把路线拆成短栈式检查点，浏览时不再需要扫完整条长轨。</p>
+        </div>
+
         <ol class="path-insight-rail__route">
           <li v-for="step in summary.steps.slice(0, 4)" :key="step.id" class="path-insight-rail__route-item">
             <span class="path-insight-rail__index">{{ step.index }}</span>
@@ -81,7 +146,7 @@
           </li>
         </ol>
       </section>
-    </template>
+    </div>
   </aside>
 </template>
 
@@ -107,6 +172,9 @@ const props = defineProps({
       resourcePapers: [],
       nextStep: null,
       isComplete: false,
+      paperCount: 0,
+      foundationCount: 0,
+      masteredFoundations: 0,
     }),
   },
   recommendations: {
@@ -139,19 +207,47 @@ function recommendationMeta(paper) {
 
 <style scoped>
 .path-insight-rail {
-  position: sticky;
-  top: var(--space-7);
+  align-self: start;
+}
+
+.path-insight-rail__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.path-insight-rail__card {
   display: grid;
   gap: var(--space-4);
-  align-self: start;
-  padding: clamp(1.35rem, 2vw, 1.8rem);
+  padding: clamp(1.25rem, 1.9vw, 1.7rem);
+  border: 1px solid rgba(124, 140, 255, 0.16);
+  border-radius: calc(var(--radius-lg) + 0.2rem);
+  background:
+    linear-gradient(145deg, rgba(16, 24, 46, 0.96), rgba(10, 16, 30, 0.92)),
+    rgba(255, 255, 255, 0.03);
+  box-shadow: 0 18px 38px rgba(2, 8, 23, 0.28);
+}
+
+.path-insight-rail__card--loading,
+.path-insight-rail__card--spotlight {
+  grid-column: span 7;
+}
+
+.path-insight-rail__card--focus,
+.path-insight-rail__card--route {
+  grid-column: span 5;
+}
+
+.path-insight-rail__card--resources {
+  grid-column: span 7;
 }
 
 .path-insight-rail__header,
+.path-insight-rail__section-head,
 .path-insight-rail__section,
-.path-insight-rail__spotlight,
 .path-insight-rail__metric,
-.path-insight-rail__item {
+.path-insight-rail__item,
+.path-insight-rail__highlight {
   display: grid;
   gap: var(--space-2);
 }
@@ -164,6 +260,24 @@ function recommendationMeta(paper) {
   color: var(--color-accent-secondary);
 }
 
+.path-insight-rail__section-eyebrow {
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.84);
+}
+
+.path-insight-rail__header h2,
+.path-insight-rail__section-head h3,
+.path-insight-rail__section h4 {
+  color: var(--color-text-primary);
+}
+
+.path-insight-rail__section-head p,
+.path-insight-rail__header p {
+  color: var(--color-text-secondary);
+}
+
 .path-insight-rail__label {
   display: inline-flex;
   width: fit-content;
@@ -174,6 +288,15 @@ function recommendationMeta(paper) {
 }
 
 .path-insight-rail__spotlight {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.95fr);
+  gap: var(--space-3);
+}
+
+.path-insight-rail__spotlight-main,
+.path-insight-rail__highlight {
+  display: grid;
+  gap: var(--space-3);
   padding: var(--space-4);
   border: 1px solid rgba(124, 140, 255, 0.22);
   border-radius: var(--radius-lg);
@@ -182,7 +305,17 @@ function recommendationMeta(paper) {
     rgba(255, 255, 255, 0.03);
 }
 
-.path-insight-rail__spotlight strong,
+.path-insight-rail__spotlight-main strong {
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+}
+
+.path-insight-rail__highlight-stack {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.path-insight-rail__spotlight-main strong,
+.path-insight-rail__highlight strong,
 .path-insight-rail__metric strong,
 .path-insight-rail__item strong,
 .path-insight-rail__route-item strong {
@@ -191,7 +324,7 @@ function recommendationMeta(paper) {
 
 .path-insight-rail__metrics {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
@@ -218,9 +351,15 @@ function recommendationMeta(paper) {
 }
 
 .path-insight-rail__stack,
-.path-insight-rail__route {
+.path-insight-rail__route,
+.path-insight-rail__resource-columns {
   display: grid;
   gap: var(--space-3);
+}
+
+.path-insight-rail__resource-columns {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
 }
 
 .path-insight-rail__route {
@@ -250,14 +389,23 @@ function recommendationMeta(paper) {
   color: var(--color-text-primary);
 }
 
-@media (max-width: 1200px) {
-  .path-insight-rail {
-    position: static;
+@media (max-width: 1280px) {
+  .path-insight-rail__card--loading,
+  .path-insight-rail__card--spotlight,
+  .path-insight-rail__card--focus,
+  .path-insight-rail__card--resources,
+  .path-insight-rail__card--route {
+    grid-column: span 12;
+  }
+
+  .path-insight-rail__spotlight,
+  .path-insight-rail__metrics {
+    grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 640px) {
-  .path-insight-rail__metrics {
+@media (max-width: 900px) {
+  .path-insight-rail__resource-columns {
     grid-template-columns: 1fr;
   }
 }

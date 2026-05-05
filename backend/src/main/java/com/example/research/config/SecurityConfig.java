@@ -52,6 +52,7 @@ public class SecurityConfig {
             "/api/paper/search",
             "/actuator/health",
             "/ws-messages/**",  // WebSocket 端点
+            "/uploads/**",      // 头像等静态资源
     };
 
     @Bean

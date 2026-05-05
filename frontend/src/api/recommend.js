@@ -14,3 +14,9 @@ export const recordRead = (paperId, duration, source = 'detail') =>
 
 export const getKnowledgeGraph = () =>
   request.get('/knowledge/graph')
+
+export const getActivityHistory = (limit = 20) =>
+  request.get('/behavior/history', { params: { limit } })
+
+export const clearActivityHistory = () =>
+  request.delete('/behavior/history')

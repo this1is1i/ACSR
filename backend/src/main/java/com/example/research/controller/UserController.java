@@ -1,6 +1,7 @@
 package com.example.research.controller;
 
 import com.example.research.dto.UserDto;
+import com.example.research.entity.Paper;
 import com.example.research.service.UserService;
 import com.example.research.util.Result;
 import jakarta.validation.Valid;
@@ -8,6 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 用户模块控制器
@@ -65,6 +70,21 @@ public class UserController {
         Long userId = (Long) authentication.getPrincipal();
         userService.updateProfile(userId, req);
         return Result.success("更新成功");
+    }
+
+    @GetMapping("/favorites")
+    public Result<List<Paper>> getFavorites(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(userService.getFavoritePapers(userId));
+    }
+
+    @PostMapping("/avatar")
+    public Result<Map<String, String>> uploadAvatar(
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        String url = userService.uploadAvatar(userId, file);
+        return Result.success(Map.of("avatarUrl", url));
     }
 }
 

@@ -136,6 +136,7 @@ import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { searchPapers } from '@/api/paper'
+import { recordFavorite } from '@/api/recommend'
 import Sidebar from '@/components/Sidebar.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import SearchFilterRail from '@/components/search/SearchFilterRail.vue'
@@ -287,7 +288,8 @@ function toggleFavorite(paper) {
 
   if (!paper) return
 
-  if (favorites.value.has(paper.id)) {
+  const wasFav = favorites.value.has(paper.id)
+  if (wasFav) {
     favorites.value.delete(paper.id)
     paper.favorites = Math.max(0, (paper.favorites || 1) - 1)
   } else {
@@ -295,7 +297,21 @@ function toggleFavorite(paper) {
     paper.favorites = (paper.favorites || 0) + 1
   }
 
+  // Sync to localStorage for optimistic state
   localStorage.setItem('favorites', JSON.stringify(Array.from(favorites.value)))
+  // Call API to persist
+  recordFavorite(paper.id, 'search').catch(err => {
+    console.error('Failed to record favorite', err)
+    // Revert on failure
+    if (wasFav) {
+      favorites.value.add(paper.id)
+      paper.favorites = (paper.favorites || 0) + 1
+    } else {
+      favorites.value.delete(paper.id)
+      paper.favorites = Math.max(0, (paper.favorites || 1) - 1)
+    }
+    localStorage.setItem('favorites', JSON.stringify(Array.from(favorites.value)))
+  })
 }
 
 onMounted(() => {

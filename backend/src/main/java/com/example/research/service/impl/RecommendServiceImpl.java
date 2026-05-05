@@ -113,6 +113,16 @@ public class RecommendServiceImpl implements RecommendService {
         return info;
     }
 
+    @Override
+    public List<Map<String, Object>> getRecentHistory(Long userId, int limit) {
+        return behaviorLogMapper.findRecentByUserId(userId, limit);
+    }
+
+    @Override
+    public int clearHistory(Long userId) {
+        return behaviorLogMapper.deleteByUserId(userId);
+    }
+
     // ── 内部辅助方法 ──────────────────────────────────────────────
 
     /**
