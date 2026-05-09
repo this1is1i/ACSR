@@ -11,7 +11,7 @@
 
       <div class="workspace-grid">
         <section class="workspace-main">
-          <section class="post-creator card">
+          <section class="post-creator card" data-area="community">
             <div class="creator-header">
               <div class="creator-avatar">{{ userStore.userInfo?.username?.charAt(0)?.toUpperCase() || 'U' }}</div>
               <div class="creator-form">
@@ -43,7 +43,7 @@
             <div v-if="loading" class="empty-state">社区内容加载中...</div>
             <div v-else-if="!posts.length" class="empty-state">还没有社区帖子，发一条试试。</div>
 
-            <article v-for="post in posts" :key="post.id" class="post-card">
+            <article v-for="post in posts" :key="post.id" class="post-card" data-area="community">
               <div class="post-header">
                 <div class="post-author">
                   <div class="author-avatar">{{ post.author?.username?.charAt(0)?.toUpperCase() || 'U' }}</div>
@@ -276,6 +276,7 @@ function formatTime(value) {
 .workspace-main { min-width: 0; }
 .post-creator,
 .post-card { padding: 20px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--design-border); margin-bottom: 18px; }
+.post-card[data-area="community"], .post-creator[data-area="community"] { border-left: 3px solid var(--color-area-community) }
 .creator-header { display: flex; gap: 14px; align-items: flex-start; }
 .creator-avatar,
 .author-avatar { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; font-weight: 700; }

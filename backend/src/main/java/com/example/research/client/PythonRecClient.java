@@ -57,7 +57,8 @@ public class PythonRecClient {
         private List<String> history;
         private String strategy = "hybrid";
 
-        public RecRequest(String userId, int k, List<String> history) {
+        public RecRequest(String userId, int k, List<String>
+                history) {
             this.userId  = userId;
             this.k       = k;
             this.history = history;
@@ -192,6 +193,70 @@ public class PythonRecClient {
             log.error("触发 Python 模型训练失败: {}", e.getMessage());
             return false;
         }
+    }
+
+    // ── 学习路径相关 DTO ──────────────────────────────────────────
+
+    @Data
+    public static class LearningPathRequest {
+        @JsonProperty("user_id")
+        private String userId;
+        @JsonProperty("target_topic")
+        private String targetTopic;
+        private List<String> history;
+        @JsonProperty("max_nodes")
+        private int maxNodes = 20;
+    }
+
+    @Data
+    public static class PathNode {
+        @JsonProperty("node_id")
+        private String nodeId;
+        private String label;
+        @JsonProperty("node_type")
+        private String nodeType;
+        private double mastery;
+        private int depth;
+        private Integer year;
+        private String color;
+        @JsonProperty("glow_intensity")
+        private double glowIntensity;
+    }
+
+    @Data
+    public static class LearningPathResponse {
+        @JsonProperty("user_id")
+        private String userId;
+        private String topic;
+        @JsonProperty("estimated_hours")
+        private double estimatedHours;
+        private double coverage;
+        private List<PathNode> nodes;
+        private List<Map<String, Object>> edges;
+    }
+
+    /**
+     * 调用 Python 学习路径生成服务
+     */
+    public LearningPathResponse getLearningPath(String userId, String targetTopic,
+                                                  List<String> history, int maxNodes) {
+        String url = baseUrl + "/learning-path";
+        LearningPathRequest req = new LearningPathRequest();
+        req.setUserId(userId);
+        req.setTargetTopic(targetTopic);
+        req.setHistory(history);
+        req.setMaxNodes(maxNodes);
+
+        try {
+            ResponseEntity<LearningPathResponse> resp = restTemplate.postForEntity(
+                    url, buildJsonEntity(req), LearningPathResponse.class);
+            if (resp.getStatusCode().is2xxSuccessful()) {
+                return resp.getBody();
+            }
+        } catch (Exception e) {
+            log.warn("调用 Python learning-path 失败: {}", e.getMessage());
+        }
+        return null;
     }
 
     /**

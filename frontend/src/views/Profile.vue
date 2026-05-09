@@ -44,27 +44,7 @@
           @view-path="router.push('/knowledge-graph')"
         />
 
-        <div class="profile-card card animate-fade-up">
-          <div class="card-header">
-            <div class="card-title">
-              <div class="card-icon">🎯</div>
-              研究兴趣分布
-            </div>
-            <button class="edit-btn btn secondary" @click="manageInterests">管理</button>
-          </div>
-
-          <div class="interest-list">
-            <div v-for="(i, idx) in interestItems" :key="idx" class="interest-item">
-              <span class="interest-label">{{ i.name }}</span>
-              <div class="interest-bar">
-                <div class="interest-fill" :style="{ width: i.percent + '%', background: i.color }"></div>
-              </div>
-              <span class="interest-value">{{ i.percent }}%</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="profile-card card animate-fade-up">
+        <div class="profile-card card animate-fade-up" data-area="profile">
           <div class="card-header">
             <div class="card-title">
               <div class="card-icon">⭐</div>
@@ -90,7 +70,7 @@
           </div>
         </div>
 
-        <div class="profile-card card animate-fade-up">
+        <div class="profile-card card animate-fade-up" data-area="profile">
           <div class="card-header">
             <div class="card-title">
               <div class="card-icon">⚙️</div>
@@ -109,7 +89,7 @@
           </div>
         </div>
 
-        <div class="profile-card card animate-fade-up">
+        <div class="profile-card card animate-fade-up" data-area="profile">
           <div class="card-header">
             <div class="card-title">
               <div class="card-icon">🕐</div>
@@ -151,7 +131,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
@@ -162,20 +142,6 @@ import { getProfile, updateProfile, getFavorites } from '@/api/user'
 import { getActivityHistory, clearActivityHistory } from '@/api/recommend'
 
 const router = useRouter()
-const defaultInterests = [
-  { name: '深度学习', percent: 85, color: 'linear-gradient(90deg, #6366f1, #8b5cf6)' },
-  { name: '计算机视觉', percent: 72, color: 'linear-gradient(90deg, #06b6d4, #22d3ee)' },
-  { name: '强化学习', percent: 45, color: 'linear-gradient(90deg, #10b981, #34d399)' },
-  { name: '自然语言处理', percent: 38, color: 'linear-gradient(90deg, #f59e0b, #fbbf24)' },
-  { name: '数据挖掘', percent: 25, color: 'linear-gradient(90deg, #ec4899, #f472b6)' }
-]
-const interestPalette = [
-  'linear-gradient(90deg, #6366f1, #8b5cf6)',
-  'linear-gradient(90deg, #06b6d4, #22d3ee)',
-  'linear-gradient(90deg, #10b981, #34d399)',
-  'linear-gradient(90deg, #f59e0b, #fbbf24)',
-  'linear-gradient(90deg, #ec4899, #f472b6)',
-]
 
 const profile = ref({ id: null, username: '', avatar: '', email: '', bio: '', researchInterests: '' })
 const visualizationData = ref({})
@@ -184,18 +150,6 @@ const assetsLoading = ref(false)
 const collectionsLoading = ref(false)
 const historyLoading = ref(false)
 const pathSummary = computed(() => buildLearningPathSummary(visualizationData.value))
-const interestItems = computed(() => {
-  const labels = visualizationData.value?.field?.labels || []
-  const values = visualizationData.value?.field?.data || []
-
-  if (!labels.length || !values.length) return defaultInterests
-
-  return labels.map((label, index) => ({
-    name: label,
-    percent: Number(values[index] || 0),
-    color: interestPalette[index % interestPalette.length],
-  }))
-})
 
 const collections = ref([])
 const history = ref([])
@@ -330,20 +284,6 @@ function logout() {
   ElMessage.success('已退出登录')
   router.push('/login')
 }
-
-function animateInterestBars() {
-  const fills = document.querySelectorAll('.interest-fill')
-  fills.forEach(fill => {
-    const width = fill.style.width
-    fill.style.width = '0'
-    setTimeout(() => { fill.style.width = width }, 300)
-  })
-}
-
-watch(interestItems, async () => {
-  await nextTick()
-  animateInterestBars()
-}, { flush: 'post' })
 
 onMounted(async () => {
   await Promise.allSettled([
@@ -543,6 +483,10 @@ onMounted(async () => {
   min-height: 200px;
 }
 
+.profile-card[data-area="profile"] {
+  border-left: 3px solid var(--color-area-profile);
+}
+
 /* ─── Card Header ────────────────────────────────────────────── */
 .card-header {
   display: flex;
@@ -569,51 +513,6 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   background: var(--accent-bg);
-}
-
-/* ─── Interest Bars ──────────────────────────────────────────── */
-.interest-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.interest-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.interest-label {
-  font-size: 13px;
-  color: var(--text);
-  width: 90px;
-  flex-shrink: 0;
-  text-align: right;
-}
-
-.interest-bar {
-  flex: 1;
-  height: 8px;
-  border-radius: 8px;
-  background: rgba(148,163,184,0.12);
-  overflow: hidden;
-}
-
-.interest-fill {
-  height: 100%;
-  border-radius: 8px;
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(99,102,241,0.2);
-}
-
-.interest-value {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-h);
-  width: 42px;
-  text-align: right;
-  flex-shrink: 0;
 }
 
 /* ─── Collection List ────────────────────────────────────────── */
@@ -870,9 +769,5 @@ onMounted(async () => {
     padding: 20px;
   }
 
-  .interest-label {
-    width: 70px;
-    font-size: 12px;
-  }
 }
 </style>

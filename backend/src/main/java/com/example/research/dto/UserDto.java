@@ -17,6 +17,7 @@ public class UserDto {
         @Size(min = 6, max = 100)
         private String password;
         private String email;
+        private String researchInterests;
     }
 
     @Data

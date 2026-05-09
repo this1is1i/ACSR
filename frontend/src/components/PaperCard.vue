@@ -1,5 +1,5 @@
 <template>
-  <article class="paper-card" :class="`paper-card--${variant}`">
+  <article class="paper-card" :class="`paper-card--${variant}`" data-area="recommend">
     <div class="paper-card__header">
       <div class="paper-card__title-group">
         <span class="paper-card__eyebrow">Personalized Pick</span>
@@ -135,6 +135,10 @@ async function handleFavorite() {
 .paper-card:hover {
   transform: translateY(-2px);
   border-color: var(--color-border-strong);
+}
+
+.paper-card[data-area="recommend"] {
+  border-left: 3px solid var(--color-area-recommend);
 }
 
 .paper-card__header {

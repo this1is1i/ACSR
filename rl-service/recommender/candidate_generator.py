@@ -137,34 +137,7 @@ class CandidateGenerator:
         """按被引量检索热门论文。"""
         return sorted(pool, key=lambda p: -p.citation_count)[:k]
 
-    # ── 数据库适配器接口（预留）──────────────────────────────────
-
-    def fetch_from_mysql(
-        self, user_id: str, limit: int = 20
-    ) -> List[CandidateItem]:
-        """
-        从 MySQL 数据库获取候选集（预留接口）。
-
-        接入步骤：
-          1. 配置 JDBC 连接（host/port/db/user/pass）
-          2. 执行 SELECT + 向量相似度函数
-          3. 映射结果到 CandidateItem 列表
-        """
-        raise NotImplementedError("MySQL 候选集接口待实现")
-
-    def fetch_from_elasticsearch(
-        self, query_text: str, limit: int = 20
-    ) -> List[CandidateItem]:
-        """从 Elasticsearch 全文检索候选集（预留接口）。"""
-        raise NotImplementedError("Elasticsearch 接口待实现")
-
-    def fetch_from_vector_db(
-        self, user_embedding: np.ndarray, limit: int = 20
-    ) -> List[CandidateItem]:
-        """从向量数据库（Milvus/Faiss）检索候选集（预留接口）。"""
-        raise NotImplementedError("向量数据库接口待实现")
-
-    # ── Mock 数据 ─────────────────────────────────────────────────
+    # ── Mock 数据（当无真实论文池时使用）───────────────────────────
 
     def _build_mock_pool(self) -> List[CandidateItem]:
         """构建模拟论文库（生产环境替换为数据库查询）。"""

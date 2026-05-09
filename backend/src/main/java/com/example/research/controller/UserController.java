@@ -37,9 +37,14 @@ public class UserController {
      * Response: { "code": 0, "message": "注册成功", "data": null }
      */
     @PostMapping("/register")
-    public Result<Void> register(@Valid @RequestBody UserDto.RegisterRequest request) {
+    public Result<UserDto.LoginResponse> register(@Valid @RequestBody UserDto.RegisterRequest request) {
         userService.register(request);
-        return Result.success();
+        // 注册后自动登录，返回 JWT token
+        UserDto.LoginRequest loginReq = new UserDto.LoginRequest();
+        loginReq.setUsername(request.getUsername());
+        loginReq.setPassword(request.getPassword());
+        UserDto.LoginResponse resp = userService.login(loginReq);
+        return Result.success(resp);
     }
 
     /**

@@ -91,6 +91,16 @@
             </div>
           </div>
 
+          <div v-if="isRegister" class="form-group">
+            <label>研究方向（选填）</label>
+            <div class="input-wrapper">
+              <input type="text" v-model="form.researchInterests"
+                placeholder="机器学习, 深度学习, 自然语言处理"
+                @focus="onFieldFocus" @blur="onFieldBlur" @input="onFieldInput" />
+            </div>
+            <p class="interest-hint">用逗号分隔多个研究方向，用于初始化个性化推荐</p>
+          </div>
+
           <div class="form-options">
             <label class="remember-me">
               <input type="checkbox" checked /> Remember for 30 days
@@ -135,7 +145,7 @@ const submitting = ref(false)
 const errorMsg = ref('')
 const errors = reactive({ username: false, password: false })
 
-const form = reactive({ username: '', password: '' })
+const form = reactive({ username: '', password: '', researchInterests: '' })
 
 // ── Animation state ────────────────────────────────────────────
 let mouseX = 0, mouseY = 0, isTyping = false, isLookingAtEachOther = false
@@ -392,10 +402,15 @@ async function handleSubmit() {
   submitting.value = true
   try {
     if (isRegister.value) {
-      await register({ username: form.username.trim(), password: form.password })
-      ElMessage.success('Registration successful! Please log in.')
-      isRegister.value = false
-      form.password = ''
+      const regRes = await register({
+        username: form.username.trim(),
+        password: form.password,
+        researchInterests: form.researchInterests.trim()
+      })
+      userStore.setAuth(regRes.data)
+      ElMessage.success('注册成功！欢迎加入。')
+      router.push('/home')
+      return
     } else {
       const res = await login({ username: form.username.trim(), password: form.password })
       userStore.setAuth(res.data)
@@ -498,6 +513,7 @@ onBeforeUnmount(() => {
 .form-group input:focus { border-bottom-color:#5b21b6 }
 .form-group input::placeholder { color:#ccc }
 .form-group input.error { border-bottom-color:#dc2626 }
+.interest-hint { font-size:11px; color:#999; margin-top:4px; padding-left:2px }
 .toggle-password {
   position:absolute; right:0; top:50%; transform:translateY(-50%);
   background:none; border:none; cursor:pointer; color:#666; padding:6px; transition:color 0.2s;

@@ -1,5 +1,5 @@
 <template>
-  <aside class="conversation-rail card glass" data-testid="conversation-rail">
+  <aside class="conversation-rail card glass" data-testid="conversation-rail" data-area="chat">
     <div class="rail-heading">
       <p class="rail-eyebrow">Workspace Rail</p>
       <h3>协作会话</h3>
@@ -179,6 +179,10 @@ function isOnline(contactId) {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.conversation-rail[data-area="chat"] {
+  border-left: 3px solid var(--color-area-chat);
 }
 
 .rail-heading,

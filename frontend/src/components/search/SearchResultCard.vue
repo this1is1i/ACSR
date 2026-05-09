@@ -1,5 +1,5 @@
 <template>
-  <article class="result-card search-result-card card glass" :data-testid="`search-result-card-${paper.id}`">
+  <article class="result-card search-result-card card glass" :data-testid="`search-result-card-${paper.id}`" data-area="search">
     <div class="search-result-card__header">
       <div class="search-result-card__copy">
         <p class="search-result-card__eyebrow">Secondary Search Result</p>
@@ -80,6 +80,10 @@ const pathLabel = computed(() => {
   display: grid;
   gap: var(--space-4);
   padding: clamp(1.2rem, 2vw, 1.6rem);
+}
+
+.search-result-card[data-area="search"] {
+  border-left: 3px solid var(--color-area-search);
 }
 
 .search-result-card__header {

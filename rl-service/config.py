@@ -45,6 +45,13 @@ class Config:
         "zeta":  2.0,   # 知识图谱拓扑相关度权重
     })
 
+    # ── MySQL 数据源 ──────────────────────────────────────────────
+    mysql_host: str = field(default_factory=lambda: os.getenv("MYSQL_HOST", "localhost"))
+    mysql_port: int = field(default_factory=lambda: int(os.getenv("MYSQL_PORT", "3306")))
+    mysql_user: str = field(default_factory=lambda: os.getenv("MYSQL_USER", "root"))
+    mysql_password: str = field(default_factory=lambda: os.getenv("MYSQL_PASSWORD", "qwer1234"))
+    mysql_db: str = field(default_factory=lambda: os.getenv("MYSQL_DB", "research_db"))
+
     # ── 持久化 ────────────────────────────────────────────────────
     model_save_path: str = "checkpoints/ac_model.pth"
     log_dir: str = "logs/"

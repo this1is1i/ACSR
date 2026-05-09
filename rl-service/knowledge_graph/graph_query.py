@@ -33,16 +33,25 @@ class GraphQuery:
         self._build_indices()
 
     def _build_indices(self) -> None:
-        """构建查询加速索引。"""
+        """构建查询加速索引（兼容大小写和驼峰变体）。"""
+        relation_counts: dict = {}
         for edge in self.kg.edges:
-            if edge.relation == "has_keyword":
+            rel = edge.relation.lower().replace("_", "")
+            relation_counts[rel] = relation_counts.get(rel, 0) + 1
+
+            if rel in ("haskeyword",):
                 self._paper_kw_idx[edge.src_id].append(edge.dst_id)
                 self._kw_paper_idx[edge.dst_id].append(edge.src_id)
-            elif edge.relation == "cite":
-                self._cite_idx[edge.dst_id].append(edge.src_id)  # 反向：被引←施引
-            elif edge.relation == "author_of":
-                self._author_idx[edge.dst_id].append(edge.src_id)  # paper←author
-        logger.debug("查询索引构建完成")
+            elif rel in ("cite",):
+                self._cite_idx[edge.dst_id].append(edge.src_id)
+            elif rel in ("authorof",):
+                self._author_idx[edge.dst_id].append(edge.src_id)
+
+        sample_rels = list(set(r for r in relation_counts.keys()))[:8]
+        logger.info("GraphQuery 索引: paper_kw=%d, kw_paper=%d, cite=%d, author=%d, total_edges=%d, sample_rels=%s",
+                     len(self._paper_kw_idx), len(self._kw_paper_idx),
+                     len(self._cite_idx), len(self._author_idx),
+                     len(self.kg.edges), sample_rels)
 
     # ── 论文相关查询 ──────────────────────────────────────────────
 
@@ -296,9 +305,9 @@ class GraphQuery:
                         f"与您阅读的《{hist_node.label[:30]}》共享关键词：{', '.join(kw_labels)}"
                     )
 
-            # ② 引用关系
+            # ② 引用关系（兼容大小写）
             for edge in self.kg._adj.get(recommended_paper_id, []):
-                if edge.relation == "cite" and edge.dst_id == hist_id:
+                if edge.relation.lower() in ("cite",) and edge.dst_id == hist_id:
                     reasons.append(
                         f"该论文引用了您读过的《{hist_node.label[:30]}》"
                     )

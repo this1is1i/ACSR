@@ -16,9 +16,10 @@ from config import Config, default_config
 from agent import ActorCriticAgent
 from dataset.aminer_loader import Paper as SourcePaper
 from features.feature_builder import FeatureBuilder, UserFeatures
+from knowledge_graph.graph_query import GraphQuery
+from knowledge_graph.kg_embedder import KGEmbedder, create_kg_embedder
 from recommender.candidate_generator import CandidateGenerator, CandidateItem
 from recommender.ranker import RLRanker, RankedItem
-from recommender.explain import ExplanationGenerator, ExplanationResult
 
 logger = logging.getLogger(__name__)
 
@@ -56,19 +57,20 @@ class RecommendationService:
     推荐服务层 —— 统一编排推荐全链路。
 
     流程：
-        1. 获取用户特征（FeatureBuilder）
-        2. 生成候选集（CandidateGenerator）
+        1. 获取用户特征（FeatureBuilder → MySQL / KG）
+        2. 生成候选集（CandidateGenerator → Neo4j 论文池）
         3. 强化学习排序（RLRanker + ActorCriticAgent）
         4. 生成推荐解释（ExplanationGenerator）
         5. 组装并返回结果
 
-    设计原则：
-        - 每个子模块可独立替换（接口不变）
-        - 所有 IO 操作（数据库、模型加载）在此层统一管理
-        - 对 REST API 层（FastAPI）透明暴露
+    数据来源：
+        - 用户特征：MySQL behavior_log + user_interest_history（FeatureBuilder）
+        - 论文池：  Neo4j 知识图谱（通过 GraphStorage.load_from_neo4j）
+        - KG 嵌入： KGEmbedder 运行时从图结构计算
+        - 模型权重： checkpoints/ac_model.pth
     """
 
-    MODEL_VERSION = "v1.1.0-actor-critic-kg"
+    MODEL_VERSION = "v2.0.0-mysql-neo4j"
 
     def __init__(self, config: Config = default_config):
         self.config = config
@@ -76,8 +78,13 @@ class RecommendationService:
         self._ranker: Optional[RLRanker] = None
         self._kg_embedder = None
         self._paper_catalog: List[SourcePaper] = []
+        self._mysql = None
+        self._graph_query = None
 
-        # 初始化 KG（可选）
+        # 初始化 MySQL 数据源
+        self._init_mysql(config)
+
+        # 初始化 KG（Neo4j 或本地构建）
         self._init_kg(config)
 
         # 初始化各子模块
@@ -86,18 +93,19 @@ class RecommendationService:
             base_state_dim=config.base_state_dim,
             kg_dim=kg_dim,
             kg_embedder=self._kg_embedder,
+            mysql_source=self._mysql,
         )
         self.candidate_gen = (
             CandidateGenerator.from_papers(self._paper_catalog, state_dim=config.base_state_dim)
             if self._paper_catalog else
             CandidateGenerator(state_dim=config.base_state_dim)
         )
-        self.explain_gen   = ExplanationGenerator()
 
         self._load_agent()
         logger.info(
             f"RecommendationService 初始化完成，模型版本: {self.MODEL_VERSION}, "
-            f"use_kg={config.use_kg}"
+            f"use_kg={config.use_kg}, papers={len(self._paper_catalog)}, "
+            f"mysql={'enabled' if self._mysql else 'disabled'}"
         )
 
     # ── 主推荐接口 ────────────────────────────────────────────────
@@ -113,9 +121,9 @@ class RecommendationService:
         完整推荐流程入口。
 
         Args:
-            user_id:  用户唯一标识
+            user_id:  用户唯一标识（对应 MySQL user.id）
             k:        推荐数量
-            history:  已交互论文 ID 列表（用于过滤）
+            history:  已交互论文 ID 列表（AMiner ID 格式，用于过滤）
             strategy: 候选集召回策略（"similarity" | "popular" | "hybrid"）
 
         Returns:
@@ -126,7 +134,7 @@ class RecommendationService:
         # ── Step 1: 获取用户特征 ──────────────────────────────────
         user_features = self.feature_builder.get_user_features(user_id, history)
         user_state    = self.feature_builder.build_state(user_features)
-        logger.debug(f"[{user_id}] Step1 特征构建完成")
+        logger.debug(f"[{user_id}] Step1 特征构建完成, state_dim={len(user_state)}")
 
         # ── Step 2: 生成候选集 ────────────────────────────────────
         candidates = self.candidate_gen.generate(
@@ -143,28 +151,48 @@ class RecommendationService:
         ranked_items = self._ranker.recommend_top_k(user_state, candidates, k=k, user_history=user_history)
         logger.debug(f"[{user_id}] Step3 RL排序完成: Top-{len(ranked_items)}")
 
-        # ── Step 4: 生成推荐解释 ──────────────────────────────────
-        item_list = [r.item for r in ranked_items]
-        explanations = self.explain_gen.batch_explain(user_features, item_list)
-        exp_map = {e.paper_id: e for e in explanations}
+        # ── Step 4: 生成推荐解释（KG 图结构增强版）──────────────
+        history_for_explain = user_features.history_paper_ids
+        logger.info(
+            f"[{user_id}] Step4 解释准备: graph_query={'OK' if self._graph_query else 'MISSING'}, "
+            f"history_ids={history_for_explain[:3] if history_for_explain else 'EMPTY'}"
+        )
 
         # ── Step 5: 组装结果 ──────────────────────────────────────
         result_items = []
         for ranked in ranked_items:
-            exp = exp_map.get(ranked.item.item_id)
+            item = ranked.item
+            paper_id = item.item_id
+
+            # 基于 KG 图结构生成解释（引用链、共同作者、关键词共现）
+            if self._graph_query is not None and history_for_explain:
+                reasons = self._graph_query.explain_recommendation(
+                    history_for_explain, paper_id
+                )
+            else:
+                if self._graph_query is None:
+                    logger.debug(f"[{user_id}] 无 GraphQuery，推荐理由回退模板文本")
+                elif not history_for_explain:
+                    logger.debug(f"[{user_id}] 无历史论文 ID，推荐理由回退模板文本")
+                reasons = []
+
+            reason = reasons[0] if reasons else "基于您的科研兴趣推荐"
+            reason_details = reasons if reasons else ["基于强化学习算法推测您可能感兴趣的内容"]
+            confidence = min(0.99, 0.5 + 0.12 * len(reasons))
+
             result_items.append(RecommendationItem(
-                paper_id       = ranked.item.item_id,
-                title          = ranked.item.title,
-                authors        = ranked.item.authors,
-                year           = ranked.item.year,
+                paper_id       = paper_id,
+                title          = item.title,
+                authors        = item.authors,
+                year           = item.year,
                 score          = round(ranked.score, 6),
                 rank           = ranked.rank,
-                reason         = exp.reason if exp else "相关推荐",
-                reason_details = exp.reason_details if exp else [],
-                similarity_score = exp.similarity_score if exp else 0.0,
-                topics         = ranked.item.topics,
-                citation_count = ranked.item.citation_count,
-                confidence     = exp.confidence if exp else 0.5,
+                reason         = reason,
+                reason_details = reason_details,
+                similarity_score = round(ranked.score, 4),
+                topics         = item.topics,
+                citation_count = item.citation_count,
+                confidence     = round(confidence, 4),
             ))
 
         latency_ms = round((time.time() - t0) * 1000, 2)
@@ -231,66 +259,119 @@ class RecommendationService:
 
     # ── 内部方法 ──────────────────────────────────────────────────
 
+    def _init_mysql(self, config: Config) -> None:
+        """初始化 MySQL 数据源。"""
+        try:
+            from data.mysql_data import MySQLDataSource
+            self._mysql = MySQLDataSource(config)
+            # 快速连接测试
+            _ = self._mysql.conn
+            logger.info("MySQL 数据源连接成功")
+        except Exception as e:
+            logger.warning(f"MySQL 数据源不可用，用户特征将使用随机向量: {e}")
+            self._mysql = None
+
     def _init_kg(self, config: Config) -> None:
         """初始化知识图谱及 Embedder。"""
         if not config.use_kg:
+            logger.info("KG 未启用（use_kg=False）")
             return
+
+        kg = None
+
+        # 优先使用 Neo4j 图数据库
+        if config.graph_backend == "neo4j":
+            kg = self._load_kg_from_neo4j(config)
+
+        # 回退：从 AMiner 数据文件或 JSON/Pickle 加载
+        if kg is None:
+            kg = self._load_kg_from_files(config)
+
+        if kg is None:
+            logger.warning("无法加载知识图谱，推荐将使用 mock 论文池")
+            return
+
+        # 提取论文目录
+        self._paper_catalog = self._extract_papers_from_kg(kg)
+        self._kg_embedder = KGEmbedder(kg, embed_dim=config.kg_embedding_dim)
+
+        # 将 KG 设置为 GraphQuery 可用的属性
+        self.kg = kg
+        self._graph_query = GraphQuery(kg)
+        logger.info(f"KG 初始化完成: {kg.stats}, paper_catalog={len(self._paper_catalog)}")
+
+    def _load_kg_from_neo4j(self, config: Config) -> Optional[Any]:
+        """从 Neo4j 加载知识图谱。"""
+        if not config.neo4j_password or not config.neo4j_uri:
+            logger.info("Neo4j 未配置（缺少 uri 或 password），跳过 Neo4j 加载")
+            return None
         try:
-            from dataset.aminer_loader import AMinerLoader
             from knowledge_graph.graph_storage import GraphStorage
-            from knowledge_graph.kg_builder import KGBuilder
-            from knowledge_graph.kg_embedder import KGEmbedder
-
-            if config.graph_backend == "neo4j":
-                storage = GraphStorage()
-                kg = storage.load_from_neo4j(
-                    uri=config.neo4j_uri,
-                    user=config.neo4j_user,
-                    password=config.neo4j_password,
-                    database=config.neo4j_database,
-                )
-                self._paper_catalog = self._extract_papers_from_kg(kg)
-                self._kg_embedder = KGEmbedder(kg, embed_dim=config.kg_embedding_dim)
-                logger.info(f"KG 从 Neo4j 加载完成：{len(self._paper_catalog)} 篇论文")
-                return
-
-            loader = AMinerLoader()
-            papers = loader.load_papers(limit=500)
-            authors = loader.load_authors(limit=200)
-            citations = loader.load_citations(papers)
-
-            kg = KGBuilder(min_keyword_freq=1).build(papers, authors, citations)
-            self._paper_catalog = papers
-            self._kg_embedder = KGEmbedder(kg, embed_dim=config.kg_embedding_dim)
-            logger.info(f"KG Embedder 构建完成：{len(papers)} 篇论文")
+            storage = GraphStorage()
+            kg = storage.load_from_neo4j(
+                uri=config.neo4j_uri,
+                user=config.neo4j_user,
+                password=config.neo4j_password,
+                database=config.neo4j_database,
+            )
+            paper_count = sum(1 for n in kg.nodes.values() if n.node_type == "paper")
+            logger.info(f"KG 从 Neo4j 加载完成：{kg.stats}, paper nodes={paper_count}")
+            return kg
         except Exception as e:
-            logger.warning(f"KG Embedder 构建失败，回退为无 KG 模式: {e}")
-            self._kg_embedder = None
-            self._paper_catalog = []
+            logger.warning(f"Neo4j 加载失败: {e}，尝试其他 KG 后端")
+            return None
+
+    def _load_kg_from_files(self, config: Config) -> Optional[Any]:
+        """从已持久化的 JSON/Pickle 或 AMiner 数据文件加载 KG。"""
+        try:
+            from knowledge_graph.graph_storage import GraphStorage
+
+            storage = GraphStorage()
+            if storage.exists():
+                kg = storage.load(prefer="pickle")
+                logger.info(f"KG 从本地文件加载完成：{kg.stats}")
+                return kg
+
+            # 回退：从 AMiner 构建（共享函数）
+            _, kg = create_kg_embedder(config)
+            if kg is not None:
+                storage.save(kg, format="both")
+            return kg
+        except Exception as e:
+            logger.warning(f"文件加载 KG 失败: {e}")
+            return None
 
     @staticmethod
     def _extract_papers_from_kg(kg) -> List[SourcePaper]:
+        """从 KG 节点中提取论文列表，供 CandidateGenerator 使用。"""
+        from knowledge_graph.kg_builder import KnowledgeGraph
         papers: List[SourcePaper] = []
         for node in kg.nodes.values():
             if node.node_type != "paper":
                 continue
 
-            authors = node.properties.get("authors") or []
-            keywords = node.properties.get("keywords") or []
+            props = node.properties
+
+            authors = props.get("authors") or []
+            keywords = props.get("keywords") or []
             if isinstance(authors, str):
                 authors = [authors]
             if isinstance(keywords, str):
                 keywords = [keywords]
 
+            # Neo4j 返回的整数可能是 dict{"low": n, "high": 0}，需要转换
+            year = _safe_int(props.get("year"), 0)
+            citation_count = _safe_int(props.get("citation_count"), 0)
+
             papers.append(SourcePaper(
-                paper_id=node.properties.get("aminer_id") or node.node_id,
-                title=node.properties.get("title") or node.label,
-                abstract=node.properties.get("abstract") or "",
-                authors=[str(author) for author in authors],
-                keywords=[str(keyword) for keyword in keywords],
-                venue=str(node.properties.get("venue") or ""),
-                year=int(node.properties.get("year") or 0),
-                citation_count=int(node.properties.get("citation_count") or 0),
+                paper_id=props.get("aminer_id") or node.node_id,
+                title=props.get("title") or node.label,
+                abstract=props.get("abstract") or "",
+                authors=[str(a) for a in authors],
+                keywords=[str(k) for k in keywords],
+                venue=str(props.get("venue") or ""),
+                year=year,
+                citation_count=citation_count,
                 references=[],
             ))
         return papers
@@ -308,3 +389,19 @@ class RecommendationService:
         else:
             logger.info("未找到预训练模型，使用随机初始化权重（请先运行 train.py）")
         self._ranker = RLRanker(self._agent, self.config, kg_embedder=self._kg_embedder)
+
+
+# ── 工具函数 ──────────────────────────────────────────────────────
+
+def _safe_int(value, default: int = 0) -> int:
+    """安全转换 Neo4j 整型（可能是 dict{"low": n} 或原生 int）。"""
+    if value is None:
+        return default
+    if isinstance(value, int):
+        return value
+    if isinstance(value, dict):
+        return int(value.get("low", default))
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default

@@ -32,7 +32,7 @@
           </div>
 
           <div class="stats-row">
-            <div class="stat-card">
+            <div class="stat-card" data-area="knowledge">
               <div class="stat-header">
                 <span class="stat-label">总阅读时长</span>
                 <div class="stat-icon-box">⏱️</div>
@@ -40,7 +40,7 @@
               <div class="stat-value">{{ stats.readTime }}</div>
               <div class="stat-change positive">↑ {{ stats.readTimeChange }} 较上月</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" data-area="knowledge">
               <div class="stat-header">
                 <span class="stat-label">阅读论文数</span>
                 <div class="stat-icon-box">📄</div>
@@ -48,7 +48,7 @@
               <div class="stat-value">{{ stats.readCount }}</div>
               <div class="stat-change positive">↑ {{ stats.readCountChange }} 新增</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" data-area="knowledge">
               <div class="stat-header">
                 <span class="stat-label">活跃领域</span>
                 <div class="stat-icon-box">🎯</div>
@@ -56,7 +56,7 @@
               <div class="stat-value">{{ stats.activeFields }}</div>
               <div class="stat-change positive">↑ {{ stats.activeFieldsChange }} 新领域</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" data-area="knowledge">
               <div class="stat-header">
                 <span class="stat-label">研究深度</span>
                 <div class="stat-icon-box">📈</div>
@@ -69,7 +69,7 @@
       </div>
 
       <div class="charts-grid">
-        <div class="chart-card">
+        <div class="chart-card" data-area="knowledge">
           <div class="chart-header">
             <div class="chart-title"><div class="chart-icon">📈</div>兴趣演化趋势</div>
             <div class="chart-actions">
@@ -80,38 +80,13 @@
           <div class="chart-container large"><canvas ref="interestChartRef"></canvas></div>
         </div>
 
-        <div class="chart-card">
-          <div class="chart-header">
-            <div class="chart-title"><div class="chart-icon">🥧</div>领域分布</div>
-          </div>
-          <div class="chart-container"><canvas ref="fieldChartRef"></canvas></div>
-        </div>
-
-        <div class="chart-card fullwidth-chart">
-          <div class="chart-header">
-            <div class="chart-title"><div class="chart-icon">🔥</div>阅读活跃度热力图</div>
-            <div class="chart-actions"><button class="chart-btn" @click="exportData">导出数据</button></div>
-          </div>
-          <div class="chart-container"><canvas ref="heatmapChartRef"></canvas></div>
-        </div>
-
-        <div class="chart-card">
+        <div class="chart-card" data-area="knowledge">
           <div class="chart-header"><div class="chart-title"><div class="chart-icon">☁️</div>兴趣标签云</div></div>
           <div class="tag-cloud">
             <span v-for="(t, idx) in tagCloud" :key="idx" :class="['cloud-tag', 'size-'+t.size]">{{ t.text }}</span>
           </div>
         </div>
 
-        <div class="chart-card">
-          <div class="chart-header"><div class="chart-title"><div class="chart-icon">🎯</div>阅读行为分析</div></div>
-          <div class="behavior-list">
-            <div class="behavior-item" v-for="(b, i) in behaviors" :key="i">
-              <div class="behavior-icon">{{ b.icon }}</div>
-              <div class="behavior-info"><h5>{{ b.title }}</h5><p>{{ b.desc }}</p></div>
-              <div class="behavior-value">{{ b.value }}</div>
-            </div>
-          </div>
-        </div>
         <div class="chart-card fullwidth-chart" :class="{ 'kg-fullscreen': isFullscreen }" ref="kgCardRef">
           <div class="chart-header">
             <div class="chart-title"><div class="chart-icon">🧭</div>知识图谱与学习路线</div>
@@ -164,7 +139,7 @@
               <div class="detail-mastery">
                 <span>掌握度</span>
                 <div class="mastery-bar-wrap">
-                  <div class="mastery-bar-fill" :style="{width: (selectedNode.mastery * 100) + '%', background: masteryColor(selectedNode.mastery)}"></div>
+                  <div class="mastery-bar-fill" :style="{width: (selectedNode.mastery * 100) + '%', background: selectedNode.color || '#3B82F6'}"></div>
                 </div>
                 <span class="mastery-pct">{{ (selectedNode.mastery * 100).toFixed(0) }}%</span>
               </div>
@@ -192,11 +167,7 @@ const activeRange = ref('30d')
 const stats = ref({ readTime: '42.5h', readTimeChange: '18%', readCount: 128, readCountChange: '24', activeFields: 6, activeFieldsChange: 2, depth: 85.3, depthChange: '5.2' })
 
 const interestChartRef = ref(null)
-const fieldChartRef = ref(null)
-const heatmapChartRef = ref(null)
 let interestChart = null
-let fieldChart = null
-let heatmapChart = null
 
 // knowledge graph refs
 const kgContainer = ref(null)
@@ -225,13 +196,6 @@ const insightNode = computed(() => {
 
 const tagCloud = ref([
   { text: '深度学习', size: 5 },{ text: '神经网络', size: 4 },{ text: '计算机视觉', size: 4 },{ text: 'Transformer', size: 3 },{ text: '强化学习', size: 3 },{ text: 'GAN', size: 3 },{ text: '目标检测', size: 2 },{ text: '语义分割', size: 2 },{ text: '迁移学习', size: 2 },{ text: '联邦学习', size: 1 },{ text: '自监督', size: 1 },{ text: '对比学习', size: 1 },{ text: '多模态', size: 1 },{ text: '知识蒸馏', size: 1 }
-])
-
-const behaviors = ref([
-  { icon: '📖', title: '平均阅读时长', desc: '每篇论文停留时间', value: '12.5 min' },
-  { icon: '🔖', title: '收藏转化率', desc: '阅读后收藏比例', value: '34.2%' },
-  { icon: '🔄', title: '重复阅读率', desc: '多次查看的论文占比', value: '18.7%' },
-  { icon: '⚡', title: '峰值活跃时段', desc: '最高频阅读时间', value: '20:00-22:00' },
 ])
 
 const chartView = ref('month')
@@ -274,49 +238,7 @@ function rebuildInterestChart(interestData) {
     options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,0.1)' } }, x: { grid: { display: false } } } }
   })
 }
-function exportData() {
-  const data = { stats: stats.value, tags: tagCloud.value, behaviors: behaviors.value }
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url; a.download = 'viz-data.json'; a.click(); URL.revokeObjectURL(url)
-}
 
-// ── mastery → color helpers ──────────────────────────────────────
-function masteryColor(m) {
-  // 0.0 → #3B82F6 (blue), 0.5 → #F59E0B (orange), 1.0 → #10B981 (green)
-  const clamp = Math.max(0, Math.min(1, m))
-  let r, g, b
-  if (clamp <= 0.5) {
-    const t = clamp / 0.5
-    r = Math.round(0x3B + (0xF5 - 0x3B) * t)
-    g = Math.round(0x82 + (0x9E - 0x82) * t)
-    b = Math.round(0xF6 + (0x0B - 0xF6) * t)
-  } else {
-    const t = (clamp - 0.5) / 0.5
-    r = Math.round(0xF5 + (0x10 - 0xF5) * t)
-    g = Math.round(0x9E + (0xB9 - 0x9E) * t)
-    b = Math.round(0x0B + (0x81 - 0x0B) * t)
-  }
-  return `rgb(${r},${g},${b})`
-}
-
-function masteryHex(m) {
-  const clamp = Math.max(0, Math.min(1, m))
-  let r, g, b
-  if (clamp <= 0.5) {
-    const t = clamp / 0.5
-    r = 0x3B + (0xF5 - 0x3B) * t
-    g = 0x82 + (0x9E - 0x82) * t
-    b = 0xF6 + (0x0B - 0xF6) * t
-  } else {
-    const t = (clamp - 0.5) / 0.5
-    r = 0xF5 + (0x10 - 0xF5) * t
-    g = 0x9E + (0xB9 - 0x9E) * t
-    b = 0x0B + (0x81 - 0x0B) * t
-  }
-  return (Math.round(r) << 16) | (Math.round(g) << 8) | Math.round(b)
-}
 
 function depthLabel(d) {
   return ['基础 (已掌握)', '中级 (进行中)', '目标方向', '论文阅读'][d] || `层级 ${d}`
@@ -349,8 +271,11 @@ function createTextSprite(text, fontSize = 48, color = '#e2e8f0') {
 async function initKnowledgeGraph(data) {
   const ForceGraph3D = (await import('3d-force-graph')).default
 
-  const nodes = (data.nodes || []).map(n => ({ ...n, _visited: false, _active: false }))
-  const rawLinks = data.links || data.edges || []
+  // Prefer pathNodes/pathEdges (~20 nodes) for clean learning path view, fall back to full graph
+  const pathN = data.pathNodes
+  const hasPathNodes = Array.isArray(pathN) && pathN.length > 0
+  const nodes = (hasPathNodes ? pathN : (data.nodes || [])).map(n => ({ ...n, _visited: false, _active: false }))
+  const rawLinks = (hasPathNodes && data.pathEdges && data.pathEdges.length) ? data.pathEdges : (data.links || data.edges || [])
   const normLinks = rawLinks.map(l => ({
     ...l,
     source: (l.source && l.source.id) ? l.source.id : l.source,
@@ -392,8 +317,8 @@ async function initKnowledgeGraph(data) {
     // Custom 3D node objects
     .nodeThreeObject(node => {
       const group = new THREE.Group()
-      const hex = masteryHex(node.mastery || 0)
-      const emissiveIntensity = 0.2 + (node.mastery || 0) * 0.5
+      const hex = parseInt((node.color || '#3B82F6').slice(1), 16)
+      const emissiveIntensity = 0.2 + (node.glowIntensity || 0) * 0.5
 
       // Keyword → sphere, paper → rounded box
       let geometry, size
@@ -637,29 +562,7 @@ onMounted(async () => {
         options: { responsive:true, maintainAspectRatio:false, interaction:{ mode:'index', intersect:false }, plugins:{ legend:{ position:'top' } }, scales:{ y:{ beginAtZero:true, grid:{ color:'rgba(148,163,184,0.1)' } }, x:{ grid:{ display:false } } } }
       })
     }
-
-    // field donut
-    if (fieldChartRef.value && data.field) {
-      const ctx = fieldChartRef.value.getContext('2d')
-      fieldChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: { labels: data.field.labels, datasets:[{ data: data.field.data, backgroundColor:['#6366f1','#8b5cf6','#06b6d4','#10b981','#f59e0b','#6b7280'], borderWidth:0, hoverOffset:10 }] },
-        options: { responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{ position:'bottom' } } }
-      })
-    }
-
-    // heatmap bar
-    if (heatmapChartRef.value && data.heatmap) {
-      const ctx = heatmapChartRef.value.getContext('2d')
-      heatmapChart = new Chart(ctx, {
-        type: 'bar',
-        data: { labels: data.heatmap.labels, datasets:[{ label:'阅读论文数', data: data.heatmap.data, backgroundColor: data.heatmap.data.map(() => 'rgba(99,102,241,0.6)'), borderRadius:8, borderSkipped:false }] },
-        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, grid:{ color:'rgba(148,163,184,0.1)' } }, x:{ grid:{ display:false } } } }
-      })
-    }
-
     if (data.tags) tagCloud.value = data.tags
-    if (data.behaviors) behaviors.value = data.behaviors
 
     // 3D knowledge graph & learning path
     if (data.knowledge) {
@@ -676,8 +579,6 @@ onBeforeUnmount(() => {
   document.removeEventListener('fullscreenchange', onFullscreenChange)
   stopRoute()
   if (interestChart) interestChart.destroy()
-  if (fieldChart) fieldChart.destroy()
-  if (heatmapChart) heatmapChart.destroy()
   if (Graph3D) { Graph3D._destructor && Graph3D._destructor() }
 })
 </script>
@@ -699,7 +600,8 @@ onBeforeUnmount(() => {
 .time-btn { padding:12px 24px; border-radius:12px; border:1px solid var(--border); background: rgba(255,255,255,0.05); color:var(--text-secondary); font-size:14px; cursor:pointer; transition: all 0.2s }
 .time-btn.active, .time-btn:hover { background:var(--primary); color:white; border-color:var(--primary); transform: translateY(-2px) }
 .charts-grid { display:grid; grid-template-columns:2fr 1fr; gap:30px; margin-bottom:30px }
-.chart-card { background:var(--bg-card); backdrop-filter: blur(20px); border-radius:24px; border:1px solid var(--border); padding:30px }
+.chart-card { background:var(--bg-card); backdrop-filter: blur(20px); border-radius:24px; border:1px solid var(--border); border-left:3px solid transparent; padding:30px }
+.chart-card[data-area="knowledge"] { border-left-color: var(--color-area-knowledge) }
 .chart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; flex-wrap:wrap; gap:12px }
 .chart-title { font-size:18px; font-weight:600; display:flex; align-items:center; gap:10px }
 .chart-icon { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,var(--primary),var(--secondary)); display:flex; align-items:center; justify-content:center; font-size:18px }
@@ -718,19 +620,14 @@ onBeforeUnmount(() => {
 .cloud-tag.size-5 { font-size:20px; background: linear-gradient(135deg,var(--primary),var(--secondary)); color:white }
 .cloud-tag:hover { transform:scale(1.1) rotate(2deg); box-shadow:0 10px 30px rgba(99,102,241,0.3) }
 .stats-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(14rem, 16.5rem)); gap:20px; justify-content:start; margin-bottom:0 }
-.stat-card { background:var(--bg-card); border-radius:20px; padding:25px; border:1px solid var(--border) }
+.stat-card { background:var(--bg-card); border-radius:20px; padding:25px; border:1px solid var(--border); border-left:3px solid transparent }
+.stat-card[data-area="knowledge"] { border-left-color: var(--color-area-knowledge) }
 .stat-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px }
 .stat-label { font-size:14px; color:var(--text-secondary) }
 .stat-icon-box { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px }
 .stat-value { font-size:28px; font-weight:700; margin-bottom:8px }
 .stat-change { font-size:13px; display:flex; align-items:center; gap:5px }
 .stat-change.positive { color:#10b981 }
-.behavior-list { display:flex; flex-direction:column; gap:15px }
-.behavior-item { display:flex; align-items:center; gap:15px; padding:15px; background: rgba(255,255,255,0.03); border-radius:14px; border:1px solid var(--border) }
-.behavior-icon { width:45px; height:45px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px }
-.behavior-info h5 { font-size:14px; font-weight:600; margin-bottom:4px }
-.behavior-info p { font-size:12px; color:var(--text-secondary) }
-.behavior-value { font-size:16px; font-weight:600; color:var(--primary) }
 .fullwidth-chart { grid-column:1 / -1 }
 
 /* ── Fullscreen mode ──────────────────────────────────────────── */

@@ -37,4 +37,7 @@ public interface PaperMapper extends BaseMapper<Paper> {
 
     @Select("<script>SELECT * FROM paper WHERE aminer_id IN <foreach item='id' collection='aminers' open='(' separator=',' close=')'>#{id}</foreach> AND deleted = 0</script>")
     List<Paper> findByAminers(@Param("aminers") List<String> aminers);
+
+    @Select("<script>SELECT * FROM paper WHERE id IN <foreach item='id' collection='ids' open='(' separator=',' close=')'>#{id}</foreach> AND deleted = 0</script>")
+    List<Paper> findByIds(@Param("ids") List<Long> ids);
 }

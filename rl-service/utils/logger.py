@@ -84,22 +84,3 @@ class TrainingLogger:
             "timestamp": time.time(),
         }
         self.logger.info(f"推荐记录: {json.dumps(record, ensure_ascii=False)}")
-
-    def init_tensorboard(self) -> None:
-        """预留 TensorBoard 接口。"""
-        try:
-            from torch.utils.tensorboard import SummaryWriter
-            tb_path = os.path.join(self.log_dir, "tensorboard", self.experiment_name)
-            self.tb_writer = SummaryWriter(tb_path)
-            self.logger.info(f"TensorBoard 已启动，路径: {tb_path}")
-        except ImportError:
-            self.logger.warning("未安装 TensorBoard，跳过初始化。")
-
-    def init_wandb(self, project: str = "rl-recommender") -> None:
-        """预留 Weights & Biases 接口。"""
-        try:
-            import wandb
-            wandb.init(project=project, name=self.experiment_name)
-            self.logger.info("WandB 已初始化。")
-        except ImportError:
-            self.logger.warning("未安装 wandb，跳过初始化。")

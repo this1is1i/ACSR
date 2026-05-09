@@ -1,5 +1,5 @@
 <template>
-  <article class="research-assets-panel card glass animate-fade-up" data-testid="research-assets-panel">
+  <article class="research-assets-panel card glass animate-fade-up" data-testid="research-assets-panel" data-area="profile">
     <div class="research-assets-panel__header">
       <div>
         <p class="research-assets-panel__eyebrow">Research Assets</p>
@@ -151,6 +151,10 @@ function recommendationMeta(paper) {
   display: grid;
   gap: var(--space-5);
   padding: clamp(1.4rem, 2vw, 1.85rem);
+}
+
+.research-assets-panel[data-area="profile"] {
+  border-left: 3px solid var(--color-area-profile);
 }
 
 .research-assets-panel__header,

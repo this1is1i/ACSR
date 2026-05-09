@@ -164,7 +164,8 @@ class PathBuilder:
             if not node:
                 continue
             for kw_id in node.properties.get("keywords", []):
-                kw_node_id = f"kw_{kw_id.strip().lower().replace(' ', '_')}"
+                raw = kw_id.strip().lower().replace(' ', '_')
+                kw_node_id = raw if raw.startswith("kw_") else f"kw_{raw}"
                 if kw_node_id in self.kg.nodes:
                     kw_count[kw_node_id] += 1
 

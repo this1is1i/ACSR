@@ -1,7 +1,7 @@
 <template>
   <section class="admin-kpi-grid" data-testid="admin-kpi-grid">
     <template v-if="loading">
-      <article v-for="index in 4" :key="index" class="admin-kpi-grid__card card">
+      <article v-for="index in 4" :key="index" class="admin-kpi-grid__card card" data-area="admin">
         <el-skeleton :rows="3" animated />
       </article>
     </template>
@@ -46,6 +46,10 @@ defineProps({
   gap: var(--space-2);
   padding: clamp(1.15rem, 2vw, 1.45rem);
   background: rgba(255, 255, 255, 0.04);
+}
+
+.admin-kpi-grid__card[data-area="admin"] {
+  border-left: 3px solid var(--color-area-admin);
 }
 
 .admin-kpi-grid__card span,

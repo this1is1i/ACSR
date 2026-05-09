@@ -31,7 +31,9 @@ public class KnowledgeController {
 
         List<Map<String, Object>> simpleNodes = fullNodes.stream()
                 .map(n -> Map.of("id", n.get("id"), "name", n.get("name"),
-                                 "mastery", n.get("mastery")))
+                                 "mastery", n.get("mastery"),
+                                 "color", n.getOrDefault("color", "#3B82F6"),
+                                 "glowIntensity", n.getOrDefault("glowIntensity", 0.0)))
                 .collect(Collectors.toList());
 
         List<Map<String, Object>> simpleEdges = fullEdges.stream()

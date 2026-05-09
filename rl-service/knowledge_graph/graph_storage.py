@@ -306,9 +306,11 @@ class GraphStorage:
         rel_props = row.get("rel_props") or {}
         relation = rel_props.get("relation") or row.get("rel_type") or "RELATED_TO"
         weight = rel_props.get("weight", 1.0)
+        # Normalize: HAS_KEYWORD → has_keyword, CITE → cite, etc.
+        norm_relation = str(relation).lower().replace("-", "_")
         return KGEdge(
             src_id=row["src_id"],
             dst_id=row["dst_id"],
-            relation=str(relation),
+            relation=norm_relation,
             weight=float(weight if weight is not None else 1.0),
         )

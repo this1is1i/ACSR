@@ -2,9 +2,11 @@ package com.example.research.service.impl;
 
 import com.example.research.dto.UserDto;
 import com.example.research.entity.Paper;
+import com.example.research.entity.UserInterestHistory;
 import com.example.research.enums.UserRole;
 import com.example.research.entity.User;
 import com.example.research.repository.BehaviorLogMapper;
+import com.example.research.repository.UserInterestHistoryMapper;
 import com.example.research.repository.UserMapper;
 import com.example.research.service.UserService;
 import com.example.research.util.JwtUtil;
@@ -19,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +33,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final BehaviorLogMapper behaviorLogMapper;
+    private final UserInterestHistoryMapper userInterestHistoryMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -43,7 +47,30 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
         user.setRole(UserRole.STUDENT.name());
+
+        if (request.getResearchInterests() != null && !request.getResearchInterests().isBlank()) {
+            user.setResearchInterests(request.getResearchInterests());
+        }
+
         userMapper.insert(user);
+
+        // 创建初始兴趣画像记录
+        if (request.getResearchInterests() != null && !request.getResearchInterests().isBlank()) {
+            String[] interests = request.getResearchInterests().split(",");
+            LocalDate today = LocalDate.now();
+            for (String interest : interests) {
+                String trimmed = interest.trim();
+                if (!trimmed.isEmpty()) {
+                    UserInterestHistory history = new UserInterestHistory();
+                    history.setUserId(user.getId());
+                    history.setInterestTag(trimmed);
+                    history.setWeight(0.5);
+                    history.setSource("register");
+                    history.setRecordDate(today);
+                    userInterestHistoryMapper.insert(history);
+                }
+            }
+        }
     }
 
     @Override

@@ -10,4 +10,5 @@ public interface PaperService {
     Paper getPaperByAminerId(String aminerId);
     List<Paper> searchPapers(String keyword, int limit);
     List<Paper> getByAminers(List<String> aminers);
+    List<Paper> getByPaperIds(List<Long> ids);
 }

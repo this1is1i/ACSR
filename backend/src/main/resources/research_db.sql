@@ -11,7 +11,7 @@
  Target Server Version : 80031
  File Encoding         : 65001
 
- Date: 01/05/2026 13:31:23
+ Date: 08/05/2026 20:19:00
 */
 
 SET NAMES utf8mb4;
@@ -36,7 +36,7 @@ CREATE TABLE `announcements`  (
   INDEX `idx_status_time`(`status` ASC, `publish_time` ASC) USING BTREE,
   INDEX `fk_announcement_publisher`(`publisher_id` ASC) USING BTREE,
   CONSTRAINT `fk_announcement_publisher` FOREIGN KEY (`publisher_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '系统公告表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '系统公告表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of announcements
@@ -61,25 +61,13 @@ CREATE TABLE `behavior_log`  (
   INDEX `idx_user_action`(`user_id` ASC, `action` ASC) USING BTREE,
   CONSTRAINT `fk_behavior_paper` FOREIGN KEY (`paper_id`) REFERENCES `paper` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_behavior_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户行为日志表（RL 训练数据）' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户行为日志表（RL 训练数据）' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of behavior_log
 -- ----------------------------
-INSERT INTO `behavior_log` VALUES (1, 1, 1, 'click', NULL, 'search', '2026-03-21 23:04:39');
-INSERT INTO `behavior_log` VALUES (2, 1, 1, 'favorite', NULL, 'search', '2026-03-21 23:04:40');
-INSERT INTO `behavior_log` VALUES (3, 1, 1, 'click', NULL, 'search', '2026-03-21 23:04:41');
-INSERT INTO `behavior_log` VALUES (4, 1, 1, 'favorite', NULL, 'search', '2026-03-21 23:04:42');
-INSERT INTO `behavior_log` VALUES (5, 1, 1, 'click', NULL, 'search', '2026-03-21 23:04:42');
-INSERT INTO `behavior_log` VALUES (6, 1, 1, 'click', NULL, 'search', '2026-03-21 23:04:43');
-INSERT INTO `behavior_log` VALUES (7, 1, 1, 'click', NULL, 'search', '2026-03-21 23:04:43');
-INSERT INTO `behavior_log` VALUES (8, 1, 1, 'click', NULL, 'search', '2026-03-21 23:04:43');
-INSERT INTO `behavior_log` VALUES (9, 1, 1, 'click', NULL, 'search', '2026-03-21 23:04:43');
-INSERT INTO `behavior_log` VALUES (10, 1, 1, 'click', NULL, 'search', '2026-03-21 23:04:44');
-INSERT INTO `behavior_log` VALUES (11, 1, 1, 'favorite', NULL, 'search', '2026-03-21 23:04:44');
 INSERT INTO `behavior_log` VALUES (12, 2, 697, 'click', NULL, 'recommend', '2026-04-27 11:56:36');
 INSERT INTO `behavior_log` VALUES (13, 2, 617, 'click', NULL, 'recommend', '2026-04-27 11:56:44');
-INSERT INTO `behavior_log` VALUES (14, 1, 4, 'click', NULL, 'recommend', '2026-04-27 11:59:04');
 
 -- ----------------------------
 -- Table structure for board
@@ -121,7 +109,7 @@ CREATE TABLE `browse_history`  (
   INDEX `fk_browse_paper`(`paper_id` ASC) USING BTREE,
   CONSTRAINT `fk_browse_paper` FOREIGN KEY (`paper_id`) REFERENCES `paper` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_browse_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户浏览历史记录表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户浏览历史记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of browse_history
@@ -156,11 +144,21 @@ CREATE TABLE `comment`  (
   CONSTRAINT `fk_comment_parent` FOREIGN KEY (`parent_id`) REFERENCES `comment` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_comment_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_comment_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '帖子评论/回复表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '帖子评论/回复表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of comment
 -- ----------------------------
+INSERT INTO `comment` VALUES (1, 1, 3, NULL, NULL, 'Great post! I am just starting to learn about Transformers in my NLP class. Any good beginner resources?', 3, 0, 1, '2026-04-15 10:30:00', '2026-04-15 10:30:00');
+INSERT INTO `comment` VALUES (2, 1, 2, 1, 1, 'I recommend starting with \"The Illustrated Transformer\" by Jay Alammar — it explains the concepts visually. Then read the original paper.', 5, 1, 1, '2026-04-15 11:00:00', '2026-04-15 11:00:00');
+INSERT INTO `comment` VALUES (3, 1, 1, NULL, NULL, 'Attention has also been huge in computer vision — Vision Transformers (ViT) are now competitive with CNNs. The cross-domain impact is remarkable.', 7, 0, 1, '2026-04-16 09:00:00', '2026-04-16 09:00:00');
+INSERT INTO `comment` VALUES (4, 2, 2, NULL, NULL, 'Totally agree! I also recommend Spinning Up by OpenAI as a practical guide. It has clean implementations of all the major algorithms.', 4, 0, 1, '2026-04-10 15:30:00', '2026-04-10 15:30:00');
+INSERT INTO `comment` VALUES (5, 2, 3, 4, 4, 'Thanks for the suggestion! I will check it out. Do they have Chinese translations?', 1, 0, 1, '2026-04-11 10:00:00', '2026-04-11 10:00:00');
+INSERT INTO `comment` VALUES (6, 5, 2, NULL, NULL, 'Point 3 about reward normalization is so important! I wasted a week debugging before realizing my rewards were not scaled properly.', 6, 0, 1, '2026-04-18 10:00:00', '2026-04-18 10:00:00');
+INSERT INTO `comment` VALUES (7, 5, 3, 6, 6, 'Same here! What range do you usually normalize to? I have seen both [-1, 1] and standardization to N(0, 1).', 2, 0, 1, '2026-04-18 12:00:00', '2026-04-18 12:00:00');
+INSERT INTO `comment` VALUES (8, 5, 1, 7, 6, 'I recommend running mean/std normalization (N(0,1)) with a small epsilon to avoid division by zero. Clip to [-10, 10] as a safety measure.', 4, 0, 1, '2026-04-18 14:00:00', '2026-04-18 14:00:00');
+INSERT INTO `comment` VALUES (9, 3, 1, NULL, NULL, 'Great tips! I have also found that using a linear warmup schedule for the first 10% of steps really helps stabilize training.', 3, 0, 1, '2026-04-09 08:00:00', '2026-04-09 08:00:00');
+INSERT INTO `comment` VALUES (10, 3, 2, 9, 9, 'Absolutely! The warmup prevents the model from making drastic updates before it has seen enough of the downstream data distribution.', 2, 0, 1, '2026-04-09 09:30:00', '2026-04-09 09:30:00');
 
 -- ----------------------------
 -- Table structure for favourite
@@ -179,7 +177,7 @@ CREATE TABLE `favourite`  (
   INDEX `fk_fav_paper`(`paper_id` ASC) USING BTREE,
   CONSTRAINT `fk_fav_paper` FOREIGN KEY (`paper_id`) REFERENCES `paper` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_fav_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户论文收藏表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户论文收藏表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of favourite
@@ -199,7 +197,7 @@ CREATE TABLE `kg_entity`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_name_type`(`name` ASC, `type` ASC) USING BTREE,
   INDEX `idx_type`(`type` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '知识图谱实体表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1089 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '知识图谱实体表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of kg_entity
@@ -1273,7 +1271,7 @@ CREATE TABLE `kg_relation`  (
   INDEX `idx_target`(`target_id` ASC) USING BTREE,
   CONSTRAINT `fk_rel_source` FOREIGN KEY (`source_id`) REFERENCES `kg_entity` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_rel_target` FOREIGN KEY (`target_id`) REFERENCES `kg_entity` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '知识图谱关系表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4185 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '知识图谱关系表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of kg_relation
@@ -5403,7 +5401,7 @@ CREATE TABLE `notification`  (
   INDEX `idx_user_type`(`user_id` ASC, `type` ASC) USING BTREE,
   INDEX `idx_user_read`(`user_id` ASC, `is_read` ASC, `create_time` ASC) USING BTREE,
   CONSTRAINT `fk_notice_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '系统通知表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '系统通知表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of notification
@@ -5432,7 +5430,7 @@ CREATE TABLE `paper`  (
   INDEX `idx_year`(`year` ASC) USING BTREE,
   INDEX `idx_citation`(`citation_count` ASC) USING BTREE,
   FULLTEXT INDEX `ft_title_abstract`(`title`, `abstract`) COMMENT '全文检索索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 3016 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '论文表（AMiner 数据）' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 3017 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '论文表（AMiner 数据）' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of paper
@@ -6466,11 +6464,16 @@ CREATE TABLE `post`  (
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
   CONSTRAINT `fk_post_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '社区帖子表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '社区帖子表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of post
 -- ----------------------------
+INSERT INTO `post` VALUES (1, 2, 4, 'Why Attention Mechanism Changed NLP Forever', 'I have been studying the Transformer architecture recently and I am amazed at how it reshaped the entire NLP landscape. The self-attention mechanism allows the model to capture long-range dependencies that RNNs could never handle. What do you think is the most impactful application of attention beyond NLP?', 12, 3, 1, NULL, NULL, NULL, 0, '2026-04-15 09:30:00', '2026-04-15 09:30:00');
+INSERT INTO `post` VALUES (2, 1, 1, 'Getting Started with Deep Reinforcement Learning', 'For newcomers to RL, the DQN paper by Mnih et al. is a must-read. It was the first to successfully combine deep learning with reinforcement learning for playing Atari games. I recommend starting here before moving to more advanced methods like PPO or SAC. Happy to discuss!', 8, 2, 1, NULL, NULL, NULL, 0, '2026-04-10 14:20:00', '2026-04-10 14:20:00');
+INSERT INTO `post` VALUES (3, 2, 5, 'BERT Fine-Tuning Best Practices', 'After working with BERT for several downstream tasks, I found that the learning rate and batch size are critical hyperparameters. Too high a learning rate and the pre-trained weights get destroyed. I have compiled some best practices from recent papers — share your experiences too!', 5, 2, 1, NULL, NULL, NULL, 0, '2026-04-08 11:00:00', '2026-04-08 11:00:00');
+INSERT INTO `post` VALUES (4, 3, 2, 'A3C vs PPO — Which One Should I Use?', 'I am a student trying to implement a reinforcement learning project. I have read both the A3C and PPO papers. A3C is asynchronous and works well on CPU, while PPO is simpler and more stable. Which one would you recommend for a beginner project with limited GPU resources?', 3, 1, 1, '123', 1, '2026-05-08 20:14:28', 0, '2026-04-20 16:45:00', '2026-04-20 16:45:00');
+INSERT INTO `post` VALUES (5, 1, 3, 'PPO Implementation Tips and Tricks', 'I recently implemented PPO from scratch and learned a lot. Key takeaways: 1) the clipping parameter really matters, 2) GAE (Generalized Advantage Estimation) improves stability significantly, 3) normalizing rewards helps a lot. I am sharing my code and notes — feedback welcome!', 15, 4, 1, NULL, NULL, NULL, 0, '2026-04-18 08:15:00', '2026-04-18 08:15:00');
 
 -- ----------------------------
 -- Table structure for private_messages
@@ -6492,11 +6495,21 @@ CREATE TABLE `private_messages`  (
   INDEX `idx_conversation`(`sender_id` ASC, `receiver_id` ASC, `create_time` ASC) USING BTREE,
   CONSTRAINT `fk_msg_receiver` FOREIGN KEY (`receiver_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_msg_sender` FOREIGN KEY (`sender_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户私信表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户私信表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of private_messages
 -- ----------------------------
+INSERT INTO `private_messages` VALUES (1, 1, 2, 'Hi! I saw your post about Transformers — great analysis! I am working on a similar topic. Would you be interested in collaborating?', 1, 1, '2026-04-15 13:00:00', 1, '2026-04-15 12:30:00');
+INSERT INTO `private_messages` VALUES (2, 2, 1, 'Thanks! Yes, I would love to collaborate. I am currently experimenting with attention mechanisms for knowledge graph reasoning. What area are you focusing on?', 1, 1, '2026-04-15 13:05:00', 1, '2026-04-15 13:02:00');
+INSERT INTO `private_messages` VALUES (3, 1, 2, 'That sounds really interesting! I am exploring how RL can be combined with knowledge graphs for recommendation systems. Maybe we can combine our work — RL + attention for KG-based recommendations?', 1, 1, '2026-04-15 13:10:00', 1, '2026-04-15 13:08:00');
+INSERT INTO `private_messages` VALUES (4, 2, 1, 'That is a great idea! Let me put together some related work and share my notes. I will send you a document by end of week.', 1, 0, NULL, 1, '2026-04-15 13:15:00');
+INSERT INTO `private_messages` VALUES (5, 3, 2, 'Hello~ I saw you are a researcher in NLP and GNN. I am a student and would love to learn more about these fields. Do you have any advice?', 1, 1, '2026-04-16 10:00:00', 1, '2026-04-16 09:30:00');
+INSERT INTO `private_messages` VALUES (6, 2, 3, 'Hi xixihaha! Happy to help. I recommend starting with the fundamentals — Andrew Ng\'s ML course, then dive into specific papers. Start with something manageable like BERT fine-tuning before tackling GNNs.', 1, 1, '2026-04-16 10:05:00', 1, '2026-04-16 10:02:00');
+INSERT INTO `private_messages` VALUES (7, 3, 2, 'Thank you so much! I just finished the Stanford CS224N course on NLP. Should I move to graph neural networks next or focus more on Transformers?', 1, 1, '2026-04-16 11:00:00', 1, '2026-04-16 10:55:00');
+INSERT INTO `private_messages` VALUES (8, 2, 3, 'I would suggest spending more time on Transformers first — they are the foundation for many modern architectures including Graph Transformers. Once you are comfortable with attention mechanisms, GNNs will be much easier to understand.', 1, 0, NULL, 1, '2026-04-16 11:10:00');
+INSERT INTO `private_messages` VALUES (9, 1, 3, 'Welcome to the research community! I noticed you joined recently. Let me know if you have any questions about the platform.', 1, 1, '2026-04-18 09:00:00', 1, '2026-04-18 08:45:00');
+INSERT INTO `private_messages` VALUES (10, 3, 1, 'Thank you admin! The platform is really helpful. I am currently exploring the knowledge graph feature — the visualization is amazing!', 1, 1, '2026-04-18 09:05:00', 1, '2026-04-18 09:02:00');
 
 -- ----------------------------
 -- Table structure for rl_training_log
@@ -6542,12 +6555,12 @@ CREATE TABLE `user`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `username`(`username` ASC) USING BTREE,
   INDEX `idx_username`(`username` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (1, 'admin', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'admin@research.com', 'ADMIN', NULL, NULL, 'Machine Learning,Reinforcement Learning', 0, '2026-03-21 22:28:30', '2026-03-21 22:56:01');
+INSERT INTO `user` VALUES (1, 'admin', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'admin@research.com', 'ADMIN', '/uploads/avatars/avatar_1_3a8e0b63.jpg', '', 'Machine Learning,Reinforcement Learning', 0, '2026-03-21 22:28:30', '2026-03-21 22:56:01');
 INSERT INTO `user` VALUES (2, 'test_user', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'test@research.com', 'RESEARCHER', NULL, NULL, 'NLP,Graph Neural Networks', 0, '2026-03-21 22:28:30', '2026-03-21 22:56:01');
 INSERT INTO `user` VALUES (3, 'xixihaha', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', NULL, 'STUDENT', NULL, NULL, NULL, 0, '2026-03-21 22:54:42', '2026-03-21 22:54:42');
 
@@ -6567,11 +6580,16 @@ CREATE TABLE `user_contacts`  (
   INDEX `idx_contact`(`contact_id` ASC) USING BTREE,
   CONSTRAINT `fk_contact_friend` FOREIGN KEY (`contact_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_contact_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户联系人/关注表(用于社交关系网络)' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户联系人/关注表(用于社交关系网络)' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_contacts
 -- ----------------------------
+INSERT INTO `user_contacts` VALUES (1, 1, 2, 'FOLLOW', NULL, '2026-04-01 10:00:00');
+INSERT INTO `user_contacts` VALUES (2, 2, 1, 'FOLLOW', NULL, '2026-04-01 11:00:00');
+INSERT INTO `user_contacts` VALUES (3, 1, 3, 'FOLLOW', NULL, '2026-04-05 09:00:00');
+INSERT INTO `user_contacts` VALUES (4, 3, 2, 'FOLLOW', 'test_user 学长', '2026-04-10 14:00:00');
+INSERT INTO `user_contacts` VALUES (5, 2, 3, 'FOLLOW', NULL, '2026-04-12 16:00:00');
 
 -- ----------------------------
 -- Table structure for user_interest_history
@@ -6589,7 +6607,7 @@ CREATE TABLE `user_interest_history`  (
   INDEX `idx_user_date`(`user_id` ASC, `record_date` ASC) USING BTREE,
   INDEX `idx_user_tag`(`user_id` ASC, `interest_tag` ASC) USING BTREE,
   CONSTRAINT `fk_interest_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户兴趣演化历史表(用于可视化兴趣变化趋势)' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 49 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户兴趣演化历史表(用于可视化兴趣变化趋势)' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_interest_history

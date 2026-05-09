@@ -141,6 +141,8 @@ class LearningPathNodeResponse(BaseModel):
     mastery: float
     depth: int
     year: Optional[int] = None
+    color: str = "#3B82F6"
+    glow_intensity: float = 0.0
 
 
 class LearningPathResponse(BaseModel):
@@ -213,7 +215,8 @@ async def trigger_train(
         global _service
         _training_status["is_training"] = True
         try:
-            config = default_config
+            import copy
+            config = copy.copy(default_config)
             if request.episodes:
                 config.max_episodes = request.episodes
             train(config)
@@ -288,7 +291,9 @@ async def health_check():
 async def generate_learning_path(request: LearningPathRequest):
     """
     基于知识图谱为用户生成从当前知识状态到目标主题的学习路径。
-    用于前端 Three.js 三维学习路径可视化。
+    返回掌握度、颜色映射和发光强度，供前端 Three.js 三维可视化使用。
+
+    颜色方案：蓝(0.0) → 橙(0.5) → 绿(1.0)
     """
     if _service is None:
         raise HTTPException(status_code=503, detail="推荐服务尚未初始化")
@@ -298,18 +303,42 @@ async def generate_learning_path(request: LearningPathRequest):
             raise HTTPException(status_code=404, detail="知识图谱未初始化")
 
         from learning_path.path_builder import PathBuilder
+        from learning_path.propagation import KnowledgePropagation
         from knowledge_graph.graph_query import GraphQuery
 
         query_engine = GraphQuery(kg)
         builder = PathBuilder(kg, query_engine)
         history = request.history or []
+
+        # 1. 构建基础学习路径
         path = builder.build_path(
             user_id=request.user_id,
             user_history=history,
             target_topic=request.target_topic,
             max_nodes=request.max_nodes,
         )
-        return builder.to_dict(path)
+
+        # 2. 知识掌握度传播（基于用户历史阅读）
+        propagation = KnowledgePropagation(kg)
+        if history:
+            propagation.batch_update(history)
+
+        # 3. 将掌握度应用到路径节点
+        propagation.apply_to_path(path)
+
+        # 4. 生成颜色映射和发光强度
+        node_ids = [n.node_id for n in path.nodes]
+        colors = propagation.get_color_mapping(node_ids)
+        glows = propagation.get_glow_intensity(node_ids)
+
+        # 5. 序列化返回
+        result = builder.to_dict(path)
+        for node in result["nodes"]:
+            nid = node["node_id"]
+            node["color"] = colors.get(nid, "#3B82F6")
+            node["glow_intensity"] = round(glows.get(nid, 0.0), 4)
+
+        return result
     except HTTPException:
         raise
     except Exception as e:

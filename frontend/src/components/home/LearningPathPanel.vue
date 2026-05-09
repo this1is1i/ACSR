@@ -1,5 +1,5 @@
 <template>
-  <section class="learning-path-panel card" data-testid="learning-path-panel">
+  <section class="learning-path-panel card" data-testid="learning-path-panel" data-area="learning">
     <div class="panel-header">
       <div>
         <p class="panel-header__eyebrow">Learning Path</p>
@@ -114,6 +114,10 @@ defineProps({
   display: grid;
   gap: var(--space-4);
   padding: clamp(1.35rem, 2vw, 1.8rem);
+}
+
+.learning-path-panel[data-area="learning"] {
+  border-left: 3px solid var(--color-area-learning);
 }
 
 .panel-header {

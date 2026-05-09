@@ -54,9 +54,17 @@ public class RecommendServiceImpl implements RecommendService {
         if (pythonAvailable && pyResp.getRecommendations() != null) {
             // ── Step 3: 组装推荐结果（Python 正常响应）────────────
             items = assembleFromPython(pyResp.getRecommendations());
+            if (!items.isEmpty()) {
+                log.info("Python 推荐组装完成, 首条 reason={}, details={}",
+                    items.get(0).getReason(),
+                    items.get(0).getReasonDetails());
+            }
         } else {
             // ── Step 4: 降级：返回热门论文 ─────────────────────────
-            log.warn("Python 推荐服务不可用，降级为热门论文推荐，userId={}", userId);
+            log.warn("Python 推荐服务不可用(pyResp={}, recs={})，降级为热门论文推荐，userId={}",
+                     pyResp != null ? "parsed" : "null",
+                     pyResp != null ? pyResp.getRecommendations() : "n/a",
+                     userId);
             items = fallbackPopularRecommendations(k);
         }
 
@@ -126,19 +134,12 @@ public class RecommendServiceImpl implements RecommendService {
     // ── 内部辅助方法 ──────────────────────────────────────────────
 
     /**
-     * 将数据库 paper_id (Long) 转换为 AMiner ID 列表
+     * 将数据库 paper_id (Long) 转换为 AMiner ID 列表（批量查询，避免 N+1）
      */
     private List<String> resolveAminers(List<Long> paperIds) {
         if (paperIds.isEmpty()) {return Collections.emptyList();}
-        return paperIds.stream()
-            .map(id -> {
-                try {
-                    Paper p = paperService.getPaperById(id);
-                    return p.getAminerId();
-                } catch (Exception e) {
-                    return null;
-                }
-            })
+        return paperService.getByPaperIds(paperIds).stream()
+            .map(Paper::getAminerId)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
@@ -178,6 +179,7 @@ public class RecommendServiceImpl implements RecommendService {
                 item.setCitationCount(dbPaper.getCitationCount());
             } else {
                 // Python 返回的论文不在数据库中（直接使用 Python 侧数据）
+                item.setPaperId(null);  // 本地无此论文
                 item.setAminerId(pyItem.getPaperId());
                 item.setTitle(pyItem.getTitle() != null ? pyItem.getTitle() : "未知论文");
                 item.setAuthors(pyItem.getAuthors());

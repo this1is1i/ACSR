@@ -123,21 +123,3 @@ class MockDataGenerator:
     def _rand_vec(self) -> np.ndarray:
         v = self.rng.standard_normal(self.base_state_dim).astype(np.float32)
         return v / (np.linalg.norm(v) + 1e-8)
-
-
-# ── 数据库适配器接口（预留）─────────────────────────────────────────
-
-class DatabaseAdapter:
-    """
-    真实数据库适配器基类。
-    实现此接口后可无缝替换 MockDataGenerator。
-    """
-
-    def fetch_user(self, user_id: str) -> UserProfile:
-        raise NotImplementedError
-
-    def fetch_candidates(self, user_id: str, limit: int = 20) -> List[ResearchItem]:
-        raise NotImplementedError
-
-    def log_interaction(self, user_id: str, item_id: str, signal: Dict[str, Any]) -> None:
-        raise NotImplementedError

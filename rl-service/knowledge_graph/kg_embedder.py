@@ -196,3 +196,29 @@ class KGEmbedder:
                     max_d = max(max_d, next_d)
                     queue.append((edge.dst_id, next_d))
         return float(max_d)
+
+
+def create_kg_embedder(config) -> "tuple[Optional[KGEmbedder], Optional[Any]]":
+    """从 AMiner 数据文件构建 KG 并返回 (KGEmbedder, KnowledgeGraph)。
+
+    供 train.py 和 RecommendationService 共用，消除重复 KG 构建代码。
+    若 config.use_kg=False 或构建失败则返回 (None, None)。
+    """
+    if not config.use_kg:
+        return None, None
+    try:
+        from dataset.aminer_loader import AMinerLoader
+        from knowledge_graph.kg_builder import KGBuilder
+
+        loader = AMinerLoader()
+        papers = loader.load_papers(limit=500)
+        authors = loader.load_authors(limit=200)
+        citations = loader.load_citations(papers)
+
+        kg = KGBuilder(min_keyword_freq=1).build(papers, authors, citations)
+        embedder = KGEmbedder(kg, embed_dim=config.kg_embedding_dim)
+        logger.info(f"KG Embedder 构建完成：{len(papers)} 篇论文")
+        return embedder, kg
+    except Exception as e:
+        logger.warning(f"KG Embedder 构建失败，回退为无 KG 模式: {e}")
+        return None, None

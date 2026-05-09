@@ -1,4 +1,8 @@
+
+
 .worktrees/
+.claude/
+backend/uploads/
 
 # Frontend build and test artifacts
 frontend/dist/

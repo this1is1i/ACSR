@@ -1,9 +1,12 @@
 package com.example.research.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.example.research.client.PythonRecClient;
 import com.example.research.entity.BehaviorLog;
+import com.example.research.entity.KgEntity;
 import com.example.research.entity.Paper;
 import com.example.research.entity.User;
+import com.example.research.entity.UserInterestHistory;
 import com.example.research.repository.*;
 import com.example.research.service.KnowledgeService;
 import com.example.research.service.VisualizationService;
@@ -21,9 +24,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class VisualizationServiceImpl implements VisualizationService {
 
+    private final PythonRecClient pythonRecClient;
     private final KnowledgeService knowledgeService;
     private final BehaviorLogMapper behaviorLogMapper;
     private final BrowseHistoryMapper browseHistoryMapper;
+    private final KgEntityMapper kgEntityMapper;
     private final UserInterestHistoryMapper interestHistoryMapper;
     private final PaperMapper paperMapper;
     private final UserMapper userMapper;
@@ -52,15 +57,24 @@ public class VisualizationServiceImpl implements VisualizationService {
         stats.put("readTime", formatHours(totalReadSeconds));
         stats.put("readCount", reads.size());
 
+        // Batch-fetch all distinct papers in a single query (fixes N+1)
+        Set<Long> distinctPaperIds = reads.stream()
+                .map(BehaviorLog::getPaperId).collect(Collectors.toSet());
+        List<Paper> batchPapers = distinctPaperIds.isEmpty()
+                ? List.of()
+                : paperMapper.findByIds(new ArrayList<>(distinctPaperIds));
+        Map<Long, Paper> paperMap = batchPapers.stream()
+                .collect(Collectors.toMap(Paper::getId, p -> p, (a, b) -> a));
+
         Set<String> activeFields = reads.stream()
-                .map(b -> paperMapper.selectById(b.getPaperId()))
+                .map(b -> paperMap.get(b.getPaperId()))
                 .filter(Objects::nonNull)
                 .flatMap(p -> parseJsonArray(p.getKeywords()).stream())
                 .collect(Collectors.toSet());
         stats.put("activeFields", activeFields.size());
 
         double avgCitations = reads.stream()
-                .map(b -> paperMapper.selectById(b.getPaperId()))
+                .map(b -> paperMap.get(b.getPaperId()))
                 .filter(Objects::nonNull)
                 .mapToInt(Paper::getCitationCount)
                 .average().orElse(0);
@@ -227,81 +241,95 @@ public class VisualizationServiceImpl implements VisualizationService {
         );
     }
 
-    // ── knowledge graph (3D) ───────────────────────────────────────
-    @SuppressWarnings("unchecked")
+    // ── knowledge graph (3D) from Python /learning-path ───────────
+
     private Map<String, Object> buildKnowledgeGraph(Long userId) {
-        Map<String, Object> graph = knowledgeService.getGraph();
+        // Determine target topic from user's top interest tag
+        List<UserInterestHistory> interests = interestHistoryMapper.selectList(
+                new LambdaQueryWrapper<UserInterestHistory>()
+                        .eq(UserInterestHistory::getUserId, userId)
+                        .orderByDesc(UserInterestHistory::getWeight));
+        String targetTopic = interests.isEmpty() ? "reinforcement learning"
+                : interests.get(0).getInterestTag();
 
-        List<Map<String, Object>> graphNodes = (List<Map<String, Object>>) graph.get("nodes");
-        List<Map<String, Object>> graphEdges = (List<Map<String, Object>>) graph.get("edges");
+        // Gather user's history paper AMiner IDs
+        List<BehaviorLog> behaviors = behaviorLogMapper.selectList(
+                new LambdaQueryWrapper<BehaviorLog>()
+                        .eq(BehaviorLog::getUserId, userId)
+                        .orderByDesc(BehaviorLog::getTimestamp)
+                        .last("LIMIT 20"));
+        Set<Long> paperIds = behaviors.stream().map(BehaviorLog::getPaperId).collect(Collectors.toSet());
+        List<Paper> historyPapers = paperIds.isEmpty() ? List.of()
+                : paperMapper.findByIds(new ArrayList<>(paperIds));
+        List<String> historyAminers = historyPapers.stream()
+                .map(Paper::getAminerId).filter(Objects::nonNull).collect(Collectors.toList());
 
-        // Compute learning path: top 12 nodes as route (greedy traversal by depth)
-        Map<String, Object> learningPath = computeLearningPath(graphNodes, graphEdges);
+        // Call Python /learning-path (uses Neo4j KG, not MySQL)
+        PythonRecClient.LearningPathResponse pyResp = null;
+        try {
+            pyResp = pythonRecClient.getLearningPath(
+                    String.valueOf(userId), targetTopic, historyAminers, 16);
+        } catch (Exception e) {
+            log.warn("Python learning-path 不可用: {}", e.getMessage());
+        }
+
+        if (pyResp == null) {
+            // Ultimate fallback: empty graph (frontend shows placeholder)
+            log.info("Learning path: no Python response, returning empty graph for userId={}", userId);
+            return buildEmptyKnowledge();
+        }
+
+        // Map Python response to expected format
+        List<Map<String, Object>> pathNodes = new ArrayList<>();
+        for (var pn : pyResp.getNodes()) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("id", pn.getNodeId());
+            node.put("name", pn.getLabel());
+            node.put("type", pn.getNodeType());
+            node.put("mastery", pn.getMastery());
+            node.put("depth", pn.getDepth());
+            node.put("year", pn.getYear());
+            node.put("color", pn.getColor() != null ? pn.getColor() : "#3B82F6");
+            node.put("glowIntensity", pn.getGlowIntensity());
+            // Derive group from mastery
+            String group = pn.getMastery() >= 0.7 ? "foundation"
+                    : pn.getMastery() >= 0.4 ? "intermediate" : "target";
+            node.put("group", group);
+            pathNodes.add(node);
+        }
+
+        List<Map<String, Object>> pathEdges = new ArrayList<>();
+        if (pyResp.getEdges() != null) {
+            pathEdges.addAll(pyResp.getEdges());
+        }
+
+        Map<String, Object> learningPath = new HashMap<>();
+        learningPath.put("topic", pyResp.getTopic());
+        learningPath.put("estimatedHours", pyResp.getEstimatedHours());
+        learningPath.put("coverage", pyResp.getCoverage());
+        List<Object> route = new ArrayList<>();
+        for (var pn : pyResp.getNodes()) {
+            route.add(pn.getNodeId());
+        }
+        learningPath.put("route", route);
 
         Map<String, Object> knowledge = new HashMap<>();
-        knowledge.put("nodes", graphNodes);
-        knowledge.put("edges", graphEdges);
+        knowledge.put("nodes", pathNodes);
+        knowledge.put("edges", pathEdges);
         knowledge.put("learningPath", learningPath);
+        knowledge.put("pathNodes", pathNodes);
+        knowledge.put("pathEdges", pathEdges);
         return knowledge;
     }
 
-    private Map<String, Object> computeLearningPath(
-            List<Map<String, Object>> nodes,
-            List<Map<String, Object>> edges) {
-
-        Map<Object, List<Map<String, Object>>> childrenBySource = new HashMap<>();
-        for (var edge : edges) {
-            Object source = edge.get("source");
-            childrenBySource.computeIfAbsent(source, k -> new ArrayList<>()).add(edge);
-        }
-
-        // Find foundation nodes (depth 0) and build BFS route
-        List<Object> route = new ArrayList<>();
-        Set<Object> visited = new HashSet<>();
-        List<Map<String, Object>> foundationNodes = nodes.stream()
-                .filter(n -> Integer.valueOf(0).equals(n.get("depth")))
-                .collect(Collectors.toList());
-
-        for (var start : foundationNodes) {
-            Object startId = start.get("id");
-            if (visited.add(startId)) {
-                route.add(startId);
-                // BFS from foundation
-                List<Object> queue = new ArrayList<>();
-                queue.add(startId);
-                while (!queue.isEmpty() && route.size() < 16) {
-                    Object current = queue.remove(0);
-                    List<Map<String, Object>> children = childrenBySource.getOrDefault(current, List.of());
-                    for (var childEdge : children) {
-                        Object targetId = childEdge.get("target");
-                        if (visited.add(targetId)) {
-                            route.add(targetId);
-                            queue.add(targetId);
-                            if (route.size() >= 16) break;
-                        }
-                    }
-                }
-            }
-            if (route.size() >= 12) break;
-        }
-
-        String topic = "Research Journey";
-        if (!route.isEmpty()) {
-            Object lastId = route.get(route.size() - 1);
-            for (var n : nodes) {
-                if (lastId.equals(n.get("id"))) {
-                    topic = (String) n.getOrDefault("name", topic);
-                    break;
-                }
-            }
-        }
-
-        Map<String, Object> path = new HashMap<>();
-        path.put("topic", topic);
-        path.put("estimatedHours", Math.round(route.size() * 2.5 * 10.0) / 10.0);
-        path.put("coverage", Math.min(1.0, Math.round((double) route.size() / nodes.size() * 100.0) / 100.0));
-        path.put("route", route);
-        return path;
+    private Map<String, Object> buildEmptyKnowledge() {
+        Map<String, Object> knowledge = new HashMap<>();
+        knowledge.put("nodes", List.of());
+        knowledge.put("edges", List.of());
+        knowledge.put("learningPath", Map.of("topic", "", "estimatedHours", 0, "coverage", 0, "route", List.of()));
+        knowledge.put("pathNodes", List.of());
+        knowledge.put("pathEdges", List.of());
+        return knowledge;
     }
 
     // ── utility methods ────────────────────────────────────────────
@@ -314,12 +342,11 @@ public class VisualizationServiceImpl implements VisualizationService {
     }
 
     private Map<String, Integer> buildKeywordFrequencyMap() {
-        List<Paper> papers = paperMapper.selectList(null);
+        // Aggregate keyword frequencies from user_interest_history (avoids full paper scan)
+        List<UserInterestHistory> allInterests = interestHistoryMapper.selectList(null);
         Map<String, Integer> freq = new HashMap<>();
-        for (Paper paper : papers) {
-            for (String kw : parseJsonArray(paper.getKeywords())) {
-                freq.merge(kw, 1, Integer::sum);
-            }
+        for (UserInterestHistory h : allInterests) {
+            freq.merge(h.getInterestTag(), (int) (h.getWeight() * 10), Integer::sum);
         }
         return freq;
     }

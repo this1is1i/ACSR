@@ -64,33 +64,3 @@ class WeightedRewardFunction(BaseRewardFunction):
             + self.zeta  * signal.kg_topology_score
         )
         return float(r)
-
-
-class CuriosityAugmentedReward(BaseRewardFunction):
-    """
-    好奇心增强奖励（预留接口）。
-    用于奖励探索行为，防止推荐系统陷入信息茧房。
-    实现时可接入 ICM（Intrinsic Curiosity Module）。
-    """
-
-    def __init__(self, base_fn: BaseRewardFunction, curiosity_weight: float = 0.3):
-        self.base_fn = base_fn
-        self.curiosity_weight = curiosity_weight
-
-    def compute(self, signal: InteractionSignal, curiosity_bonus: float = 0.0) -> float:  # type: ignore[override]
-        base_r = self.base_fn.compute(signal)
-        return base_r + self.curiosity_weight * curiosity_bonus
-
-
-class LongTermValueEstimator:
-    """
-    长期科研价值估计器接口（预留）。
-    可对接知识图谱、引用网络、用户职业发展轨迹等外部模型。
-    """
-
-    def estimate(self, user_embedding, item_embedding) -> float:
-        """
-        子类实现具体的长期价值估计逻辑。
-        当前返回 0.0 作为占位。
-        """
-        return 0.0

@@ -19,6 +19,7 @@ from agent import ActorCriticAgent
 from env.rec_env import ResearchRecEnv
 from utils.logger import TrainingLogger
 from utils.reward import WeightedRewardFunction
+from knowledge_graph.kg_embedder import create_kg_embedder
 
 logger = logging.getLogger(__name__)
 
@@ -61,29 +62,6 @@ class GracefulStopController:
             signal.signal(sig, handler)
 
 
-def _build_kg_embedder(config: Config):
-    """构建知识图谱及 Embedder（可选）。"""
-    if not config.use_kg:
-        return None
-    try:
-        from dataset.aminer_loader import AMinerLoader
-        from knowledge_graph.kg_builder import KGBuilder
-        from knowledge_graph.kg_embedder import KGEmbedder
-
-        loader = AMinerLoader()
-        papers = loader.load_papers(limit=500)
-        authors = loader.load_authors(limit=200)
-        citations = loader.load_citations(papers)
-
-        kg = KGBuilder(min_keyword_freq=1).build(papers, authors, citations)
-        embedder = KGEmbedder(kg, embed_dim=config.kg_embedding_dim)
-        logger.info(f"KG Embedder 构建完成：{len(papers)} 篇论文")
-        return embedder
-    except Exception as e:
-        logger.warning(f"KG Embedder 构建失败，回退为无 KG 模式: {e}")
-        return None
-
-
 def train(
     config: Optional[Config] = None,
     stop_controller: Optional[GracefulStopController] = None,
@@ -100,13 +78,14 @@ def train(
                 agent.update(...)
                 state = next_state
     """
-    config = config or default_config
+    import copy
+    config = copy.copy(config or default_config)
     stop_controller = stop_controller or GracefulStopController()
     torch.manual_seed(42)
     np.random.seed(42)
 
     # ── 初始化组件 ────────────────────────────────────────────────
-    kg_embedder = _build_kg_embedder(config)
+    kg_embedder, _ = create_kg_embedder(config)
     reward_fn = WeightedRewardFunction(config.reward_weights)
     env = ResearchRecEnv(config=config, reward_fn=reward_fn, kg_embedder=kg_embedder)
     agent = ActorCriticAgent(config=config)
@@ -239,10 +218,7 @@ if __name__ == "__main__":
         controller.restore_signal_handlers(previous_handlers)
 
     # ── 推理演示 ──────────────────────────────────────────────────
-    print("\n[推理演示] 调用 REST API 接口格式：")
-    dummy_request = {
-        "interest_vector": np.random.randn(default_config.base_state_dim // 2).tolist(),
-        "history_vector":  np.random.randn(default_config.base_state_dim // 2).tolist(),
-    }
-    result = trained_agent.predict_for_api(dummy_request)
-    print(f"  推荐结果: {result}")
+    print("\n[推理演示] Top-K 推荐：")
+    state = np.random.randn(default_config.state_dim).astype(np.float32)
+    indices, probs = trained_agent.recommend_top_k(state, k=default_config.top_k)
+    print(f"  Top-{default_config.top_k}: indices={indices}, probs={[round(p, 4) for p in probs]}")

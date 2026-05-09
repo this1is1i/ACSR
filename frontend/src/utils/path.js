@@ -38,7 +38,8 @@ export function getPathStepMeta(step) {
 export function buildLearningPathSummary(visualization = {}) {
   const knowledge = visualization?.knowledge || {}
   const learningPath = knowledge.learningPath || {}
-  const nodes = Array.isArray(knowledge.nodes) ? knowledge.nodes : []
+  const nodes = Array.isArray(knowledge.pathNodes) ? knowledge.pathNodes
+    : Array.isArray(knowledge.nodes) ? knowledge.nodes : []
   const route = Array.isArray(learningPath.route) ? learningPath.route : []
   const nodeMap = new Map(nodes.map((node) => [String(node.id), node]))
 

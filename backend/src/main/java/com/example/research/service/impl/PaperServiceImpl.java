@@ -82,6 +82,12 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
+    public List<Paper> getByPaperIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return paperMapper.findByIds(ids);
+    }
+
+    @Override
     public List<Paper> getByAminers(List<String> aminers) {
         if (aminers == null || aminers.isEmpty()) return List.of();
 

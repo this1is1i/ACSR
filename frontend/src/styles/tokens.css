@@ -41,6 +41,16 @@
   --shell-content-gap: 1.75rem;
   --shell-max-width: 100rem;
 
+  /* Functional area card accents */
+  --color-area-recommend: #7c8cff;
+  --color-area-search: #34d399;
+  --color-area-knowledge: #f59e0b;
+  --color-area-community: #ec4899;
+  --color-area-profile: #8b5cf6;
+  --color-area-admin: #ef4444;
+  --color-area-learning: #06b6d4;
+  --color-area-chat: #10b981;
+
   --primary: var(--color-accent-primary);
   --secondary: #8b5cf6;
   --accent: var(--color-accent-secondary);
@@ -81,4 +91,14 @@
   --text-secondary: var(--color-text-secondary);
   --border: var(--color-border-subtle);
   --design-border: var(--color-border-subtle);
+
+  /* Functional area card accents */
+  --color-area-recommend: #4f46e5;
+  --color-area-search: #059669;
+  --color-area-knowledge: #d97706;
+  --color-area-community: #db2777;
+  --color-area-profile: #7c3aed;
+  --color-area-admin: #dc2626;
+  --color-area-learning: #0891b2;
+  --color-area-chat: #059669;
 }
