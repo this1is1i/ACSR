@@ -4,25 +4,6 @@
     <Sidebar />
 
     <main class="main-content">
-      <PageHeader
-        eyebrow="Secondary Search"
-        title="辅助研究搜索工作区"
-        description="把搜索放进稳定的辅助工作台：左侧固定筛选，右侧持续比较结果，再无缝进入论文阅读画布。"
-      >
-        <template #actions>
-          <div class="search-header-status">
-            <div class="search-header-status__item">
-              <span>当前检索</span>
-              <strong>{{ keyword || '等待输入' }}</strong>
-            </div>
-            <div class="search-header-status__item">
-              <span>结果规模</span>
-              <strong>{{ total }} 篇</strong>
-            </div>
-          </div>
-        </template>
-      </PageHeader>
-
       <section class="search-section">
         <div class="search-container glass">
           <div class="search-box">
@@ -98,9 +79,7 @@
           </div>
 
           <div v-if="loading" class="results-empty card glass">正在整理与你的检索相关的论文结果...</div>
-          <div v-else-if="!results.length" class="results-empty card glass">
-            输入关键词后，可在这里持续比较论文、筛选路径并进入阅读画布。
-          </div>
+          <div v-else-if="!results.length" class="results-empty card glass">暂无搜索结果</div>
           <div v-else class="results-list">
             <SearchResultCard
               v-for="paper in pagedResults"
@@ -138,7 +117,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { searchPapers } from '@/api/paper'
 import { recordFavorite } from '@/api/recommend'
 import Sidebar from '@/components/Sidebar.vue'
-import PageHeader from '@/components/layout/PageHeader.vue'
 import SearchFilterRail from '@/components/search/SearchFilterRail.vue'
 import SearchResultCard from '@/components/search/SearchResultCard.vue'
 import { useUserStore } from '@/store/userStore'

@@ -9,7 +9,10 @@
     </div>
 
     <div class="sidebar__profile">
-      <div class="sidebar__avatar">{{ displayAvatar }}</div>
+      <div class="sidebar__avatar">
+        <img v-if="userAvatar" :src="userAvatar" class="sidebar__avatar-img" alt="avatar" />
+        <span v-else>{{ displayAvatar }}</span>
+      </div>
       <div class="sidebar__profile-copy">
         <strong class="sidebar__name">{{ username }}</strong>
         <span class="sidebar__role">{{ roleLabel }}</span>
@@ -60,6 +63,7 @@ const roleLabel = computed(() => userInfo.value?.roleLabel || '访客模式')
 const isLoggedIn = computed(() => !!token.value)
 const isAdmin = computed(() => userInfo.value?.role === 'ADMIN')
 const displayAvatar = computed(() => (username.value ? username.value.charAt(0).toUpperCase() : 'U'))
+const userAvatar = computed(() => userInfo.value?.avatar || '')
 
 const exploreItems = computed(() => [
   ...(isLoggedIn.value ? [{ to: '/home', label: '研究中心', description: '推荐与路径', icon: '研' }] : []),
@@ -108,7 +112,7 @@ function toggleTheme() {
 onMounted(async () => {
   applyTheme(localStorage.getItem('theme') || 'dark')
 
-  if (token.value && !userInfo.value) {
+  if (token.value) {
     try {
       await userStore.fetchProfile()
     } catch {
@@ -188,6 +192,13 @@ onMounted(async () => {
   font-weight: 700;
   color: #fff;
   background: linear-gradient(135deg, var(--primary), var(--secondary));
+  overflow: hidden;
+}
+.sidebar__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-md);
 }
 
 .sidebar__profile-copy {

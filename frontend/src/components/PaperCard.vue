@@ -123,6 +123,7 @@ async function handleFavorite() {
   display: grid;
   gap: var(--space-3);
   padding: clamp(1.2rem, 2vw, 1.5rem);
+  overflow: hidden;
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-xl);
   background:
@@ -151,6 +152,7 @@ async function handleFavorite() {
 .paper-card__title-group {
   display: grid;
   gap: var(--space-2);
+  min-width: 0;
 }
 
 .paper-card__eyebrow {
@@ -169,7 +171,7 @@ async function handleFavorite() {
 
 .title {
   color: var(--color-text-primary);
-  font-size: 1.02rem;
+  font-size: 1.02rem; line-height: 1.5; overflow-wrap: break-word; word-break: break-word;
   line-height: 1.5;
 }
 

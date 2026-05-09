@@ -40,5 +40,6 @@ defineProps({
 .recommend-list__stack {
   display: grid;
   gap: var(--space-4);
+  min-width: 0;
 }
 </style>

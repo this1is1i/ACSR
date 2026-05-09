@@ -4,9 +4,7 @@
     <main class="main-content">
       <header class="workspace-header card glass">
         <div>
-          <p class="workspace-eyebrow">Realtime Collaboration</p>
           <h2>💬 协作消息工作台</h2>
-          <p class="hint">沿用当前 REST + WebSocket/STOMP 流程，把会话、论文线索与路径推进放进一个共享工作区。</p>
         </div>
         <div class="thread-pills">
           <span class="thread-pill">实时同步</span>
@@ -84,7 +82,7 @@ const meId = localStorage.getItem('userId') ? Number(localStorage.getItem('userI
 
 const selectedContact = computed(() => contacts.value.find(contact => contact.id == selected.value) || null)
 const selectedSummary = computed(() => {
-  if (!selectedContact.value) return '选择左侧会话后，消息、论文线索与行动路径会在这里保持同步。'
+  if (!selectedContact.value) return '选择左侧会话开始协作'
   if (selectedContact.value.lastMessage) return selectedContact.value.lastMessage
   return '当前会话还没有消息，发送第一条协作信息开始同步。'
 })
@@ -280,7 +278,7 @@ onBeforeUnmount(() => { if (stompClient && stompClient.deactivate) stompClient.d
 </script>
 
 <style scoped>
-.main-content { margin-left:260px; padding:28px }
+.main-content { padding:28px }
 .workspace-header { margin-bottom:18px; padding:24px; display:flex; justify-content:space-between; gap:16px; align-items:center }
 .workspace-eyebrow { margin-bottom:8px; font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-accent-secondary) }
 .chat-panel { display:grid; grid-template-columns: 340px minmax(0, 1fr); gap:18px; align-items:start }

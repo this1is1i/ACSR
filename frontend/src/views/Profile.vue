@@ -5,9 +5,7 @@
     <main class="main-content">
       <header class="header">
         <div class="page-title">
-          <p class="page-title__eyebrow">Future Lab</p>
           <h2>👤 研究身份与资产</h2>
-          <p>优先展示与你当前路径、推荐流与研究画像直接相关的核心资产。</p>
         </div>
         <div class="header-actions">
           <button class="btn secondary" @click="logout">退出登录</button>
@@ -35,15 +33,6 @@
       </div>
 
       <div class="profile-grid">
-        <ResearchAssetsPanel
-          :loading="assetsLoading"
-          :profile="profile"
-          :summary="pathSummary"
-          :recommendations="recommendations"
-          :interests="interestItems"
-          @view-path="router.push('/knowledge-graph')"
-        />
-
         <div class="profile-card card animate-fade-up" data-area="profile">
           <div class="card-header">
             <div class="card-title">
@@ -73,25 +62,6 @@
         <div class="profile-card card animate-fade-up" data-area="profile">
           <div class="card-header">
             <div class="card-title">
-              <div class="card-icon">⚙️</div>
-              个性化设置
-            </div>
-          </div>
-
-          <div class="settings-list">
-            <div class="setting-item" v-for="(s, idx) in settings" :key="idx">
-              <div class="setting-info">
-                <h5>{{ s.title }}</h5>
-                <p>{{ s.desc }}</p>
-              </div>
-              <div class="toggle" :class="{ active: s.enabled }" @click="toggleSetting(idx)"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="profile-card card animate-fade-up" data-area="profile">
-          <div class="card-header">
-            <div class="card-title">
               <div class="card-icon">🕐</div>
               最近活动
             </div>
@@ -102,7 +72,7 @@
             <div class="empty-hint">加载中...</div>
           </div>
           <div class="history-list" v-else-if="history.length">
-            <div v-for="(h, idx) in history" :key="idx" class="history-item">
+            <div v-for="(h, idx) in pagedHistory" :key="idx" class="history-item">
               <div class="history-icon">{{ h.icon }}</div>
               <div class="history-text">{{ h.text }}</div>
               <div class="history-time">{{ h.time }}</div>
@@ -110,6 +80,9 @@
           </div>
           <div class="history-list" v-else>
             <div class="empty-hint">暂无活动记录</div>
+          </div>
+          <div v-if="history.length > historyPageSize" class="history-pagination">
+            <el-pagination background :current-page="historyPage" :page-size="historyPageSize" :total="history.length" layout="prev, pager, next" @current-change="historyPage = $event" />
           </div>
         </div>
       </div>
@@ -135,50 +108,25 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
-import ResearchAssetsPanel from '@/components/profile/ResearchAssetsPanel.vue'
-import { getPathSurfaceData } from '@/api/visualization'
-import { buildLearningPathSummary } from '@/utils/path'
 import { getProfile, updateProfile, getFavorites } from '@/api/user'
 import { getActivityHistory, clearActivityHistory } from '@/api/recommend'
 
 const router = useRouter()
 
 const profile = ref({ id: null, username: '', avatar: '', email: '', bio: '', researchInterests: '' })
-const visualizationData = ref({})
-const recommendations = ref([])
-const assetsLoading = ref(false)
 const collectionsLoading = ref(false)
 const historyLoading = ref(false)
-const pathSummary = computed(() => buildLearningPathSummary(visualizationData.value))
 
 const collections = ref([])
 const history = ref([])
+const historyPage = ref(1)
+const historyPageSize = ref(10)
+const pagedHistory = computed(() => {
+  const start = (historyPage.value - 1) * historyPageSize.value
+  return history.value.slice(start, start + historyPageSize.value)
+})
 const interestsEditVisible = ref(false)
 const interestsEditValue = ref('')
-
-const settings = ref(loadSettings())
-
-function loadSettings() {
-  try {
-    const saved = localStorage.getItem('profileSettings')
-    if (saved) return JSON.parse(saved)
-  } catch (e) { /* ignore */ }
-  return [
-    { title: '个性化推荐', desc: '基于阅读历史智能推荐论文', enabled: true },
-    { title: '邮件通知', desc: '接收关注领域的新论文提醒', enabled: true },
-    { title: '社区互动', desc: '允许其他用户查看我的动态', enabled: false },
-    { title: '数据同步', desc: '跨设备同步阅读记录和收藏', enabled: true }
-  ]
-}
-
-function saveSettings() {
-  localStorage.setItem('profileSettings', JSON.stringify(settings.value))
-}
-
-function toggleSetting(i) {
-  settings.value[i].enabled = !settings.value[i].enabled
-  saveSettings()
-}
 
 async function fetchFavorites() {
   collectionsLoading.value = true
@@ -237,7 +185,6 @@ function formatRelativeTime(timestamp) {
 }
 
 function shareProfile() {
-  // Browser share API — no-op when unsupported
   if (navigator.share) {
     navigator.share({ title: profile.value.username + ' 的研究主页', url: window.location.href }).catch(() => {})
   } else {
@@ -273,7 +220,6 @@ async function doClearHistory() {
     history.value = []
     ElMessage.success('已清空')
   } catch (e) {
-    // cancelled or error
     if (e !== 'cancel') console.error('Failed to clear history', e)
   }
 }
@@ -294,18 +240,6 @@ onMounted(async () => {
         profile.value = { id: data.id, username: data.username, avatar: data.avatar, email: data.email, bio: data.bio, researchInterests: data.researchInterests }
       } catch (e) {
         console.error('failed to load profile', e)
-      }
-    })(),
-    (async () => {
-      assetsLoading.value = true
-      try {
-        const surface = await getPathSurfaceData()
-        visualizationData.value = surface.visualization || {}
-        recommendations.value = surface.recommendations || []
-      } catch (e) {
-        console.error('failed to load research assets', e)
-      } finally {
-        assetsLoading.value = false
       }
     })(),
     fetchFavorites(),
@@ -334,9 +268,7 @@ onMounted(async () => {
 }
 
 .main-content {
-  margin-left: 260px;
   min-height: 100vh;
-  padding: 30px 40px;
 }
 
 /* ─── Header ─────────────────────────────────────────────────── */
@@ -481,6 +413,7 @@ onMounted(async () => {
   background: var(--bg-card);
   backdrop-filter: blur(12px);
   min-height: 200px;
+  overflow: hidden;
 }
 
 .profile-card[data-area="profile"] {
@@ -572,71 +505,6 @@ onMounted(async () => {
   margin-top: 2px;
 }
 
-/* ─── Settings Toggles ───────────────────────────────────────── */
-.settings-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.setting-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(148,163,184,0.08);
-}
-
-.setting-item:last-child {
-  border-bottom: none;
-}
-
-.setting-info h5 {
-  margin: 0 0 2px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-.setting-info p {
-  margin: 0;
-  font-size: 12px;
-  color: var(--text);
-}
-
-.toggle {
-  width: 44px;
-  height: 24px;
-  border-radius: 12px;
-  background: rgba(148,163,184,0.2);
-  cursor: pointer;
-  position: relative;
-  transition: background 0.25s ease;
-  flex-shrink: 0;
-}
-
-.toggle::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.toggle.active {
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-}
-
-.toggle.active::after {
-  transform: translateX(20px);
-}
-
 /* ─── History List ───────────────────────────────────────────── */
 .history-list {
   display: flex;
@@ -705,6 +573,12 @@ onMounted(async () => {
 .dialog-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
 /* ─── Empty state ────────────────────────────────────────────── */
+.history-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
 .empty-hint {
   text-align: center; padding: 20px 0; font-size: 13px; color: var(--text);
 }
@@ -712,8 +586,6 @@ onMounted(async () => {
 /* ─── Animation Delays ───────────────────────────────────────── */
 .profile-grid .profile-card:nth-child(1) { animation-delay: 0.1s; }
 .profile-grid .profile-card:nth-child(2) { animation-delay: 0.2s; }
-.profile-grid .profile-card:nth-child(3) { animation-delay: 0.3s; }
-.profile-grid .profile-card:nth-child(4) { animation-delay: 0.4s; }
 
 /* ─── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 1200px) {

@@ -123,6 +123,10 @@
           {{ isRegister ? 'Already have an account?' : "Don't have an account?" }}
           <a href="#" @click.prevent="toggleMode">{{ isRegister ? 'Log In' : 'Sign Up' }}</a>
         </div>
+
+        <div class="guest-link">
+          <a href="#" @click.prevent="goGuest">游客模式</a>
+        </div>
       </div>
     </div>
   </div>
@@ -162,6 +166,10 @@ const orangeEyes = ref(null), orangePupilL = ref(null), orangePupilR = ref(null)
 const orangeMouth = ref(null)
 const yellowEyes = ref(null), yellowPupilL = ref(null), yellowPupilR = ref(null)
 const yellowMouth = ref(null)
+
+function goGuest() {
+  router.push('/search')
+}
 
 function toggleMode() {
   isRegister.value = !isRegister.value
@@ -546,6 +554,9 @@ onBeforeUnmount(() => {
 .signup-link { text-align:center; font-size:13px; color:#888; margin-top:32px }
 .signup-link a { color:#1a1a2e; font-weight:600; text-decoration:none }
 .signup-link a:hover { text-decoration:underline }
+.guest-link { text-align:center; margin-top:16px }
+.guest-link a { color:#6366f1; font-size:13px; text-decoration:none; padding:8px 24px; border:1px solid rgba(99,102,241,0.3); border-radius:20px; transition:all 0.2s }
+.guest-link a:hover { background:rgba(99,102,241,0.1); border-color:#6366f1 }
 
 @media (max-width:900px) {
   #login-page { grid-template-columns:1fr }

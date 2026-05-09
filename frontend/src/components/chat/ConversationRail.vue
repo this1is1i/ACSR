@@ -1,9 +1,7 @@
 <template>
   <aside class="conversation-rail card glass" data-testid="conversation-rail" data-area="chat">
     <div class="rail-heading">
-      <p class="rail-eyebrow">Workspace Rail</p>
       <h3>协作会话</h3>
-      <p>联系人、论文线索和路径推进都在同一个工作台侧栏里。</p>
     </div>
 
     <section class="rail-panel">
@@ -33,49 +31,12 @@
           </div>
         </button>
       </div>
-      <p v-else class="empty-copy">还没有协作会话，选择知识图谱节点后也会在这里显示。</p>
-    </section>
-
-    <section class="rail-panel">
-      <div class="panel-header">
-        <span>主题焦点</span>
-        <small>{{ inferredTopics.length ? '自动提炼' : '等待消息' }}</small>
-      </div>
-      <div v-if="inferredTopics.length" class="topic-chips">
-        <span v-for="topic in inferredTopics" :key="topic" class="topic-chip">{{ topic }}</span>
-      </div>
-      <p v-else class="empty-copy">选择会话后，系统会从消息中提炼当前主题。</p>
-    </section>
-
-    <section class="rail-panel">
-      <div class="panel-header">
-        <span>论文线索</span>
-        <small>来自对话内容</small>
-      </div>
-      <ul v-if="paperSignals.length" class="signal-list">
-        <li v-for="paper in paperSignals" :key="paper">{{ paper }}</li>
-      </ul>
-      <p v-else class="empty-copy">当前对话里还没有识别到明确的论文线索。</p>
-    </section>
-
-    <section class="rail-panel">
-      <div class="panel-header">
-        <span>协作路径</span>
-        <small>从同步到落地</small>
-      </div>
-      <ol class="path-list">
-        <li v-for="step in collaborationPath" :key="step.label" :class="{ active: step.active }">
-          <strong>{{ step.label }}</strong>
-          <span>{{ step.detail }}</span>
-        </li>
-      </ol>
+      <p v-else class="empty-copy">还没有协作会话</p>
     </section>
   </aside>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
 const props = defineProps({
   contacts: {
     type: Array,
@@ -96,73 +57,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select'])
-
-const topicPatterns = [
-  'Actor-Critic',
-  'PPO',
-  'Transformer',
-  'Diffusion',
-  'Graph Neural Network',
-  '强化学习',
-  '图神经网络',
-  '知识图谱',
-]
-
-const selectedContact = computed(() => props.contacts.find(contact => contact.id == props.selectedContactId) || null)
-
-const selectedMessages = computed(() => {
-  if (props.selectedContactId == null) return []
-  return props.messages[props.selectedContactId] || []
-})
-
-const conversationText = computed(() => [
-  selectedContact.value?.lastMessage,
-  ...selectedMessages.value.map(message => message.content),
-].filter(Boolean).join(' '))
-
-const inferredTopics = computed(() => {
-  const text = conversationText.value.toLowerCase()
-  return topicPatterns
-    .filter(topic => text.includes(topic.toLowerCase()))
-    .slice(0, 5)
-})
-
-const paperSignals = computed(() => {
-  const explicitMentions = []
-
-  for (const message of selectedMessages.value) {
-    const content = message.content || ''
-    for (const match of content.matchAll(/([A-Za-z][A-Za-z0-9-]*(?:\s+[A-Za-z][A-Za-z0-9-]*){0,4})\s*论文/gi)) {
-      explicitMentions.push(match[1].trim())
-    }
-  }
-
-  return [...new Set([...explicitMentions, ...inferredTopics.value.filter(topic => /^[A-Za-z0-9-]+$/.test(topic))])].slice(0, 4)
-})
-
-const collaborationPath = computed(() => {
-  const messageCount = selectedMessages.value.length
-  const firstPaper = paperSignals.value[0]
-  const firstTopic = inferredTopics.value[0]
-
-  return [
-    {
-      label: '建立协作线程',
-      detail: selectedContact.value ? `${selectedContact.value.name} 已加入当前工作区。` : '选择一个联系人开始协作。',
-      active: !!selectedContact.value,
-    },
-    {
-      label: '共享论文线索',
-      detail: firstPaper ? `${firstPaper} 已进入当前对话。` : '等待消息中出现论文引用。',
-      active: !!firstPaper,
-    },
-    {
-      label: '推进下一步',
-      detail: firstTopic && messageCount > 1 ? `${firstTopic} 的下一步已经开始协同。` : '继续同步实验、写作或阅读分工。',
-      active: !!firstTopic && messageCount > 1,
-    },
-  ]
-})
 
 function displayInitial(name) {
   return (name || 'U').charAt(0).toUpperCase()

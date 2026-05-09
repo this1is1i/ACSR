@@ -44,6 +44,7 @@ defineProps({
   display: grid;
   gap: var(--space-4);
   padding: clamp(1.35rem, 2vw, 1.8rem);
+  overflow: hidden;
 }
 
 .stream-header {

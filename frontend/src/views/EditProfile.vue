@@ -135,7 +135,7 @@ onMounted(load)
 </script>
 
 <style scoped>
-.main-content { margin-left:260px; padding:24px; max-width:820px }
+.main-content { max-width:820px }
 .form-row { display:flex; flex-direction:column; gap:8px; margin-bottom:14px }
 .form-row label { font-weight:600 }
 .form-row input, .form-row textarea { padding:12px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text-primary) }

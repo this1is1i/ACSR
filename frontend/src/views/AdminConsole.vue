@@ -2,25 +2,6 @@
   <div class="admin-root">
     <Sidebar />
     <main class="main-content">
-      <PageHeader
-        eyebrow="Future Lab"
-        title="管理员后台"
-        description="先用驾驶舱总览建立治理态势，再无缝进入帖子审核、论文导入与账号权限工作流。"
-      >
-        <template #actions>
-          <div class="admin-header-status">
-            <article class="admin-header-status__item">
-              <span>最近同步</span>
-              <strong>{{ syncStatusLabel }}</strong>
-            </article>
-            <article class="admin-header-status__item">
-              <span>待处理事项</span>
-              <strong>{{ totalBacklog }} 项</strong>
-            </article>
-          </div>
-        </template>
-      </PageHeader>
-
       <AdminCockpitHero
         :headline="cockpitHeadline"
         :description="cockpitDescription"
@@ -35,9 +16,7 @@
         <div class="admin-workspace">
           <section ref="operationsSection" class="admin-operations card glass" data-testid="admin-operations">
             <div class="admin-operations__intro">
-              <p class="admin-operations__eyebrow">Operations Deck</p>
               <h2>执行面板</h2>
-              <p>以下保留原有的后台操作流：筛选审核、提交导入、修改角色均继续走现有接口。</p>
             </div>
 
             <el-tabs v-model="activeTab" class="admin-tabs">
@@ -56,10 +35,20 @@
                     <el-table-column prop="author.username" label="作者" min-width="120" />
                     <el-table-column prop="statusLabel" label="状态" width="100" />
                     <el-table-column prop="reviewComment" label="审核备注" min-width="180" />
+                    <el-table-column label="查看" width="80">
+                      <template #default="{ row }">
+                        <el-button size="small" text type="primary" @click="openPostPreview(row)">查看</el-button>
+                      </template>
+                    </el-table-column>
                     <el-table-column label="操作" width="220">
                       <template #default="{ row }">
-                        <el-button size="small" type="success" @click="updatePostStatus(row, 'APPROVED')">通过</el-button>
-                        <el-button size="small" type="danger" @click="updatePostStatus(row, 'REJECTED')">驳回</el-button>
+                        <template v-if="row.status === 0 || row.status === 'PENDING'">
+                          <el-button size="small" type="success" @click="updatePostStatus(row, 'APPROVED')">通过</el-button>
+                          <el-button size="small" type="danger" @click="updatePostStatus(row, 'REJECTED')">驳回</el-button>
+                        </template>
+                        <template v-else>
+                          <el-button size="small" type="warning" @click="updatePostStatus(row, 'PENDING')">撤回</el-button>
+                        </template>
                       </template>
                     </el-table-column>
                   </el-table>
@@ -101,6 +90,17 @@
           </el-tabs>
         </section>
       </div>
+
+      <el-dialog v-model="postPreviewVisible" title="帖子内容预览" width="640px">
+        <div v-if="previewPost" class="post-preview">
+          <div class="post-preview__meta">
+            <span class="post-preview__author">作者：{{ previewPost.author?.username || '未知' }}</span>
+            <el-tag size="small">{{ previewPost.statusLabel }}</el-tag>
+          </div>
+          <h3 class="post-preview__title">{{ previewPost.title }}</h3>
+          <div class="post-preview__content">{{ previewPost.content }}</div>
+        </div>
+      </el-dialog>
     </main>
   </div>
 </template>
@@ -111,7 +111,6 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
 import AdminCockpitHero from '@/components/admin/AdminCockpitHero.vue'
 import AdminKpiGrid from '@/components/admin/AdminKpiGrid.vue'
-import PageHeader from '@/components/layout/PageHeader.vue'
 import { getAdminPosts, importAdminPapers, updateAdminPostStatus } from '@/api/admin'
 import { getAdminUsers, updateUserRole } from '@/api/user'
 
@@ -125,20 +124,11 @@ const loadingUsers = ref(false)
 const importingPapers = ref(false)
 const roleDrafts = ref({})
 const operationsSection = ref(null)
+const postPreviewVisible = ref(false)
+const previewPost = ref(null)
 const lastSyncedAt = ref(null)
 const lastImportSummary = ref(null)
-const paperImportText = ref(`[
-  {
-    "aminerId": "manual_demo_001",
-    "title": "A Demo Imported Paper",
-    "abstract": "This paper is imported from the admin console.",
-    "authors": ["Admin User"],
-    "keywords": ["demo", "admin import"],
-    "venue": "Internal Workshop",
-    "year": 2026,
-    "citationCount": 0
-  }
-]`)
+const paperImportText = ref('')
 
 const dashboardLoading = computed(() => loadingPosts.value || loadingUsers.value)
 const postCounts = computed(() => adminPostOverview.value.reduce((summary, post) => {
@@ -183,7 +173,7 @@ const cockpitHeadline = computed(() => (
     : '审核队列已稳定，可直接关注论文导入节奏与账号权限矩阵。'
 ))
 const cockpitDescription = computed(() => (
-  `现有后台接口保持不变：已加载 ${adminUsers.value.length} 个账号与 ${adminPostOverview.value.length} 条帖子状态，导入面板继续复用当前 JSON 提交流程。`
+  `已加载 ${adminUsers.value.length} 个账号与 ${adminPostOverview.value.length} 条帖子`
 ))
 const heroChips = computed(() => ([
   `${postCounts.value.pending} 条待审核帖子`,
@@ -288,6 +278,11 @@ async function loadUsers() {
   }
 }
 
+function openPostPreview(row) {
+  previewPost.value = row
+  postPreviewVisible.value = true
+}
+
 function focusTab(tabName) {
   activeTab.value = tabName
   nextTick(() => {
@@ -296,17 +291,20 @@ function focusTab(tabName) {
 }
 
 async function updatePostStatus(row, status) {
-  const reviewComment = await ElMessageBox.prompt(
-    status === 'REJECTED' ? '请输入驳回原因' : '可选填写审核备注',
-    status === 'REJECTED' ? '驳回帖子' : '通过帖子',
-    {
-      inputValue: row.reviewComment || '',
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-    }
-  ).then(result => result.value).catch(() => null)
+  let reviewComment = ''
+  if (status !== 'PENDING') {
+    reviewComment = await ElMessageBox.prompt(
+      status === 'REJECTED' ? '请输入驳回原因' : '可选填写审核备注',
+      status === 'REJECTED' ? '驳回帖子' : '通过帖子',
+      {
+        inputValue: row.reviewComment || '',
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+      }
+    ).then(result => result.value).catch(() => null)
 
-  if (reviewComment === null) return
+    if (reviewComment === null) return
+  }
 
   await updateAdminPostStatus(row.id, { status, reviewComment })
   ElMessage.success('帖子状态已更新')
@@ -482,6 +480,32 @@ async function saveUserRole(user) {
   .admin-header-status {
     width: 100%;
   }
+}
+
+.post-preview__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.post-preview__author {
+  color: var(--color-text-secondary, #94a3b8);
+  font-size: 14px;
+}
+.post-preview__title {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: var(--color-text-primary, #f8fafc);
+}
+.post-preview__content {
+  padding: 16px;
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.06);
+  color: var(--color-text-secondary, #94a3b8);
+  line-height: 1.8;
+  white-space: pre-wrap;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 @media (max-width: 680px) {

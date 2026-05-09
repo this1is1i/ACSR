@@ -4,9 +4,7 @@
     <Sidebar />
     <main class="main-content">
       <PageHeader
-        eyebrow="Future Lab"
         title="科研社区工作台"
-        description="聚焦帖子、评论与审核后的社区互动，不再让说明性设计卡片占据主界面。"
       />
 
       <div class="workspace-grid">
@@ -271,7 +269,7 @@ function formatTime(value) {
 <style scoped>
 @import '@/style.css';
 
-.main-content { margin-left: 260px; min-height: 100vh; padding: 30px 40px; color: var(--text-primary); }
+.main-content { color: var(--text-primary); }
 .workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; }
 .workspace-main { min-width: 0; }
 .post-creator,

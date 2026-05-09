@@ -3,9 +3,7 @@
     <div class="paper-detail-layout">
       <section class="paper-reading-canvas card glass" data-testid="paper-reading-canvas">
         <PageHeader
-          eyebrow="Reading Canvas"
           :title="paper?.title || '论文阅读画布'"
-          description="在这里连续阅读论文内容，并结合当前路径上下文决定下一步研究动作。"
         />
 
         <div v-if="loading" class="paper-detail-state">正在加载论文详情...</div>

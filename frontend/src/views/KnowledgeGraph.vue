@@ -3,17 +3,6 @@
     <div class="bg-animation"></div>
     <Sidebar />
     <main class="main-content">
-      <header class="header">
-        <div class="page-title">
-          <p class="page-title__eyebrow">Future Lab</p>
-          <h2>🧭 路径沉浸与行为洞察</h2>
-          <p>让学习路径、推荐资产与图谱探索在同一个沉浸式画布里持续联动。</p>
-        </div>
-        <div class="user-info">
-          <div class="user-avatar">A</div>
-        </div>
-      </header>
-
       <div class="viz-surface-layout">
         <PathInsightRail
           :loading="surfaceLoading"
@@ -23,71 +12,7 @@
         />
 
         <div class="viz-surface-layout__main">
-          <div class="time-filter">
-            <button class="time-btn" :class="{ active: activeRange === '7d' }" @click="setRange('7d')">近7天</button>
-            <button class="time-btn" :class="{ active: activeRange === '30d' }" @click="setRange('30d')">近30天</button>
-            <button class="time-btn" :class="{ active: activeRange === '3m' }" @click="setRange('3m')">近3个月</button>
-            <button class="time-btn" :class="{ active: activeRange === '6m' }" @click="setRange('6m')">近6个月</button>
-            <button class="time-btn" :class="{ active: activeRange === '1y' }" @click="setRange('1y')">近1年</button>
-          </div>
-
-          <div class="stats-row">
-            <div class="stat-card" data-area="knowledge">
-              <div class="stat-header">
-                <span class="stat-label">总阅读时长</span>
-                <div class="stat-icon-box">⏱️</div>
-              </div>
-              <div class="stat-value">{{ stats.readTime }}</div>
-              <div class="stat-change positive">↑ {{ stats.readTimeChange }} 较上月</div>
-            </div>
-            <div class="stat-card" data-area="knowledge">
-              <div class="stat-header">
-                <span class="stat-label">阅读论文数</span>
-                <div class="stat-icon-box">📄</div>
-              </div>
-              <div class="stat-value">{{ stats.readCount }}</div>
-              <div class="stat-change positive">↑ {{ stats.readCountChange }} 新增</div>
-            </div>
-            <div class="stat-card" data-area="knowledge">
-              <div class="stat-header">
-                <span class="stat-label">活跃领域</span>
-                <div class="stat-icon-box">🎯</div>
-              </div>
-              <div class="stat-value">{{ stats.activeFields }}</div>
-              <div class="stat-change positive">↑ {{ stats.activeFieldsChange }} 新领域</div>
-            </div>
-            <div class="stat-card" data-area="knowledge">
-              <div class="stat-header">
-                <span class="stat-label">研究深度</span>
-                <div class="stat-icon-box">📈</div>
-              </div>
-              <div class="stat-value">{{ stats.depth }}</div>
-              <div class="stat-change positive">↑ {{ stats.depthChange }} 提升</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="charts-grid">
-        <div class="chart-card" data-area="knowledge">
-          <div class="chart-header">
-            <div class="chart-title"><div class="chart-icon">📈</div>兴趣演化趋势</div>
-            <div class="chart-actions">
-              <button class="chart-btn" @click="setChartView('week')">周视图</button>
-              <button class="chart-btn" @click="setChartView('month')">月视图</button>
-            </div>
-          </div>
-          <div class="chart-container large"><canvas ref="interestChartRef"></canvas></div>
-        </div>
-
-        <div class="chart-card" data-area="knowledge">
-          <div class="chart-header"><div class="chart-title"><div class="chart-icon">☁️</div>兴趣标签云</div></div>
-          <div class="tag-cloud">
-            <span v-for="(t, idx) in tagCloud" :key="idx" :class="['cloud-tag', 'size-'+t.size]">{{ t.text }}</span>
-          </div>
-        </div>
-
-        <div class="chart-card fullwidth-chart" :class="{ 'kg-fullscreen': isFullscreen }" ref="kgCardRef">
+          <div class="chart-card fullwidth-chart" :class="{ 'kg-fullscreen': isFullscreen }" ref="kgCardRef">
           <div class="chart-header">
             <div class="chart-title"><div class="chart-icon">🧭</div>知识图谱与学习路线</div>
             <div class="chart-actions kg-controls">
@@ -150,6 +75,7 @@
           </div>
         </div>
       </div>
+      </div>
     </main>
   </div>
 </template>
@@ -158,16 +84,9 @@
 import { computed, ref, reactive, onMounted, onBeforeUnmount, watch } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
 import PathInsightRail from '@/components/path/PathInsightRail.vue'
-import Chart from 'chart.js/auto'
 import * as THREE from 'three'
 import { getPathSurfaceData } from '@/api/visualization'
 import { buildLearningPathSummary } from '@/utils/path'
-
-const activeRange = ref('30d')
-const stats = ref({ readTime: '42.5h', readTimeChange: '18%', readCount: 128, readCountChange: '24', activeFields: 6, activeFieldsChange: 2, depth: 85.3, depthChange: '5.2' })
-
-const interestChartRef = ref(null)
-let interestChart = null
 
 // knowledge graph refs
 const kgContainer = ref(null)
@@ -193,52 +112,6 @@ const insightNode = computed(() => {
   const activeId = currentRoute.value[currentStep.value]
   return pathSummary.value.steps.find((step) => String(step.id) === String(activeId)) || null
 })
-
-const tagCloud = ref([
-  { text: '深度学习', size: 5 },{ text: '神经网络', size: 4 },{ text: '计算机视觉', size: 4 },{ text: 'Transformer', size: 3 },{ text: '强化学习', size: 3 },{ text: 'GAN', size: 3 },{ text: '目标检测', size: 2 },{ text: '语义分割', size: 2 },{ text: '迁移学习', size: 2 },{ text: '联邦学习', size: 1 },{ text: '自监督', size: 1 },{ text: '对比学习', size: 1 },{ text: '多模态', size: 1 },{ text: '知识蒸馏', size: 1 }
-])
-
-const chartView = ref('month')
-
-function setRange(r) { activeRange.value = r }
-function setChartView(v) {
-  chartView.value = v
-  if (interestChart && visualizationData.value?.interest) {
-    rebuildInterestChart(visualizationData.value.interest)
-  }
-}
-
-function rebuildInterestChart(interestData) {
-  if (!interestChartRef.value || !interestData) return
-  const ctx = interestChartRef.value.getContext('2d')
-  interestChart.destroy()
-  const labels = interestData.labels || []
-  const datasets = (interestData.datasets || []).map((s, idx) => {
-    const allData = s.data || []
-    // Week view: show last 4 data points; Month view: show all
-    const sliceCount = chartView.value === 'week' ? Math.min(4, allData.length) : allData.length
-    const slicedData = allData.slice(-sliceCount)
-    const slicedLabels = labels.slice(-sliceCount)
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400)
-    gradient.addColorStop(0, idx === 0 ? 'rgba(99,102,241,0.3)' : 'rgba(6,182,212,0.3)')
-    gradient.addColorStop(1, 'rgba(0,0,0,0)')
-    return {
-      label: s.label,
-      data: slicedData,
-      borderColor: idx === 0 ? '#6366f1' : '#06b6d4',
-      backgroundColor: gradient,
-      fill: true,
-      tension: 0.4
-    }
-  })
-  const sliceCount = chartView.value === 'week' ? Math.min(4, labels.length) : labels.length
-  interestChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels: labels.slice(-sliceCount), datasets },
-    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,0.1)' } }, x: { grid: { display: false } } } }
-  })
-}
-
 
 function depthLabel(d) {
   return ['基础 (已掌握)', '中级 (进行中)', '目标方向', '论文阅读'][d] || `层级 ${d}`
@@ -278,8 +151,8 @@ async function initKnowledgeGraph(data) {
   const rawLinks = (hasPathNodes && data.pathEdges && data.pathEdges.length) ? data.pathEdges : (data.links || data.edges || [])
   const normLinks = rawLinks.map(l => ({
     ...l,
-    source: (l.source && l.source.id) ? l.source.id : l.source,
-    target: (l.target && l.target.id) ? l.target.id : l.target,
+    source: (l.source && l.source.id) ? l.source.id : (l.source || l.src),
+    target: (l.target && l.target.id) ? l.target.id : (l.target || l.dst),
     _highlight: false,
     _pathEdge: false,
   }))
@@ -535,35 +408,6 @@ onMounted(async () => {
     visualizationData.value = data
     recommendations.value = surface.recommendations || []
 
-    if (data.stats) stats.value = data.stats
-
-    // interest chart
-    if (interestChartRef.value && data.interest) {
-      const ctx = interestChartRef.value.getContext('2d')
-      const gradient1 = ctx.createLinearGradient(0,0,0,400)
-      gradient1.addColorStop(0,'rgba(99,102,241,0.3)')
-      gradient1.addColorStop(1,'rgba(99,102,241,0)')
-      const gradient2 = ctx.createLinearGradient(0,0,0,400)
-      gradient2.addColorStop(0,'rgba(6,182,212,0.3)')
-      gradient2.addColorStop(1,'rgba(6,182,212,0)')
-      interestChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: data.interest.labels,
-          datasets: data.interest.datasets.map((s, idx) => ({
-            label: s.label,
-            data: s.data,
-            borderColor: idx === 0 ? '#6366f1' : '#06b6d4',
-            backgroundColor: idx === 0 ? gradient1 : gradient2,
-            fill: true,
-            tension: 0.4
-          }))
-        },
-        options: { responsive:true, maintainAspectRatio:false, interaction:{ mode:'index', intersect:false }, plugins:{ legend:{ position:'top' } }, scales:{ y:{ beginAtZero:true, grid:{ color:'rgba(148,163,184,0.1)' } }, x:{ grid:{ display:false } } } }
-      })
-    }
-    if (data.tags) tagCloud.value = data.tags
-
     // 3D knowledge graph & learning path
     if (data.knowledge) {
       await initKnowledgeGraph(data.knowledge)
@@ -578,186 +422,165 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   document.removeEventListener('fullscreenchange', onFullscreenChange)
   stopRoute()
-  if (interestChart) interestChart.destroy()
   if (Graph3D) { Graph3D._destructor && Graph3D._destructor() }
 })
 </script>
 
 <style scoped>
-:root { --primary: #6366f1; --primary-dark:#4f46e5; --secondary:#8b5cf6; --accent:#06b6d4; --bg-dark:#0f172a; --bg-card:rgba(30,41,59,0.7); --bg-hover:rgba(51,65,85,0.8); --text-primary:#f8fafc; --text-secondary:#94a3b8; --border:rgba(148,163,184,0.1); --shadow:0 25px 50px -12px rgba(0,0,0,0.5) }
-.viz-root { min-height:100vh; background:var(--bg-dark); color:var(--text-primary); overflow-x:hidden }
-.bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%) }
-.main-content { margin-left:260px; min-height:100vh; padding:30px 40px }
-.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; padding:20px 30px; background:var(--bg-card); backdrop-filter: blur(20px); border-radius:20px; border:1px solid var(--border) }
-.page-title h2 { font-size:28px; font-weight:700; margin-bottom:8px }
-.page-title__eyebrow { margin-bottom: 8px; font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent-secondary) }
-.page-title p { color:var(--text-secondary); font-size:15px }
-.user-avatar { width:45px; height:45px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center; font-weight:600 }
-.viz-surface-layout { display:grid; gap:24px; margin-bottom:30px }
-.viz-surface-layout__main { display:grid; gap:24px; align-content:start }
-.time-filter { display:flex; flex-wrap:wrap; gap:10px; width:fit-content; max-width:min(100%, 34rem); margin-bottom:30px }
-.viz-surface-layout__main .time-filter { margin-bottom:0 }
-.time-btn { padding:12px 24px; border-radius:12px; border:1px solid var(--border); background: rgba(255,255,255,0.05); color:var(--text-secondary); font-size:14px; cursor:pointer; transition: all 0.2s }
-.time-btn.active, .time-btn:hover { background:var(--primary); color:white; border-color:var(--primary); transform: translateY(-2px) }
-.charts-grid { display:grid; grid-template-columns:2fr 1fr; gap:30px; margin-bottom:30px }
-.chart-card { background:var(--bg-card); backdrop-filter: blur(20px); border-radius:24px; border:1px solid var(--border); border-left:3px solid transparent; padding:30px }
+.viz-root {
+  min-height: 100vh;
+  background: var(--bg-dark, #0f172a);
+  color: var(--text-primary, #f8fafc);
+}
+.bg-animation {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+}
+
+/* ── Layout ─────────────────────────────────────────────────── */
+.viz-surface-layout { display: grid; gap: 24px; margin-bottom: 30px }
+.viz-surface-layout__main { display: grid; gap: 24px; align-content: start }
+.chart-card {
+  background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(20px);
+  border-radius: 24px; border: 1px solid rgba(148, 163, 184, 0.1);
+  border-left: 3px solid transparent; padding: 30px; overflow: hidden;
+}
 .chart-card[data-area="knowledge"] { border-left-color: var(--color-area-knowledge) }
-.chart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; flex-wrap:wrap; gap:12px }
-.chart-title { font-size:18px; font-weight:600; display:flex; align-items:center; gap:10px }
-.chart-icon { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,var(--primary),var(--secondary)); display:flex; align-items:center; justify-content:center; font-size:18px }
-.chart-actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap }
-.chart-btn { padding:8px 16px; border-radius:8px; border:1px solid var(--border); background: rgba(255,255,255,0.05); color:var(--text-secondary); cursor:pointer; transition: all 0.2s; font-size:13px }
-.chart-btn:hover:not(:disabled) { background:var(--primary); color:white }
-.chart-btn:disabled { opacity:0.4; cursor:not-allowed }
-.chart-container { position:relative; height:300px }
-.chart-container.large { height:400px }
-.tag-cloud { display:flex; flex-wrap:wrap; gap:12px; padding:20px 0 }
-.cloud-tag { padding:10px 20px; border-radius:25px; font-weight:500; cursor:pointer; position:relative; overflow:hidden; transition: all 0.2s }
-.cloud-tag.size-1 { font-size:12px; background: rgba(99,102,241,0.2); color:#818cf8 }
-.cloud-tag.size-2 { font-size:14px; background: rgba(99,102,241,0.3); color:#a5b4fc }
-.cloud-tag.size-3 { font-size:16px; background: rgba(99,102,241,0.4); color:#c7d2fe }
-.cloud-tag.size-4 { font-size:18px; background: rgba(99,102,241,0.5); color:#e0e7ff }
-.cloud-tag.size-5 { font-size:20px; background: linear-gradient(135deg,var(--primary),var(--secondary)); color:white }
-.cloud-tag:hover { transform:scale(1.1) rotate(2deg); box-shadow:0 10px 30px rgba(99,102,241,0.3) }
-.stats-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(14rem, 16.5rem)); gap:20px; justify-content:start; margin-bottom:0 }
-.stat-card { background:var(--bg-card); border-radius:20px; padding:25px; border:1px solid var(--border); border-left:3px solid transparent }
-.stat-card[data-area="knowledge"] { border-left-color: var(--color-area-knowledge) }
-.stat-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px }
-.stat-label { font-size:14px; color:var(--text-secondary) }
-.stat-icon-box { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px }
-.stat-value { font-size:28px; font-weight:700; margin-bottom:8px }
-.stat-change { font-size:13px; display:flex; align-items:center; gap:5px }
-.stat-change.positive { color:#10b981 }
-.fullwidth-chart { grid-column:1 / -1 }
+.chart-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 25px; flex-wrap: wrap; gap: 12px;
+}
+.chart-title { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px }
+.chart-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.chart-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap }
+.chart-btn {
+  padding: 8px 16px; border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(255, 255, 255, 0.05); color: #94a3b8;
+  cursor: pointer; transition: all 0.2s; font-size: 13px;
+}
+.chart-btn:hover:not(:disabled) { background: #6366f1; color: white }
+.chart-btn:disabled { opacity: 0.4; cursor: not-allowed }
+.fullwidth-chart { grid-column: 1 / -1 }
 
-/* ── Fullscreen mode ──────────────────────────────────────────── */
+/* ── Fullscreen mode ────────────────────────────────────────── */
 .fullscreen-btn {
-  background:linear-gradient(135deg, rgba(99,102,241,0.3), rgba(6,182,212,0.3)) !important;
-  border-color:rgba(99,102,241,0.4) !important; color:#e2e8f0 !important;
-  font-size:13px; min-width:90px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(6, 182, 212, 0.3)) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important; color: #e2e8f0 !important;
+  font-size: 13px; min-width: 90px;
 }
-.fullscreen-btn:hover { background:linear-gradient(135deg, var(--primary), var(--accent)) !important; color:white !important }
-
+.fullscreen-btn:hover {
+  background: linear-gradient(135deg, #6366f1, #06b6d4) !important; color: white !important;
+}
 .kg-fullscreen {
-  position:fixed !important; top:0; left:0; right:0; bottom:0;
-  z-index:9999; margin:0; border-radius:0 !important;
-  background:#0f172a !important; padding:20px 24px;
-  display:flex; flex-direction:column;
+  position: fixed !important; top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9999; margin: 0; border-radius: 0 !important;
+  background: #0f172a !important; padding: 20px 24px;
+  display: flex; flex-direction: column;
 }
-.kg-fullscreen .chart-header { flex-shrink:0 }
-.kg-fullscreen .path-info-bar { flex-shrink:0 }
-.kg-fullscreen .kg-layout { flex:1; min-height:0 }
-.kg-fullscreen .kg-canvas-wrap { flex:1; min-height:0 }
-.kg-fullscreen .kg-canvas { height:100% !important }
+.kg-fullscreen .chart-header { flex-shrink: 0 }
+.kg-fullscreen .path-info-bar { flex-shrink: 0 }
+.kg-fullscreen .kg-layout { flex: 1; min-height: 0 }
+.kg-fullscreen .kg-canvas-wrap { flex: 1; min-height: 0 }
+.kg-fullscreen .kg-canvas { height: 100% !important }
 
-/* ── Knowledge Graph 3D Section ──────────────────────────────── */
-.kg-controls { display:flex; flex-direction:column; gap:10px; align-items:flex-end }
-.kg-buttons { display:flex; gap:8px; align-items:center; flex-wrap:wrap }
-.play-btn { background:linear-gradient(135deg, var(--primary), var(--secondary)) !important; color:white !important; border-color:transparent !important; min-width:80px }
-.reset-btn:hover { background:#ef4444 !important; border-color:#ef4444 !important; color:white !important }
-.speed-select {
-  padding:6px 12px; border-radius:8px; border:1px solid var(--border);
-  background:rgba(255,255,255,0.05); color:var(--text-secondary);
-  font-size:13px; cursor:pointer; outline:none;
+/* ── KG controls ────────────────────────────────────────────── */
+.kg-controls { display: flex; flex-direction: column; gap: 10px; align-items: flex-end }
+.kg-buttons { display: flex; gap: 8px; align-items: center; flex-wrap: wrap }
+.play-btn {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  color: white !important; border-color: transparent !important; min-width: 80px;
 }
-.speed-select option { background:#1e293b; color:#e2e8f0 }
+.reset-btn:hover { background: #ef4444 !important; border-color: #ef4444 !important; color: white !important }
+.speed-select {
+  padding: 6px 12px; border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(255, 255, 255, 0.05); color: #94a3b8;
+  font-size: 13px; cursor: pointer; outline: none;
+}
+.speed-select option { background: #1e293b; color: #e2e8f0 }
 
 /* Mastery legend */
-.mastery-legend { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-secondary) }
-.legend-bar {
-  width:120px; height:8px; border-radius:4px;
-  background: linear-gradient(to right, #3B82F6, #F59E0B, #10B981);
-}
-.legend-min { color:#3B82F6; font-size:11px }
-.legend-max { color:#10B981; font-size:11px }
+.mastery-legend { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #94a3b8 }
+.legend-bar { width: 120px; height: 8px; border-radius: 4px; background: linear-gradient(to right, #3B82F6, #F59E0B, #10B981) }
+.legend-min { color: #3B82F6; font-size: 11px }
+.legend-max { color: #10B981; font-size: 11px }
 
 /* Path info bar */
 .path-info-bar {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:14px 20px; margin-bottom:16px;
-  background:rgba(99,102,241,0.08); border-radius:14px;
-  border:1px solid rgba(99,102,241,0.15);
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 20px; margin-bottom: 16px;
+  background: rgba(99, 102, 241, 0.08); border-radius: 14px;
+  border: 1px solid rgba(99, 102, 241, 0.15);
 }
-.path-meta { display:flex; gap:16px; flex-wrap:wrap }
+.path-meta { display: flex; gap: 16px; flex-wrap: wrap }
 .meta-chip {
-  display:flex; align-items:center; gap:6px;
-  padding:6px 14px; border-radius:20px;
-  background:rgba(255,255,255,0.06); font-size:13px; font-weight:500;
-  color:var(--text-primary);
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06); font-size: 13px; font-weight: 500;
+  color: #f8fafc;
 }
-.meta-icon { font-size:15px }
-.path-progress { display:flex; align-items:center; gap:10px }
-.progress-track {
-  width:140px; height:6px; border-radius:3px;
-  background:rgba(255,255,255,0.1); overflow:hidden;
-}
-.progress-fill {
-  height:100%; border-radius:3px;
-  background:linear-gradient(90deg, var(--primary), var(--accent));
-  transition: width 0.4s ease;
-}
-.progress-text { font-size:12px; color:var(--text-secondary); white-space:nowrap }
+.meta-icon { font-size: 15px }
+.path-progress { display: flex; align-items: center; gap: 10px }
+.progress-track { width: 140px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.1); overflow: hidden }
+.progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #6366f1, #06b6d4); transition: width 0.4s ease }
+.progress-text { font-size: 12px; color: #94a3b8; white-space: nowrap }
 
-/* KG layout with side panel */
-.kg-layout { display:flex; gap:16px; position:relative }
-.kg-canvas-wrap { flex:1; min-width:0 }
+/* KG layout */
+.kg-layout { display: flex; gap: 16px; position: relative }
+.kg-canvas-wrap { flex: 1; min-width: 0 }
 .kg-canvas {
-  width:100%; height:560px;
-  border-radius:16px; overflow:hidden;
-  background:radial-gradient(ellipse at center, rgba(15,23,42,0.95), #0f172a);
-  border:1px solid rgba(99,102,241,0.1);
+  width: 100%; height: 560px; border-radius: 16px; overflow: hidden;
+  background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.95), #0f172a);
+  border: 1px solid rgba(99, 102, 241, 0.1);
 }
 
 /* Node detail panel */
 .node-detail {
-  width:260px; flex-shrink:0;
-  padding:20px; border-radius:16px;
-  background:rgba(30,41,59,0.9); backdrop-filter:blur(16px);
-  border:1px solid var(--border);
+  position: relative;
+  width: 260px; flex-shrink: 0; padding: 20px; border-radius: 16px;
+  background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(16px);
+  border: 1px solid rgba(148, 163, 184, 0.1);
   animation: slideIn 0.3s ease;
 }
-@keyframes slideIn { from { opacity:0; transform:translateX(20px) } to { opacity:1; transform:translateX(0) } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(20px) } to { opacity: 1; transform: translateX(0) } }
 .detail-close {
-  position:absolute; top:12px; right:12px;
-  width:28px; height:28px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; font-size:14px; color:var(--text-secondary);
-  background:rgba(255,255,255,0.05); transition:all 0.2s;
+  position: absolute; top: 12px; right: 12px;
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 14px; color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05); transition: all 0.2s;
 }
-.detail-close:hover { background:rgba(239,68,68,0.3); color:white }
-.detail-type-badge {
-  display:inline-flex; padding:4px 12px; border-radius:12px;
-  font-size:12px; font-weight:600; margin-bottom:12px;
-}
-.detail-type-badge.paper { background:rgba(245,158,11,0.15); color:#fbbf24 }
-.detail-type-badge.keyword { background:rgba(99,102,241,0.15); color:#a5b4fc }
-.detail-name { font-size:16px; font-weight:600; margin-bottom:16px; line-height:1.4 }
-.detail-mastery { display:flex; align-items:center; gap:8px; margin-bottom:14px }
-.detail-mastery span:first-child { font-size:12px; color:var(--text-secondary); white-space:nowrap }
-.mastery-bar-wrap {
-  flex:1; height:8px; border-radius:4px;
-  background:rgba(255,255,255,0.08); overflow:hidden;
-}
-.mastery-bar-fill { height:100%; border-radius:4px; transition:width 0.5s ease }
-.mastery-pct { font-size:13px; font-weight:600; min-width:36px; text-align:right }
+.detail-close:hover { background: rgba(239, 68, 68, 0.3); color: white }
+.detail-type-badge { display: inline-flex; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-bottom: 12px }
+.detail-type-badge.paper { background: rgba(245, 158, 11, 0.15); color: #fbbf24 }
+.detail-type-badge.keyword { background: rgba(99, 102, 241, 0.15); color: #a5b4fc }
+.detail-name { font-size: 16px; font-weight: 600; margin-bottom: 16px; line-height: 1.4 }
+.detail-mastery { display: flex; align-items: center; gap: 8px; margin-bottom: 14px }
+.detail-mastery span:first-child { font-size: 12px; color: #94a3b8; white-space: nowrap }
+.mastery-bar-wrap { flex: 1; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.08); overflow: hidden }
+.mastery-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease }
+.mastery-pct { font-size: 13px; font-weight: 600; min-width: 36px; text-align: right }
 .detail-row {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04);
-  font-size:13px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04); font-size: 13px;
 }
-.detail-label { color:var(--text-secondary) }
-.detail-id { font-family:monospace; font-size:11px; color:var(--text-secondary); word-break:break-all }
+.detail-label { color: #94a3b8 }
+.detail-id { font-family: monospace; font-size: 11px; color: #94a3b8; word-break: break-all }
 
-@media (max-width:1200px) {
-  .charts-grid { grid-template-columns:1fr }
-  .stats-row { grid-template-columns:repeat(2,1fr) }
-  .main-content { margin-left:0; padding:20px }
-  .kg-layout { flex-direction:column }
-  .node-detail { width:100% }
-  .kg-controls { align-items:flex-start }
+@media (max-width: 1200px) {
+  .kg-layout { flex-direction: column }
+  .node-detail { width: 100% }
+  .kg-controls { align-items: flex-start }
 }
-@media (max-width:768px) {
-  .stats-row { grid-template-columns:1fr }
-  .path-info-bar { flex-direction:column; gap:12px }
+@media (max-width: 768px) {
+  .path-info-bar { flex-direction: column; gap: 12px }
 }
 </style>
