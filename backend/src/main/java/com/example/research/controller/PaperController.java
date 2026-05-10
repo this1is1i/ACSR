@@ -86,9 +86,11 @@ public class PaperController {
     @GetMapping("/search")
     public Result<List<Paper>> searchPapers(
             @RequestParam String keyword,
-            @RequestParam(defaultValue = "20") int limit) {
+            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(required = false) Integer yearFrom,
+            @RequestParam(required = false) String sortBy) {
 
-        List<Paper> results = paperService.searchPapers(keyword, Math.min(limit, 50));
+        List<Paper> results = paperService.searchPapers(keyword, Math.min(limit, 50), yearFrom, sortBy);
         return Result.success(results);
     }
 

@@ -1,7 +1,9 @@
 package com.example.research.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.example.research.dto.CollaboratorRecommendation;
 import com.example.research.entity.PrivateMessage;
 import com.example.research.entity.User;
 import com.example.research.entity.UserContact;
@@ -13,7 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 私信服务实现
@@ -107,6 +110,71 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
 
         return contacts;
     }
+
+    @Override
+    public List<CollaboratorRecommendation> getRecommendedCollaborators(Long userId) {
+        User currentUser = userMapper.selectById(userId);
+        if (currentUser == null) {
+            return List.of();
+        }
+        if (!"RESEARCHER".equals(currentUser.getRole())) {
+            return List.of();
+        }
+
+        Set<String> myTags = parseInterests(currentUser.getResearchInterests());
+        if (myTags.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Long> excludedIds = new HashSet<>();
+        excludedIds.add(userId);
+        QueryWrapper<UserContact> contactQuery = new QueryWrapper<>();
+        contactQuery.eq("user_id", userId);
+        List<UserContact> contacts = userContactMapper.selectList(contactQuery);
+        for (UserContact c : contacts) {
+            excludedIds.add(c.getContactId());
+        }
+
+        LambdaQueryWrapper<User> userQuery = new LambdaQueryWrapper<>();
+        userQuery.eq(User::getRole, "RESEARCHER");
+        if (!excludedIds.isEmpty()) {
+            userQuery.notIn(User::getId, excludedIds);
+        }
+        List<User> researchers = userMapper.selectList(userQuery);
+
+        return researchers.stream()
+                .map(u -> {
+                    Set<String> theirTags = parseInterests(u.getResearchInterests());
+                    Set<String> common = new HashSet<>(myTags);
+                    common.retainAll(theirTags);
+                    return new UserMatch(u, common.size(), common);
+                })
+                .filter(m -> m.overlap > 0)
+                .sorted(Comparator.comparingInt(UserMatch::overlap).reversed())
+                .limit(2)
+                .map(m -> new CollaboratorRecommendation(
+                        m.user.getId(),
+                        m.user.getUsername(),
+                        m.user.getAvatar(),
+                        m.user.getBio(),
+                        List.copyOf(m.common),
+                        m.overlap,
+                        "共同研究兴趣: " + String.join(", ", m.common)
+                ))
+                .toList();
+    }
+
+    private static Set<String> parseInterests(String interests) {
+        if (interests == null || interests.isBlank()) {
+            return Set.of();
+        }
+        return Arrays.stream(interests.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+    }
+
+    private record UserMatch(User user, int overlap, Set<String> common) {}
 
     private void updateContact(Long userId, Long contactId) {
         QueryWrapper<UserContact> queryWrapper = new QueryWrapper<>();

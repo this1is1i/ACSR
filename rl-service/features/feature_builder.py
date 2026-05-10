@@ -194,41 +194,64 @@ class FeatureBuilder:
         return (vec / norm).astype(np.float32)
 
     def _build_history_from_mysql(self, numeric_id: int) -> np.ndarray:
-        """从 behavior_log 构建历史行为向量。"""
+        """从 behavior_log 构建历史行为向量，按行为类型加权。"""
         behaviors = self.mysql.get_user_behaviors(numeric_id)
 
         if not behaviors:
             return self._fallback_vec(numeric_id)
 
-        # 提取去重论文 ID
-        paper_ids = list({b["paper_id"] for b in behaviors})
+        action_weight = {"click": 0.5, "read": 1.0, "favorite": 2.0}
+
+        # 按论文聚合，取最高权重行为
+        paper_action_weight = {}
+        paper_duration = {}
+        for b in behaviors:
+            pid = b["paper_id"]
+            w = action_weight.get(b.get("action", "click"), 0.5)
+            if pid not in paper_action_weight or w > paper_action_weight[pid]:
+                paper_action_weight[pid] = w
+            if b.get("duration") and b["duration"] > 0:
+                paper_duration[pid] = paper_duration.get(pid, 0) + b["duration"]
+
+        paper_ids = list(paper_action_weight.keys())
         papers = self.mysql.get_papers_by_ids(paper_ids)
 
         if not papers:
             return self._fallback_vec(numeric_id)
 
-        # 先尝试 KG Embedder 的论文向量
+        # 先尝试 KG Embedder 的论文向量，附行为权重
         vecs = []
+        weights = []
         for paper in papers:
+            pid = paper["id"]
             aminer_id = paper.get("aminer_id")
             if aminer_id and self.kg_embedder is not None:
                 emb = self.kg_embedder.get_paper_embedding(aminer_id)
                 if emb is not None:
-                    # KG embedding 维度可能不同，取前 base_state_dim
                     padded = np.zeros(self.base_state_dim, dtype=np.float32)
                     copy_len = min(len(emb), self.base_state_dim)
                     padded[:copy_len] = emb[:copy_len]
                     vecs.append(padded)
+                    w = paper_action_weight.get(pid, 0.5)
+                    # 阅读时长加权 (每60秒额外 +0.5 权重，上限2.0)
+                    dur_sec = paper_duration.get(pid, 0)
+                    w += min(dur_sec / 60.0 * 0.5, 2.0)
+                    weights.append(w)
                     continue
 
             # 回退：基于论文属性的 hash 向量
             vecs.append(self._paper_attr_vec(paper))
+            weights.append(paper_action_weight.get(pid, 0.5))
 
         if not vecs:
             return self._fallback_vec(numeric_id)
 
-        # 平均池化
-        history_vec = np.mean(vecs, axis=0).astype(np.float32)
+        # 加权池化
+        total_weight = sum(weights)
+        if total_weight > 0:
+            history_vec = np.average(vecs, axis=0, weights=weights).astype(np.float32)
+        else:
+            history_vec = np.mean(vecs, axis=0).astype(np.float32)
         norm = np.linalg.norm(history_vec) + 1e-8
         return history_vec / norm
 

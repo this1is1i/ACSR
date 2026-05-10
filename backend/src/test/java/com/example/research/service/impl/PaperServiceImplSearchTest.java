@@ -39,11 +39,11 @@ class PaperServiceImplSearchTest {
 
         when(graphPaperService.isEnabled()).thenReturn(true);
         when(graphPaperService.search("Transformer", 20)).thenReturn(List.of());
-        when(paperMapper.searchByKeywordExpanded("Transformer", 20)).thenReturn(List.of(fallbackPaper));
+        when(paperMapper.searchByKeywordExpanded("Transformer", 20, null, null)).thenReturn(List.of(fallbackPaper));
 
-        List<Paper> results = service.searchPapers("Transformer", 20);
+        List<Paper> results = service.searchPapers("Transformer", 20, null, null);
 
         assertThat(results).extracting(Paper::getTitle).containsExactly("Attention Is All You Need");
-        verify(paperMapper).searchByKeywordExpanded("Transformer", 20);
+        verify(paperMapper).searchByKeywordExpanded("Transformer", 20, null, null);
     }
 }

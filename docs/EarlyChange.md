@@ -187,3 +187,94 @@ Home("Future Lab" eyebrow、描述文本)、Search(空状态文案)、Community(
 ### MCP 工具配置
 - 安装 `@myuon/refactor-mcp`（正则搜索替换）
 - 创建 `.mcp.json` 配置文件
+
+---
+
+## 2026-05-10 (续)
+
+### 核心目标
+补全研究者推荐合作者功能、修复页面级交互缺陷、完善搜索筛选、实现社区点赞、修复推荐行为追踪链路。
+
+### 研究者推荐合作者
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 新增 | `dto/CollaboratorRecommendation.java` | 推荐合作者 DTO（userId, username, avatar, bio, commonInterests, matchCount, reason） |
+| 新增 | `repository/PostLikeMapper.java` | 社区点赞数据访问层 |
+| 修改 | `service/PrivateMessageService.java` | 新增 `getRecommendedCollaborators()` 接口 |
+| 修改 | `service/impl/PrivateMessageServiceImpl.java` | 实现合作者匹配算法：解析 `researchInterests` 逗号分隔字符串为 Set，与同角色用户计算交集，按 overlap 降序取 top 2，排除已有联系人及自身 |
+| 修改 | `controller/PrivateMessageController.java` | 新增 `GET /api/message/recommended-collaborators` 端点 |
+| 修改 | `api/message.js` | 新增 `getRecommendedCollaborators()` 前端 API |
+| 修改 | `components/chat/ConversationRail.vue` | 新增"推荐合作者"面板（头像、简介、共同兴趣标签、开始对话按钮）、空状态提示、搜索联系人栏（防抖 300ms）、搜索结果面板（overflow-y scroll） |
+| 修改 | `views/RealtimeChat.vue` | 集成 `loadRecommendations()`（RESEARCHER 角色门控）、`startChatWithRecommended()` 自动发送问候语并刷新联系人、`handleSearch()` / `startChatWithUser()` 搜索联系人功能 |
+
+### 联系人搜索
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `repository/UserMapper.java` | 新增 `searchUsers(q, limit)`：按 username / research_interests LIKE 搜索 |
+| 修改 | `service/UserService.java` | 新增 `searchUsers()` 接口 |
+| 修改 | `service/impl/UserServiceImpl.java` | 实现用户搜索，返回 `UserProfile` 列表 |
+| 修改 | `controller/UserController.java` | 新增 `GET /api/user/search?q=&limit=` 端点 |
+
+### 私信页面布局修复
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `views/RealtimeChat.vue` | CSS 重构：`height: 100vh; flex column; overflow: hidden`；`.chat-panel` 使用 `flex: 1; min-height: 0`；消息区 `flex: 1; overflow-y: auto`；修复 `meId` 从 `userStore.userInfo.id` 读取（之前错误读取 `localStorage.getItem('userId')` 导致气泡左右反转） |
+| 修改 | `components/chat/ConversationRail.vue` | 联系人名称改用 `user.username`；最近消息截断 `text-overflow: ellipsis`；推荐合作者面板移至联系人上方；全面板固定高度 + 内部滚动条 |
+
+### 个人页与论文详情
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `views/Profile.vue` | 活动历史 `historyPageSize` 从 10 改为 4 |
+| 修改 | `views/PaperDetail.vue` | 返回按钮改为 `router.back()` 而非硬编码 `/search`；新增 AMiner ID 路由支持（`/paper/aminer/:aminerId`）；追踪真实阅读时长：记录 `enterTime`，`onBeforeUnmount` 计算 duration 秒数发送 `recordRead` |
+| 修改 | `components/paper/PaperPathRail.vue` | 按钮文字从"返回搜索"改为"返回" |
+| 修改 | `router/index.js` | 新增 `/paper/aminer/:aminerId` 路由 |
+| 修改 | `api/paper.js` | 新增 `getPaperByAminerId()`；`searchPapers` 支持 filters 参数 |
+| 修改 | `components/PaperCard.vue` | 标题可点击导航；自动检测 AMiner ID 格式并路由到正确路径 |
+| 修改 | `components/path/PathInsightRail.vue` | 路径论文和推荐资产卡片可点击导航；hover 高亮效果 |
+
+### 搜索页筛选器修复
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `repository/PaperMapper.java` | `searchByKeywordExpanded` 新增 `yearFrom` / `sortBy` 动态 SQL 参数；所有 `SELECT *` 添加 `\`abstract\` AS abstrakt` 别名修复摘要字段映射 |
+| 修改 | `service/PaperService.java` | `searchPapers` 签名新增 `yearFrom` / `sortBy` |
+| 修改 | `service/impl/PaperServiceImpl.java` | Neo4j 路径也应用 yearFrom 过滤 + sortBy 排序（修复筛选器在 Neo4j 启用时不生效的 bug） |
+| 修改 | `controller/PaperController.java` | `/search` 端点新增 `yearFrom` / `sortBy` 可选参数 |
+| 修改 | `views/Search.vue` | `handleSearch` 调用 `getFilterParams()` 映射时间→yearFrom、排序→sortBy；热门关键词改为英文字段匹配（Reinforcement Learning, Transformer, etc）；默认标签同步英文化 |
+| 修改 | `components/search/SearchFilterRail.vue` | 删除无法生效的"文献类型"和"研究领域"下拉框；删除"影响力"排序选项 |
+| 修改 | `components/search/SearchResultCard.vue` | 删除"研究路径"和"查询条件"上下文标签 |
+| 修改 | `utils/paper.js` | `SEARCH_DEFAULT_FILTERS` 精简为 time + sort |
+
+### 社区帖子点赞
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 新增 | `repository/PostLikeMapper.java` | `insertLike` / `deleteLike` / `existsLike` / `findLikedPostIds` |
+| 修改 | `service/CommunityService.java` | 新增 `toggleLike()` 接口 |
+| 修改 | `service/impl/CommunityServiceImpl.java` | 实现点赞切换（INSERT/DELETE + like_count 增减）；`listPosts` 注入 likedPostIds；`toPostItem` 设置 `liked` 字段 |
+| 修改 | `controller/CommunityController.java` | 新增 `POST /api/community/posts/{postId}/like` 端点 |
+| 修改 | `dto/CommunityDto.java` | `PostItem` 新增 `liked` 布尔字段 |
+| 修改 | `views/Community.vue` | 点赞按钮可切换（🤍/❤️）；`handleLike()` 含登录状态守卫 |
+| 修改 | `api/community.js` | 新增 `togglePostLike()` |
+| — | 数据库 | 新建 `post_like` 表（user_id + post_id 唯一约束） |
+
+### 推荐行为追踪修复
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `views/PaperDetail.vue` | 追踪真实阅读时长：进入时记录 `enterTime`，离开时计算秒数调用 `recordRead(id, duration)` |
+| 修改 | `rl-service/features/feature_builder.py` | `_build_history_from_mysql` 改为加权池化：click=0.5 / read=1.0 / favorite=2.0；阅读时长每 60s +0.5（上限 +2.0）；使用 `np.average(weights=)` 替代 `np.mean` |
+
+### 已修复 Bug（按发现顺序）
+1. `recordRead` 的 `duration` 始终为 0 → 追踪真实页面停留时长
+2. `meId` 从 `localStorage.getItem('userId')` 读取但 key 为 `'userInfo'` → 消息气泡左右反转
+3. Neo4j 搜索路径绕过 yearFrom/sortBy 筛选 → Java 层补充过滤
+4. 搜索热门关键词为中文但数据库全为英文 → 改为英文关键词
+5. 路径论文使用 AMiner ID 但路由仅处理数字 ID → 新增 `/paper/aminer/:aminerId` 路由
+6. `SELECT *` 中 `abstract` 列无法自动映射到 Java `abstrakt` 字段 → 添加 `AS abstrakt` 别名
+7. 社区点赞数纯静态显示 → 完整实现点赞切换 + liked 状态回传
+8. 推荐合作者面板在结果为空时完全隐藏 → 增加空状态提示
+9. 右侧联系人列表不显示真实用户名 → `user.name` 改为 `user.username`
+10. 论文详情页返回固定跳转搜索页 → 改为 `router.back()`
+11. 联系人搜索结果显示不全 → 添加 `max-height + overflow-y: auto`
+12. 搜索页筛选器仅前端展示未传后端 → 连通 yearFrom/sortBy 参数链路
+
+### 今日提交
+`<pending>` chore: researcher collaborator recommendation, search filters, community likes, UI fixes, behavior tracking

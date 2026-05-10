@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -65,7 +66,7 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
-    public List<Paper> searchPapers(String keyword, int limit) {
+    public List<Paper> searchPapers(String keyword, int limit, Integer yearFrom, String sortBy) {
         String normalizedKeyword = keyword == null ? "" : keyword.trim();
         if (normalizedKeyword.isBlank()) {
             return List.of();
@@ -73,12 +74,23 @@ public class PaperServiceImpl implements PaperService {
         if (graphPaperService.isEnabled()) {
             List<GraphPaper> graphResults = graphPaperService.search(normalizedKeyword, limit);
             if (!graphResults.isEmpty()) {
-                return graphResults.stream()
-                        .map(this::upsertShadowPaper)
-                        .collect(Collectors.toList());
+                java.util.stream.Stream<Paper> stream = graphResults.stream()
+                        .map(this::upsertShadowPaper);
+                if (yearFrom != null) {
+                    stream = stream.filter(p -> p.getYear() != null && p.getYear() >= yearFrom);
+                }
+                List<Paper> results = stream.collect(Collectors.toList());
+                if ("citation".equals(sortBy)) {
+                    results.sort(Comparator.comparing(Paper::getCitationCount, Comparator.nullsLast(Comparator.reverseOrder())));
+                } else if ("year".equals(sortBy)) {
+                    results.sort(Comparator.comparing(Paper::getYear, Comparator.nullsLast(Comparator.reverseOrder())));
+                }
+                if (!results.isEmpty()) {
+                    return results.stream().limit(limit).collect(Collectors.toList());
+                }
             }
         }
-        return paperMapper.searchByKeywordExpanded(normalizedKeyword, limit);
+        return paperMapper.searchByKeywordExpanded(normalizedKeyword, limit, yearFrom, sortBy);
     }
 
     @Override

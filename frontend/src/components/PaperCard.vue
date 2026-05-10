@@ -3,7 +3,7 @@
     <div class="paper-card__header">
       <div class="paper-card__title-group">
         <span class="paper-card__eyebrow">Personalized Pick</span>
-        <h3 class="title">{{ paper.title }}</h3>
+        <h3 class="title" @click="handleClick">{{ paper.title }}</h3>
       </div>
 
       <div class="paper-card__meta-tags">
@@ -88,6 +88,10 @@ function getPaperId() {
   return props.paper.paperId || props.paper.id
 }
 
+function isAminerId(id) {
+  return typeof id === 'string' && (id.startsWith('aminer_') || /^[a-zA-Z]/.test(id))
+}
+
 const displayTags = computed(() => {
   const reasonDetails = Array.isArray(props.paper.reasonDetails) ? props.paper.reasonDetails : []
   if (reasonDetails.length) return reasonDetails.slice(0, 3)
@@ -103,7 +107,11 @@ async function handleClick() {
     ElMessage.success('已记录阅读行为')
   } catch {}
 
-  router.push(`/paper/${paperId}`)
+  if (isAminerId(paperId)) {
+    router.push(`/paper/aminer/${paperId}`)
+  } else {
+    router.push(`/paper/${paperId}`)
+  }
 }
 
 async function handleFavorite() {

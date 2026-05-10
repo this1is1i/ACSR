@@ -34,38 +34,6 @@
       </div>
 
       <div class="filter-group">
-        <label class="filter-label" for="search-filter-type">文献类型</label>
-        <select
-          id="search-filter-type"
-          class="filter-select"
-          :value="filters.type"
-          @change="emit('update-filter', 'type', $event.target.value)"
-        >
-          <option>全部类型</option>
-          <option>期刊论文</option>
-          <option>会议论文</option>
-          <option>学位论文</option>
-          <option>预印本</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label class="filter-label" for="search-filter-field">研究领域</label>
-        <select
-          id="search-filter-field"
-          class="filter-select"
-          :value="filters.field"
-          @change="emit('update-filter', 'field', $event.target.value)"
-        >
-          <option>全部领域</option>
-          <option>人工智能</option>
-          <option>计算机视觉</option>
-          <option>自然语言处理</option>
-          <option>数据挖掘</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
         <label class="filter-label" for="search-filter-sort">排序方式</label>
         <select
           id="search-filter-sort"
@@ -76,7 +44,6 @@
           <option>相关度</option>
           <option>引用次数</option>
           <option>发表时间</option>
-          <option>影响力</option>
         </select>
       </div>
     </section>

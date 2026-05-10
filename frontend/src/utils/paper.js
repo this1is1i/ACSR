@@ -2,8 +2,6 @@ export const SEARCH_STATE_KEY = 'search-paper-state'
 export const SEARCH_RESTORE_PENDING_KEY = 'search-paper-restore-pending'
 export const SEARCH_DEFAULT_FILTERS = {
   time: '全部时间',
-  type: '全部类型',
-  field: '全部领域',
   sort: '相关度',
 }
 

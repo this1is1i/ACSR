@@ -1,8 +1,10 @@
 package com.example.research.controller;
 
+import com.example.research.dto.CollaboratorRecommendation;
 import com.example.research.entity.PrivateMessage;
 import com.example.research.entity.UserContact;
 import com.example.research.service.PrivateMessageService;
+import com.example.research.util.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -53,5 +55,14 @@ public class PrivateMessageController {
     public void markAsRead(@PathVariable Long messageId, Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         privateMessageService.markAsRead(messageId, userId);
+    }
+
+    /**
+     * 获取推荐合作者（基于研究兴趣匹配，仅 RESEARCHER 角色有结果）
+     */
+    @GetMapping("/recommended-collaborators")
+    public Result<List<CollaboratorRecommendation>> getRecommendedCollaborators(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(privateMessageService.getRecommendedCollaborators(userId));
     }
 }

@@ -2,9 +2,81 @@
   <aside class="conversation-rail card glass" data-testid="conversation-rail" data-area="chat">
     <div class="rail-heading">
       <h3>协作会话</h3>
+      <div class="search-bar">
+        <input
+          v-model="searchQuery"
+          type="text"
+          class="search-input"
+          placeholder="搜索联系人..."
+          @keydown.enter="emit('search', searchQuery)"
+          @input="emit('search', searchQuery)"
+        />
+      </div>
     </div>
 
-    <section class="rail-panel">
+    <section v-if="searchResults.length" class="rail-panel search-results-panel">
+      <div class="panel-header">
+        <span>搜索结果</span>
+        <small>{{ searchResults.length }} 位</small>
+      </div>
+      <div class="conversation-list">
+        <div
+          v-for="user in searchResults"
+          :key="user.id"
+          class="recommendation-item"
+        >
+          <div class="conversation-avatar">{{ displayInitial(user.username) }}</div>
+          <div class="conversation-copy">
+            <div class="conversation-row">
+              <strong>{{ user.username }}</strong>
+            </div>
+            <p class="rec-bio">{{ user.researchInterests || user.bio || '暂无简介' }}</p>
+            <button
+              type="button"
+              class="btn-start-chat"
+              @click.stop="emit('startChatUser', user)"
+            >
+              开始对话
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section v-if="showRecommendations" class="rail-panel recommendations-panel">
+      <div class="panel-header">
+        <span>推荐合作者</span>
+        <small>{{ recommendations.length }} 位</small>
+      </div>
+      <div v-if="recommendations.length" class="conversation-list">
+        <div
+          v-for="rec in recommendations"
+          :key="rec.userId"
+          class="recommendation-item"
+        >
+          <div class="conversation-avatar">{{ displayInitial(rec.username) }}</div>
+          <div class="conversation-copy">
+            <div class="conversation-row">
+              <strong>{{ rec.username }}</strong>
+            </div>
+            <p class="rec-bio">{{ rec.bio || '暂无简介' }}</p>
+            <div class="topic-chips">
+              <span v-for="tag in rec.commonInterests" :key="tag" class="topic-chip">{{ tag }}</span>
+            </div>
+            <button
+              type="button"
+              class="btn-start-chat"
+              @click.stop="emit('startChat', rec)"
+            >
+              开始对话
+            </button>
+          </div>
+        </div>
+      </div>
+      <p v-else class="empty-copy">暂未找到匹配的合作者，完善研究兴趣标签可提高匹配度</p>
+    </section>
+
+    <section class="rail-panel contacts-panel">
       <div class="panel-header">
         <span>会话列表</span>
         <small>{{ contacts.length }} 条</small>
@@ -37,6 +109,8 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+
 const props = defineProps({
   contacts: {
     type: Array,
@@ -54,9 +128,23 @@ const props = defineProps({
     type: Object,
     default: () => new Set(),
   },
+  recommendations: {
+    type: Array,
+    default: () => [],
+  },
+  showRecommendations: {
+    type: Boolean,
+    default: false,
+  },
+  searchResults: {
+    type: Array,
+    default: () => [],
+  },
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', 'startChat', 'search', 'startChatUser'])
+
+const searchQuery = ref('')
 
 function displayInitial(name) {
   return (name || 'U').charAt(0).toUpperCase()
@@ -69,22 +157,76 @@ function isOnline(contactId) {
 
 <style scoped>
 .conversation-rail {
+  height: 100%;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow: hidden;
 }
 
 .conversation-rail[data-area="chat"] {
   border-left: 3px solid var(--color-area-chat);
 }
 
-.rail-heading,
+.rail-heading {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-subtle);
+  background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0;
+}
+
+.search-bar {
+  margin-top: 0.75rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+  outline: none;
+  font-size: 0.85rem;
+}
+
+.search-input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.search-input:focus {
+  border-color: var(--color-border-strong);
+}
+
+.search-results-panel {
+  flex-shrink: 0;
+  max-height: 40%;
+  overflow-y: auto;
+  border-left: 3px solid var(--color-accent-secondary);
+}
+
 .rail-panel {
   padding: 1rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border-subtle);
   background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.recommendations-panel {
+  flex: 0 0 auto;
+  max-height: 45%;
+  overflow-y: auto;
+}
+
+.contacts-panel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .rail-eyebrow {
@@ -102,6 +244,7 @@ function isOnline(contactId) {
   align-items: center;
   margin-bottom: 0.75rem;
   color: var(--color-text-primary);
+  flex-shrink: 0;
 }
 
 .conversation-list,
@@ -154,6 +297,7 @@ function isOnline(contactId) {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  overflow: hidden;
 }
 
 .conversation-row {
@@ -163,7 +307,13 @@ function isOnline(contactId) {
   align-items: center;
 }
 
-.conversation-copy p,
+.conversation-copy p {
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .conversation-copy small,
 .signal-list li,
 .path-list span,
@@ -204,5 +354,44 @@ function isOnline(contactId) {
 .path-list li.active {
   border-color: var(--color-border-strong);
   box-shadow: var(--shadow-glow);
+}
+
+.recommendations-panel {
+  border-left: 3px solid var(--color-area-chat);
+}
+
+.recommendation-item {
+  padding: 0.85rem 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+  background: rgba(15, 23, 42, 0.36);
+  display: flex;
+  gap: 0.85rem;
+}
+
+.rec-bio {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  margin: 0.25rem 0 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-start-chat {
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.16s ease;
+}
+
+.btn-start-chat:hover {
+  opacity: 0.85;
 }
 </style>

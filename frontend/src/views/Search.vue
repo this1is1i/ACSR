@@ -131,18 +131,18 @@ import {
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
-const defaultTags = ['深度学习', '神经网络', '计算机视觉']
+const defaultTags = ['Deep Learning', 'Neural Network', 'Computer Vision']
 const keyword = ref('')
 const results = ref([])
 const loading = ref(false)
 const filters = ref({ ...SEARCH_DEFAULT_FILTERS })
 const tags = ref([...defaultTags])
 const trending = ref([
-  { keyword: '大语言模型', count: '12.5k' },
-  { keyword: 'Transformer架构', count: '8.3k' },
-  { keyword: '多模态学习', count: '6.7k' },
-  { keyword: '扩散模型', count: '5.2k' },
-  { keyword: '强化学习', count: '4.8k' },
+  { keyword: 'Reinforcement Learning', count: '12.5k' },
+  { keyword: 'Transformer', count: '8.3k' },
+  { keyword: 'Computer Vision', count: '6.7k' },
+  { keyword: 'Neural Network', count: '5.2k' },
+  { keyword: 'BERT', count: '4.8k' },
 ])
 const currentPage = ref(1)
 const pageSize = ref(10)
@@ -187,12 +187,21 @@ function restoreSearchState() {
   }
 }
 
+function getFilterParams() {
+  const params = {}
+  const timeMap = { '近一年': 2025, '近三年': 2023, '近五年': 2021 }
+  const sortMap = { '引用次数': 'citation', '发表时间': 'year' }
+  if (filters.value.time && timeMap[filters.value.time]) params.yearFrom = timeMap[filters.value.time]
+  if (filters.value.sort && sortMap[filters.value.sort]) params.sortBy = sortMap[filters.value.sort]
+  return params
+}
+
 async function handleSearch() {
   if (!keyword.value.trim()) return
 
   loading.value = true
   try {
-    const res = await searchPapers(keyword.value.trim(), 100)
+    const res = await searchPapers(keyword.value.trim(), 100, getFilterParams())
     results.value = (res.data || []).map((paper) => {
       const normalized = normalizePaper(paper)
       return {

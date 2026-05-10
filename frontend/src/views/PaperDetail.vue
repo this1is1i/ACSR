@@ -39,10 +39,11 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { downloadPaperTxt, getPaperById } from '@/api/paper'
+import { downloadPaperTxt, getPaperById, getPaperByAminerId } from '@/api/paper'
+import { recordRead } from '@/api/recommend'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PaperPathRail from '@/components/paper/PaperPathRail.vue'
 import {
@@ -58,6 +59,7 @@ const router = useRouter()
 const loading = ref(false)
 const downloading = ref(false)
 const paper = ref(null)
+const enterTime = ref(0)
 const hasSearchContext = ref(
   typeof window !== 'undefined' && window.sessionStorage.getItem(SEARCH_RESTORE_PENDING_KEY) === '1'
 )
@@ -70,12 +72,24 @@ const pathContext = computed(() => buildPaperPathContext(paper.value, {
   hasSearchContext: hasSearchContext.value,
 }))
 
-async function loadPaperDetail(id) {
-  if (!id) return
+function isAminerId(value) {
+  return typeof value === 'string' && (value.startsWith('aminer_') || !/^\d+$/.test(value))
+}
+
+async function loadPaperDetail() {
+  const routeAminerId = route.params.aminerId
+  const routeId = route.params.id
+  const effectiveId = routeAminerId || routeId
+  if (!effectiveId) return
   loading.value = true
   try {
-    const res = await getPaperById(id)
+    const res = (routeAminerId || isAminerId(routeId))
+      ? await getPaperByAminerId(routeAminerId || routeId)
+      : await getPaperById(routeId)
     paper.value = res.data ? normalizePaper(res.data) : null
+    if (paper.value) {
+      enterTime.value = Date.now()
+    }
   } catch {
     paper.value = null
   } finally {
@@ -84,13 +98,11 @@ async function loadPaperDetail(id) {
 }
 
 function handleBack() {
-  const shouldReturnToSearch = window.sessionStorage.getItem(SEARCH_RESTORE_PENDING_KEY) === '1'
-  if (shouldReturnToSearch) {
+  if (window.history.length > 1) {
     router.back()
-    return
+  } else {
+    router.push('/search')
   }
-
-  router.push('/search')
 }
 
 async function handleDownload() {
@@ -115,7 +127,16 @@ async function handleDownload() {
   }
 }
 
-watch(() => route.params.id, loadPaperDetail, { immediate: true })
+watch(() => route.params.id || route.params.aminerId, loadPaperDetail, { immediate: true })
+
+onBeforeUnmount(() => {
+  if (enterTime.value && paper.value) {
+    const duration = Math.round((Date.now() - enterTime.value) / 1000)
+    if (duration > 0) {
+      recordRead(paper.value.id, duration, 'detail').catch(() => {})
+    }
+  }
+})
 </script>
 
 <style scoped>

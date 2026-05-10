@@ -10,15 +10,15 @@ import java.util.List;
 @Mapper
 public interface PaperMapper extends BaseMapper<Paper> {
 
-    @Select("SELECT * FROM paper WHERE aminer_id = #{aminerId} AND deleted = 0 LIMIT 1")
+    @Select("SELECT *, `abstract` AS abstrakt FROM paper WHERE aminer_id = #{aminerId} AND deleted = 0 LIMIT 1")
     Paper findByAminer(@Param("aminerId") String aminerId);
 
-    @Select("SELECT * FROM paper WHERE MATCH(title, abstract) AGAINST(#{keyword} IN BOOLEAN MODE) AND deleted = 0 LIMIT #{limit}")
+    @Select("SELECT *, `abstract` AS abstrakt FROM paper WHERE MATCH(title, abstract) AGAINST(#{keyword} IN BOOLEAN MODE) AND deleted = 0 LIMIT #{limit}")
     List<Paper> searchByKeyword(@Param("keyword") String keyword, @Param("limit") int limit);
 
     @Select("""
             <script>
-            SELECT * FROM paper
+            SELECT *, `abstract` AS abstrakt FROM paper
             WHERE deleted = 0
               AND (
                 MATCH(title, abstract) AGAINST(#{keyword} IN BOOLEAN MODE)
@@ -29,15 +29,21 @@ public interface PaperMapper extends BaseMapper<Paper> {
                 OR LOWER(COALESCE(keywords, '')) LIKE CONCAT('%', LOWER(#{keyword}), '%')
                 OR LOWER(COALESCE(venue, '')) LIKE CONCAT('%', LOWER(#{keyword}), '%')
               )
-            ORDER BY citation_count DESC, year DESC
+              <if test="yearFrom != null">AND year >= #{yearFrom}</if>
+            ORDER BY
+              <choose>
+                <when test="sortBy == 'citation'">citation_count DESC, year DESC</when>
+                <when test="sortBy == 'year'">year DESC, citation_count DESC</when>
+                <otherwise>citation_count DESC, year DESC</otherwise>
+              </choose>
             LIMIT #{limit}
             </script>
             """)
-    List<Paper> searchByKeywordExpanded(@Param("keyword") String keyword, @Param("limit") int limit);
+    List<Paper> searchByKeywordExpanded(@Param("keyword") String keyword, @Param("limit") int limit, @Param("yearFrom") Integer yearFrom, @Param("sortBy") String sortBy);
 
-    @Select("<script>SELECT * FROM paper WHERE aminer_id IN <foreach item='id' collection='aminers' open='(' separator=',' close=')'>#{id}</foreach> AND deleted = 0</script>")
+    @Select("<script>SELECT *, `abstract` AS abstrakt FROM paper WHERE aminer_id IN <foreach item='id' collection='aminers' open='(' separator=',' close=')'>#{id}</foreach> AND deleted = 0</script>")
     List<Paper> findByAminers(@Param("aminers") List<String> aminers);
 
-    @Select("<script>SELECT * FROM paper WHERE id IN <foreach item='id' collection='ids' open='(' separator=',' close=')'>#{id}</foreach> AND deleted = 0</script>")
+    @Select("<script>SELECT *, `abstract` AS abstrakt FROM paper WHERE id IN <foreach item='id' collection='ids' open='(' separator=',' close=')'>#{id}</foreach> AND deleted = 0</script>")
     List<Paper> findByIds(@Param("ids") List<Long> ids);
 }

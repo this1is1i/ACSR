@@ -24,6 +24,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 
@@ -162,5 +163,26 @@ public class UserServiceImpl implements UserService {
         } catch (IOException e) {
             throw new RuntimeException("头像上传失败", e);
         }
+    }
+
+    @Override
+    public List<UserDto.UserProfile> searchUsers(String query, int limit) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+        return userMapper.searchUsers(query.trim(), Math.min(limit, 20)).stream()
+                .map(u -> {
+                    UserDto.UserProfile profile = new UserDto.UserProfile();
+                    profile.setId(u.getId());
+                    profile.setUsername(u.getUsername());
+                    profile.setEmail(u.getEmail());
+                    profile.setAvatar(u.getAvatar());
+                    profile.setBio(u.getBio());
+                    profile.setResearchInterests(u.getResearchInterests());
+                    profile.setRole(u.getRole());
+                    profile.setRoleLabel(UserRole.from(u.getRole()).getLabel());
+                    return profile;
+                })
+                .collect(Collectors.toList());
     }
 }

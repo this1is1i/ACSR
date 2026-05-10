@@ -91,5 +91,12 @@ public class UserController {
         String url = userService.uploadAvatar(userId, file);
         return Result.success(Map.of("avatarUrl", url));
     }
+
+    @GetMapping("/search")
+    public Result<List<UserDto.UserProfile>> searchUsers(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "10") int limit) {
+        return Result.success(userService.searchUsers(q, limit));
+    }
 }
 

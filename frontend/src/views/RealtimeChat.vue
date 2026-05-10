@@ -19,7 +19,13 @@
           :selected-contact-id="selected"
           :messages="messages"
           :online-set="onlineSet"
+          :recommendations="recommendations"
+          :show-recommendations="showRecommendations"
+          :search-results="searchResults"
           @select="selectContact"
+          @start-chat="startChatWithRecommended"
+          @search="handleSearch"
+          @start-chat-user="startChatWithUser"
         />
 
         <section class="chat-area card glass">
@@ -64,8 +70,9 @@ import { computed, ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'v
 import { ElMessage } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
 import ConversationRail from '@/components/chat/ConversationRail.vue'
-import { getConversations, getChatHistory, sendMessageRest, markMessageRead } from '@/api/message'
+import { getConversations, getChatHistory, sendMessageRest, markMessageRead, getRecommendedCollaborators, searchUsers } from '@/api/message'
 import { getKnowledgeGraph } from '@/api/recommend'
+import { useUserStore } from '@/store/userStore'
 
 const contacts = ref([])
 const messages = reactive({}) // { contactId: [{id, from, to, content, time, isRead}] }
@@ -77,8 +84,13 @@ let stompClient = null
 const messagesEl = ref(null)
 
 // get user id from token if present (backend expects numeric id)
+const userStore = useUserStore()
+const recommendations = ref([])
+const showRecommendations = ref(false)
+const searchResults = ref([])
+let searchTimer = null
 const token = localStorage.getItem('token') || ''
-const meId = localStorage.getItem('userId') ? Number(localStorage.getItem('userId')) : 1
+const meId = userStore.userInfo?.id || Number(localStorage.getItem('userId')) || 1
 
 const selectedContact = computed(() => contacts.value.find(contact => contact.id == selected.value) || null)
 const selectedSummary = computed(() => {
@@ -99,7 +111,7 @@ async function loadConversations() {
       contacts.value = data.map(c => {
         const user = c.contact || {}
         const id = user.id || c.contactId
-        return { id, name: user.nickname || user.name || `用户${id}`, unreadCount: c.unreadCount || 0, lastMessage: c.lastMessage || '', isRealUser: true }
+        return { id, name: user.nickname || user.username || user.name || `用户${id}`, unreadCount: c.unreadCount || 0, lastMessage: c.lastMessage || '', isRealUser: true }
       })
     } else {
       // fallback: use knowledge graph nodes as mock contacts, mark as not real users (don't allow send)
@@ -114,6 +126,66 @@ async function loadConversations() {
   } catch (e) {
     console.error('loadConversations failed', e)
   }
+}
+
+async function loadRecommendations() {
+  if (!userStore.hasRole('RESEARCHER')) return
+  showRecommendations.value = true
+  try {
+    const res = await getRecommendedCollaborators()
+    const data = res.data || res || []
+    recommendations.value = Array.isArray(data) ? data : []
+  } catch (e) {
+    console.error('loadRecommendations failed', e)
+  }
+}
+
+async function handleSearch(query) {
+  if (!query || !query.trim()) {
+    searchResults.value = []
+    return
+  }
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(async () => {
+    try {
+      const res = await searchUsers(query.trim())
+      const data = res.data || res || []
+      searchResults.value = Array.isArray(data) ? data : []
+    } catch (e) {
+      console.error('searchUsers failed', e)
+    }
+  }, 300)
+}
+
+async function startChatWithUser(user) {
+  const greeting = `你好！我是${userStore.userInfo?.username || '一位研究者'}，通过搜索找到你，希望可以一起交流探讨！`
+  try {
+    await sendMessageRest(user.id, greeting)
+    ElMessage.success('已发送协作邀请')
+  } catch (e) {
+    console.error('send greeting failed', e)
+    ElMessage.error('发送邀请失败')
+    return
+  }
+  searchResults.value = []
+  await loadConversations()
+  await loadRecommendations()
+  selectContact(user.id)
+}
+
+async function startChatWithRecommended(rec) {
+  const greeting = `你好！我是${userStore.userInfo?.username || '一位研究者'}，发现我们在${rec.commonInterests?.join('、') || '研究'}方面有共同兴趣，希望可以一起交流探讨！`
+  try {
+    await sendMessageRest(rec.userId, greeting)
+    ElMessage.success('已发送协作邀请')
+  } catch (e) {
+    console.error('send greeting failed', e)
+    ElMessage.error('发送邀请失败')
+    return
+  }
+  await loadConversations()
+  await loadRecommendations()
+  selectContact(rec.userId)
 }
 
 async function selectContact(id) {
@@ -273,47 +345,202 @@ async function sendMessage() {
   }
 }
 
-onMounted(() => { connect(); loadConversations() })
+onMounted(() => { connect(); loadConversations(); loadRecommendations() })
 onBeforeUnmount(() => { if (stompClient && stompClient.deactivate) stompClient.deactivate(); connected.value = false })
 </script>
 
 <style scoped>
-.main-content { padding:28px }
-.workspace-header { margin-bottom:18px; padding:24px; display:flex; justify-content:space-between; gap:16px; align-items:center }
-.workspace-eyebrow { margin-bottom:8px; font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:var(--color-accent-secondary) }
-.chat-panel { display:grid; grid-template-columns: 340px minmax(0, 1fr); gap:18px; align-items:start }
-.chat-area { min-width:0; display:flex; flex-direction:column; padding:18px }
-.thread-header { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; padding:0 4px 12px; border-bottom:1px solid var(--design-border) }
-.thread-summary { max-width:56ch }
-.thread-pills { display:flex; flex-wrap:wrap; gap:10px }
-.thread-pill { padding:8px 12px; border-radius:999px; border:1px solid var(--design-border); background:rgba(124,140,255,0.12); color:var(--color-text-primary) }
-.thread-pill.online { color:#10b981 }
-.messages { flex:1; overflow:auto; padding:12px; display:flex; flex-direction:column; gap:10px }
-.msg { display:flex; flex-direction:column; max-width:70%; animation: fadeInUp .18s ease }
-.msg.in { align-items:flex-start }
-.msg.out { align-items:flex-end; margin-left:auto }
-.bubble { padding:10px 14px; border-radius:12px; background: rgba(255,255,255,0.04); backdrop-filter: blur(4px); box-shadow: var(--shadow) }
-.msg.out .bubble { background: linear-gradient(135deg,var(--primary),var(--accent)); color:white }
-.time { font-size:11px; color:var(--text-secondary); margin-top:6px; display:flex; gap:8px; align-items:center }
-.time .read { font-size:12px; color:rgba(255,255,255,0.75) }
-.bubble.new { transform: translateY(6px); opacity:0; animation: popIn .22s forwards }
-.composer { display:flex; gap:8px; padding:12px; border-top:1px solid var(--border); align-items:center }
-.composer input { flex:1; padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:transparent; color:var(--text-primary); outline:none }
-.btn.primary { background:var(--primary); color:white; padding:10px 16px; border-radius:10px }
-.ws-status { margin-top:12px; color:var(--text-secondary) }
-.ws-status .online { color:#10b981 }
-.empty { padding:40px; text-align:center; color:var(--text-secondary) }
-@keyframes popIn { to { transform:none; opacity:1 } }
-@keyframes fadeInUp { from { opacity:0; transform: translateY(6px) } to { opacity:1; transform:none } }
+.main-content {
+  padding: 28px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.workspace-header {
+  margin-bottom: 18px;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.workspace-eyebrow {
+  margin-bottom: 8px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent-secondary);
+}
+
+.chat-panel {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 18px;
+  overflow: hidden;
+}
+
+.chat-area {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.thread-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 0 4px 12px;
+  border-bottom: 1px solid var(--design-border);
+  flex-shrink: 0;
+}
+
+.thread-summary {
+  max-width: 56ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.thread-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.thread-pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--design-border);
+  background: rgba(124, 140, 255, 0.12);
+  color: var(--color-text-primary);
+}
+
+.thread-pill.online { color: #10b981; }
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+  animation: fadeInUp 0.18s ease;
+}
+
+.msg.in { align-items: flex-start; }
+
+.msg.out {
+  align-items: flex-end;
+  margin-left: auto;
+}
+
+.bubble {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(4px);
+  box-shadow: var(--shadow);
+}
+
+.msg.out .bubble {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+}
+
+.time {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.time .read {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.bubble.new {
+  transform: translateY(6px);
+  opacity: 0;
+  animation: popIn 0.22s forwards;
+}
+
+.composer {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.composer input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.btn.primary {
+  background: var(--primary);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+}
+
+.ws-status {
+  margin-top: 12px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.ws-status .online { color: #10b981; }
+
+.empty {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+@keyframes popIn {
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
 
 @media (max-width: 1180px) {
   .workspace-header,
   .chat-panel { grid-template-columns: 1fr; }
   .workspace-header,
-  .thread-header { flex-direction:column; align-items:flex-start }
+  .thread-header { flex-direction: column; align-items: flex-start; }
 }
 
 @media (max-width: 980px) {
-  .main-content { margin-left:0; padding:18px }
+  .main-content { margin-left: 0; padding: 18px; }
 }
 </style>

@@ -11,3 +11,6 @@ export const getPostComments = (postId) =>
 
 export const createPostComment = (postId, data) =>
   request.post(`/community/posts/${postId}/comments`, data)
+
+export const togglePostLike = (postId) =>
+  request.post(`/community/posts/${postId}/like`)

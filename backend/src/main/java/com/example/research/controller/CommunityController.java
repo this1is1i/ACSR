@@ -55,4 +55,10 @@ public class CommunityController {
         Long userId = (Long) authentication.getPrincipal();
         return Result.success(communityService.createComment(userId, postId, request));
     }
+
+    @PostMapping("/posts/{postId}/like")
+    public Result<Boolean> toggleLike(@PathVariable Long postId, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(communityService.toggleLike(userId, postId));
+    }
 }

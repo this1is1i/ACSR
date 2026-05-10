@@ -9,4 +9,5 @@ public interface CommunityService {
     CommunityDto.PostItem createPost(Long userId, CommunityDto.PostCreateRequest request);
     List<CommunityDto.CommentItem> listComments(Long postId, Long currentUserId);
     CommunityDto.CommentItem createComment(Long userId, Long postId, CommunityDto.CommentCreateRequest request);
+    boolean toggleLike(Long userId, Long postId);
 }

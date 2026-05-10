@@ -37,6 +37,8 @@ python -m unittest tests.test_runtime_fixes.RuntimeFixesTest.test_config_reads_n
 
 Startup order: 1. RL service (:8000) → 2. Backend (:8080) → 3. Frontend (:5173)
 
+Seed test data: `backend/src/main/resources/seed_test_data.sql` populates all tables with representative data for development.
+
 No dedicated lint/checkstyle is configured for any service.
 
 ## Architecture
@@ -140,8 +142,11 @@ Router guards check `public` meta and `roles` meta, redirecting unauthenticated 
 - **WebSocket auth**: `MessageWebSocketController` validates JWT from STOMP message body, not headers. The `/ws-messages/**` path is in the Spring Security whitelist (auth happens at STOMP CONNECT).
 - **Database**: MySQL 8.0 (`research_db`, user=root, pass=qwer1234). Tables: `user`, `paper`, `behavior_log`, `private_message`, `user_contact`, `post`, `comment`, `announcements`, `user_interest_history`, `browse_history`, `user_feature_snapshot`, `rl_training_log`, `favourite`, `board`, `notification`.
 - **Neo4j**: `bolt://localhost:7687`, user=neo4j, pass=seeworld123. Stores Paper nodes and 5 relationship types (HAS_KEYWORD, AUTHOR_OF, CITE, PUBLISH_IN, CO_AUTHOR). KG data flows through Python service — backend no longer uses MySQL `kg_entity`/`kg_relation` tables.
+- **KnowledgeGraph edges**: Python `path_builder.to_dict()` outputs `src`/`dst`, but 3D force-graph expects `source`/`target`. The frontend normalizes edges with `l.src || l.source` / `l.dst || l.target` fallback. Keep both field forms when modifying the graph pipeline.
+- **MCP config**: `.mcp.json` at repo root configures `@myuon/refactor-mcp` for regex-based code search/replace.
+- **Avatar uploads**: Frontend dev server proxies `/uploads` → `http://localhost:8080` for avatar image loading.
 
 ## Known Limitations
-- `VisualizationServiceImpl.buildInterestTrends` falls back to profile `researchInterests` + random data when `user_interest_history` has no monthly data.
-- The repo contains a Playwright smoke test (`tests/design.spec.js`) but no comprehensive test suite for the frontend.
+- The repo contains a Playwright smoke test (`tests/design.spec.js`) but no comprehensive test suite for any service.
 - Python service must be running for KG, visualization, and recommendation features to work with real data (no in-process fallback for KG/learning-path).
+- `VisualizationServiceImpl` was slimmed to a single method (`buildKnowledgeGraph`); all stats/chart/trend endpoints are gone — the profile page now gets visualization data from the KG endpoint only.

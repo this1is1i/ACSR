@@ -72,7 +72,9 @@
 
               <div class="post-actions">
                 <span class="post-stat">回复 {{ post.replyCount }}</span>
-                <span class="post-stat">点赞 {{ post.likeCount }}</span>
+                <button class="like-btn" :class="{ liked: post.liked }" @click="handleLike(post)">
+                  {{ post.liked ? '❤️' : '🤍' }} 点赞 {{ post.likeCount }}
+                </button>
                 <button class="comment-btn" @click="openComments(post)">查看评论</button>
               </div>
             </article>
@@ -129,7 +131,7 @@ import { ElMessage } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
 import CommunityCommentTree from '@/components/CommunityCommentTree.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
-import { createCommunityPost, createPostComment, getCommunityPosts, getPostComments } from '@/api/community'
+import { createCommunityPost, createPostComment, getCommunityPosts, getPostComments, togglePostLike } from '@/api/community'
 import { useUserStore } from '@/store/userStore'
 
 const userStore = useUserStore()
@@ -207,6 +209,20 @@ async function submitPost() {
     await loadPosts()
   } finally {
     submitting.value = false
+  }
+}
+
+async function handleLike(post) {
+  if (!userStore.isLoggedIn()) {
+    ElMessage.warning('请先登录')
+    return
+  }
+  try {
+    await togglePostLike(post.id)
+    post.liked = !post.liked
+    post.likeCount += post.liked ? 1 : -1
+  } catch (e) {
+    console.error('toggleLike failed', e)
   }
 }
 
@@ -304,7 +320,9 @@ function formatTime(value) {
 .review-note,
 .reply-target { margin-top: 14px; padding: 12px; border-radius: 10px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.15); }
 .comment-btn,
-.clear-reply { background: transparent; border: 1px solid rgba(99, 102, 241, 0.35); color: var(--primary); padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+.clear-reply,
+.like-btn { background: transparent; border: 1px solid rgba(99, 102, 241, 0.35); color: var(--primary); padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+.like-btn.liked { border-color: rgba(239, 68, 68, 0.45); color: #ef4444; }
 .empty-state { padding: 24px; text-align: center; color: var(--text-secondary); }
 .dialog-title { display: flex; flex-direction: column; gap: 4px; }
 .comment-panel { max-height: 70vh; overflow: auto; }

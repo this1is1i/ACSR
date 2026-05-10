@@ -11,7 +11,7 @@
  Target Server Version : 80031
  File Encoding         : 65001
 
- Date: 09/05/2026 17:17:31
+ Date: 10/05/2026 13:15:44
 */
 
 SET NAMES utf8mb4;
@@ -36,7 +36,7 @@ CREATE TABLE `behavior_log`  (
   INDEX `idx_user_action`(`user_id` ASC, `action` ASC) USING BTREE,
   CONSTRAINT `fk_behavior_paper` FOREIGN KEY (`paper_id`) REFERENCES `paper` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_behavior_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户行为日志表（RL 训练数据）' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 74 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户行为日志表（RL 训练数据）' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of behavior_log
@@ -46,6 +46,63 @@ INSERT INTO `behavior_log` VALUES (13, 2, 617, 'click', NULL, 'recommend', '2026
 INSERT INTO `behavior_log` VALUES (15, 1, 145, 'click', NULL, 'recommend', '2026-05-08 21:58:13');
 INSERT INTO `behavior_log` VALUES (16, 1, 110, 'click', NULL, 'recommend', '2026-05-08 21:59:38');
 INSERT INTO `behavior_log` VALUES (17, 1, 351, 'click', NULL, 'recommend', '2026-05-08 21:59:48');
+INSERT INTO `behavior_log` VALUES (18, 1, 1, 'read', 360, 'recommend', '2026-05-01 09:30:00');
+INSERT INTO `behavior_log` VALUES (19, 1, 1, 'favorite', NULL, 'detail', '2026-05-01 09:36:00');
+INSERT INTO `behavior_log` VALUES (20, 1, 2, 'click', NULL, 'recommend', '2026-05-02 10:15:00');
+INSERT INTO `behavior_log` VALUES (21, 1, 3, 'read', 480, 'search', '2026-05-03 14:20:00');
+INSERT INTO `behavior_log` VALUES (22, 1, 4, 'click', NULL, 'recommend', '2026-05-04 08:45:00');
+INSERT INTO `behavior_log` VALUES (23, 1, 5, 'favorite', NULL, 'search', '2026-05-04 16:00:00');
+INSERT INTO `behavior_log` VALUES (24, 2, 4, 'read', 600, 'recommend', '2026-05-01 11:00:00');
+INSERT INTO `behavior_log` VALUES (25, 2, 5, 'read', 320, 'search', '2026-05-02 15:30:00');
+INSERT INTO `behavior_log` VALUES (26, 2, 110, 'click', NULL, 'recommend', '2026-05-03 09:10:00');
+INSERT INTO `behavior_log` VALUES (27, 2, 145, 'favorite', NULL, 'detail', '2026-05-04 13:25:00');
+INSERT INTO `behavior_log` VALUES (28, 3, 351, 'click', NULL, 'search', '2026-05-02 16:40:00');
+INSERT INTO `behavior_log` VALUES (29, 3, 110, 'read', 280, 'recommend', '2026-05-03 11:55:00');
+INSERT INTO `behavior_log` VALUES (30, 5, 145, 'read', 520, 'recommend', '2026-05-05 09:00:00');
+INSERT INTO `behavior_log` VALUES (31, 5, 145, 'favorite', NULL, 'detail', '2026-05-05 09:10:00');
+INSERT INTO `behavior_log` VALUES (32, 5, 351, 'click', NULL, 'search', '2026-05-06 14:30:00');
+INSERT INTO `behavior_log` VALUES (33, 5, 617, 'read', 400, 'recommend', '2026-05-07 10:00:00');
+INSERT INTO `behavior_log` VALUES (34, 6, 351, 'click', NULL, 'search', '2026-05-05 08:20:00');
+INSERT INTO `behavior_log` VALUES (35, 6, 617, 'read', 350, 'recommend', '2026-05-06 13:15:00');
+INSERT INTO `behavior_log` VALUES (36, 6, 697, 'click', NULL, 'search', '2026-05-07 15:45:00');
+INSERT INTO `behavior_log` VALUES (37, 7, 617, 'click', NULL, 'recommend', '2026-05-05 10:30:00');
+INSERT INTO `behavior_log` VALUES (38, 7, 697, 'read', 300, 'search', '2026-05-06 11:00:00');
+INSERT INTO `behavior_log` VALUES (39, 7, 145, 'click', NULL, 'recommend', '2026-05-08 09:20:00');
+INSERT INTO `behavior_log` VALUES (40, 8, 1, 'read', 450, 'recommend', '2026-05-06 08:00:00');
+INSERT INTO `behavior_log` VALUES (41, 8, 2, 'click', NULL, 'search', '2026-05-07 16:30:00');
+INSERT INTO `behavior_log` VALUES (42, 8, 3, 'favorite', NULL, 'detail', '2026-05-08 11:15:00');
+INSERT INTO `behavior_log` VALUES (43, 9, 4, 'read', 380, 'search', '2026-05-07 10:45:00');
+INSERT INTO `behavior_log` VALUES (44, 9, 5, 'click', NULL, 'recommend', '2026-05-08 14:00:00');
+INSERT INTO `behavior_log` VALUES (45, 1, 1, 'read', 360, 'recommend', '2026-05-01 09:30:00');
+INSERT INTO `behavior_log` VALUES (46, 1, 1, 'favorite', NULL, 'detail', '2026-05-01 09:36:00');
+INSERT INTO `behavior_log` VALUES (47, 1, 2, 'click', NULL, 'recommend', '2026-05-02 10:15:00');
+INSERT INTO `behavior_log` VALUES (48, 1, 3, 'read', 480, 'search', '2026-05-03 14:20:00');
+INSERT INTO `behavior_log` VALUES (49, 1, 4, 'click', NULL, 'recommend', '2026-05-04 08:45:00');
+INSERT INTO `behavior_log` VALUES (50, 1, 5, 'favorite', NULL, 'search', '2026-05-04 16:00:00');
+INSERT INTO `behavior_log` VALUES (51, 2, 4, 'read', 600, 'recommend', '2026-05-01 11:00:00');
+INSERT INTO `behavior_log` VALUES (52, 2, 5, 'read', 320, 'search', '2026-05-02 15:30:00');
+INSERT INTO `behavior_log` VALUES (53, 2, 110, 'click', NULL, 'recommend', '2026-05-03 09:10:00');
+INSERT INTO `behavior_log` VALUES (54, 2, 145, 'favorite', NULL, 'detail', '2026-05-04 13:25:00');
+INSERT INTO `behavior_log` VALUES (55, 3, 351, 'click', NULL, 'search', '2026-05-02 16:40:00');
+INSERT INTO `behavior_log` VALUES (56, 3, 110, 'read', 280, 'recommend', '2026-05-03 11:55:00');
+INSERT INTO `behavior_log` VALUES (57, 5, 145, 'read', 520, 'recommend', '2026-05-05 09:00:00');
+INSERT INTO `behavior_log` VALUES (58, 5, 145, 'favorite', NULL, 'detail', '2026-05-05 09:10:00');
+INSERT INTO `behavior_log` VALUES (59, 5, 351, 'click', NULL, 'search', '2026-05-06 14:30:00');
+INSERT INTO `behavior_log` VALUES (60, 5, 617, 'read', 400, 'recommend', '2026-05-07 10:00:00');
+INSERT INTO `behavior_log` VALUES (61, 6, 351, 'click', NULL, 'search', '2026-05-05 08:20:00');
+INSERT INTO `behavior_log` VALUES (62, 6, 617, 'read', 350, 'recommend', '2026-05-06 13:15:00');
+INSERT INTO `behavior_log` VALUES (63, 6, 697, 'click', NULL, 'search', '2026-05-07 15:45:00');
+INSERT INTO `behavior_log` VALUES (64, 7, 617, 'click', NULL, 'recommend', '2026-05-05 10:30:00');
+INSERT INTO `behavior_log` VALUES (65, 7, 697, 'read', 300, 'search', '2026-05-06 11:00:00');
+INSERT INTO `behavior_log` VALUES (66, 7, 145, 'click', NULL, 'recommend', '2026-05-08 09:20:00');
+INSERT INTO `behavior_log` VALUES (67, 8, 1, 'read', 450, 'recommend', '2026-05-06 08:00:00');
+INSERT INTO `behavior_log` VALUES (68, 8, 2, 'click', NULL, 'search', '2026-05-07 16:30:00');
+INSERT INTO `behavior_log` VALUES (69, 8, 3, 'favorite', NULL, 'detail', '2026-05-08 11:15:00');
+INSERT INTO `behavior_log` VALUES (70, 9, 4, 'read', 380, 'search', '2026-05-07 10:45:00');
+INSERT INTO `behavior_log` VALUES (71, 9, 5, 'click', NULL, 'recommend', '2026-05-08 14:00:00');
+INSERT INTO `behavior_log` VALUES (72, 1, 11, 'click', NULL, 'recommend', '2026-05-09 21:58:23');
+INSERT INTO `behavior_log` VALUES (73, 1, 542, 'click', NULL, 'recommend', '2026-05-09 23:53:40');
+INSERT INTO `behavior_log` VALUES (74, 1, 34, 'favorite', NULL, 'recommend', '2026-05-09 23:53:44');
 
 -- ----------------------------
 -- Table structure for board
@@ -64,11 +121,13 @@ CREATE TABLE `board`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_name`(`name` ASC) USING BTREE,
   INDEX `idx_sort`(`sort_order` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '科研社区版块表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '科研社区版块表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of board
 -- ----------------------------
+INSERT INTO `board` VALUES (1, 'Paper Discussion', 'Discuss latest papers and share reading notes', NULL, 1, 1, 0, '2026-05-09 17:26:50', '2026-05-09 17:26:50');
+INSERT INTO `board` VALUES (2, 'Tech Q&A', 'Technical questions during research', NULL, 2, 1, 0, '2026-05-09 17:26:50', '2026-05-09 17:26:50');
 
 -- ----------------------------
 -- Table structure for browse_history
@@ -87,7 +146,7 @@ CREATE TABLE `browse_history`  (
   INDEX `fk_browse_paper`(`paper_id` ASC) USING BTREE,
   CONSTRAINT `fk_browse_paper` FOREIGN KEY (`paper_id`) REFERENCES `paper` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_browse_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户浏览历史记录表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户浏览历史记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of browse_history
@@ -96,6 +155,22 @@ INSERT INTO `browse_history` VALUES (1, 1, 1, 0, '2026-03-21', '2026-05-01 13:18
 INSERT INTO `browse_history` VALUES (2, 2, 697, 0, '2026-04-27', '2026-05-01 13:18:26');
 INSERT INTO `browse_history` VALUES (3, 2, 617, 0, '2026-04-27', '2026-05-01 13:18:26');
 INSERT INTO `browse_history` VALUES (4, 1, 4, 0, '2026-04-27', '2026-05-01 13:18:26');
+INSERT INTO `browse_history` VALUES (5, 1, 2, 180, '2026-05-03', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (6, 1, 3, 240, '2026-05-04', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (7, 1, 5, 120, '2026-05-05', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (8, 1, 110, 90, '2026-05-06', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (9, 2, 1, 200, '2026-05-02', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (10, 2, 145, 300, '2026-05-04', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (11, 2, 351, 150, '2026-05-05', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (12, 2, 697, 100, '2026-05-07', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (13, 5, 617, 260, '2026-05-06', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (14, 5, 351, 180, '2026-05-08', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (15, 6, 110, 120, '2026-05-05', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (16, 6, 145, 190, '2026-05-07', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (17, 7, 4, 160, '2026-05-06', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (18, 7, 5, 140, '2026-05-08', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (19, 8, 1, 220, '2026-05-07', '2026-05-09 17:26:50');
+INSERT INTO `browse_history` VALUES (20, 9, 4, 170, '2026-05-08', '2026-05-09 17:26:50');
 
 -- ----------------------------
 -- Table structure for comment
@@ -122,7 +197,7 @@ CREATE TABLE `comment`  (
   CONSTRAINT `fk_comment_parent` FOREIGN KEY (`parent_id`) REFERENCES `comment` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_comment_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_comment_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '帖子评论/回复表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 30 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '帖子评论/回复表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of comment
@@ -137,6 +212,26 @@ INSERT INTO `comment` VALUES (7, 5, 3, 6, 6, 'Same here! What range do you usual
 INSERT INTO `comment` VALUES (8, 5, 1, 7, 6, 'I recommend running mean/std normalization (N(0,1)) with a small epsilon to avoid division by zero. Clip to [-10, 10] as a safety measure.', 4, 0, 1, '2026-04-18 14:00:00', '2026-04-18 14:00:00');
 INSERT INTO `comment` VALUES (9, 3, 1, NULL, NULL, 'Great tips! I have also found that using a linear warmup schedule for the first 10% of steps really helps stabilize training.', 3, 0, 1, '2026-04-09 08:00:00', '2026-04-09 08:00:00');
 INSERT INTO `comment` VALUES (10, 3, 2, 9, 9, 'Absolutely! The warmup prevents the model from making drastic updates before it has seen enough of the downstream data distribution.', 2, 0, 1, '2026-04-09 09:30:00', '2026-04-09 09:30:00');
+INSERT INTO `comment` VALUES (11, 6, 1, NULL, NULL, 'Great survey! Recent work on GNN + recommendation is also a hot direction.', 0, 0, 1, '2026-05-05 11:00:00', '2026-05-09 17:26:50');
+INSERT INTO `comment` VALUES (12, 6, 2, NULL, NULL, 'Any open-source dataset recommendations for KG+RS experiments?', 0, 0, 1, '2026-05-05 13:20:00', '2026-05-09 17:26:50');
+INSERT INTO `comment` VALUES (13, 6, 5, 2, NULL, 'Try MovieLens-1M with Freebase for KG construction, or Amazon Reviews dataset.', 0, 0, 1, '2026-05-05 14:50:00', '2026-05-09 17:26:50');
+INSERT INTO `comment` VALUES (14, 7, 9, NULL, NULL, 'Transformer in CV has many interesting works, recommend DETR and ViT papers.', 0, 0, 1, '2026-05-06 16:00:00', '2026-05-09 17:26:50');
+INSERT INTO `comment` VALUES (15, 7, 7, NULL, NULL, 'Are there lightweight Transformer implementations for quick experiments?', 0, 0, 1, '2026-05-06 17:30:00', '2026-05-09 17:26:50');
+INSERT INTO `comment` VALUES (16, 7, 1, 5, NULL, 'Use HuggingFace Transformers library, one line to load pretrained models. Also try TinyBERT and DistilBERT.', 0, 0, 1, '2026-05-07 08:45:00', '2026-05-09 17:26:50');
+INSERT INTO `comment` VALUES (17, 8, 2, NULL, NULL, 'Non-IID data distribution in federated learning is one of the biggest practical challenges.', 0, 0, 1, '2026-05-07 10:00:00', '2026-05-09 17:26:50');
+INSERT INTO `comment` VALUES (18, 8, 8, NULL, NULL, 'I used Flower framework in my experiments, supports multiple FL algorithms, highly recommended.', 0, 0, 1, '2026-05-07 14:00:00', '2026-05-09 17:26:50');
+INSERT INTO `comment` VALUES (19, 9, 2, NULL, NULL, 'The classic Sutton & Barto book is indeed the best introduction to RL.', 0, 0, 1, '2026-05-08 12:30:00', '2026-05-09 17:26:50');
+INSERT INTO `comment` VALUES (20, 9, 9, NULL, NULL, 'Also recommend Andrej Karpathy\'s blog \"Pong from Pixels\" - 130 lines to understand Policy Gradient.', 0, 0, 1, '2026-05-08 15:00:00', '2026-05-09 17:26:50');
+INSERT INTO `comment` VALUES (21, 6, 1, NULL, NULL, 'Great survey! Recent work on GNN + recommendation is also a hot direction.', 0, 0, 1, '2026-05-05 11:00:00', '2026-05-09 17:32:37');
+INSERT INTO `comment` VALUES (22, 6, 2, NULL, NULL, 'Any open-source dataset recommendations for KG+RS experiments?', 0, 0, 1, '2026-05-05 13:20:00', '2026-05-09 17:32:37');
+INSERT INTO `comment` VALUES (23, 6, 5, 2, NULL, 'Try MovieLens-1M with Freebase for KG construction, or Amazon Reviews dataset.', 0, 0, 1, '2026-05-05 14:50:00', '2026-05-09 17:32:37');
+INSERT INTO `comment` VALUES (24, 7, 9, NULL, NULL, 'Transformer in CV has many interesting works, recommend DETR and ViT papers.', 0, 0, 1, '2026-05-06 16:00:00', '2026-05-09 17:32:37');
+INSERT INTO `comment` VALUES (25, 7, 7, NULL, NULL, 'Are there lightweight Transformer implementations for quick experiments?', 0, 0, 1, '2026-05-06 17:30:00', '2026-05-09 17:32:37');
+INSERT INTO `comment` VALUES (26, 7, 1, 5, NULL, 'Use HuggingFace Transformers library, one line to load pretrained models. Also try TinyBERT and DistilBERT.', 0, 0, 1, '2026-05-07 08:45:00', '2026-05-09 17:32:37');
+INSERT INTO `comment` VALUES (27, 8, 2, NULL, NULL, 'Non-IID data distribution in federated learning is one of the biggest practical challenges.', 0, 0, 1, '2026-05-07 10:00:00', '2026-05-09 17:32:37');
+INSERT INTO `comment` VALUES (28, 8, 8, NULL, NULL, 'I used Flower framework in my experiments, supports multiple FL algorithms, highly recommended.', 0, 0, 1, '2026-05-07 14:00:00', '2026-05-09 17:32:37');
+INSERT INTO `comment` VALUES (29, 9, 2, NULL, NULL, 'The classic Sutton & Barto book is indeed the best introduction to RL.', 0, 0, 1, '2026-05-08 12:30:00', '2026-05-09 17:32:37');
+INSERT INTO `comment` VALUES (30, 9, 9, NULL, NULL, 'Also recommend Andrej Karpathy\'s blog \"Pong from Pixels\" - 130 lines to understand Policy Gradient.', 0, 0, 1, '2026-05-08 15:00:00', '2026-05-09 17:32:37');
 
 -- ----------------------------
 -- Table structure for favourite
@@ -155,11 +250,21 @@ CREATE TABLE `favourite`  (
   INDEX `fk_fav_paper`(`paper_id` ASC) USING BTREE,
   CONSTRAINT `fk_fav_paper` FOREIGN KEY (`paper_id`) REFERENCES `paper` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_fav_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户论文收藏表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户论文收藏表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of favourite
 -- ----------------------------
+INSERT INTO `favourite` VALUES (1, 1, 1, '默认收藏夹', 'RL classic must-read', '2026-05-09 17:26:50');
+INSERT INTO `favourite` VALUES (2, 1, 5, '默认收藏夹', 'BERT milestone paper', '2026-05-09 17:26:50');
+INSERT INTO `favourite` VALUES (3, 2, 4, '默认收藏夹', 'Transformer origin paper', '2026-05-09 17:26:50');
+INSERT INTO `favourite` VALUES (4, 2, 145, '默认收藏夹', 'KG + recommendation survey', '2026-05-09 17:26:50');
+INSERT INTO `favourite` VALUES (5, 5, 145, '默认收藏夹', 'Foundational literature for my research', '2026-05-09 17:26:50');
+INSERT INTO `favourite` VALUES (6, 5, 617, '默认收藏夹', 'Federated learning survey', '2026-05-09 17:26:50');
+INSERT INTO `favourite` VALUES (7, 8, 1, '默认收藏夹', 'RL classic reading', '2026-05-09 17:26:50');
+INSERT INTO `favourite` VALUES (8, 8, 3, '默认收藏夹', 'PPO algorithm paper', '2026-05-09 17:26:50');
+INSERT INTO `favourite` VALUES (9, 9, 4, '默认收藏夹', 'Multi-modal research reference', '2026-05-09 17:26:50');
+INSERT INTO `favourite` VALUES (10, 3, 351, '默认收藏夹', 'NLP intro reference', '2026-05-09 17:26:50');
 
 -- ----------------------------
 -- Table structure for notification
@@ -178,11 +283,16 @@ CREATE TABLE `notification`  (
   INDEX `idx_user_type`(`user_id` ASC, `type` ASC) USING BTREE,
   INDEX `idx_user_read`(`user_id` ASC, `is_read` ASC, `create_time` ASC) USING BTREE,
   CONSTRAINT `fk_notice_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '系统通知表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '系统通知表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of notification
 -- ----------------------------
+INSERT INTO `notification` VALUES (1, 1, 'SYSTEM', 'Recommendation model update', 'Actor-Critic model has completed a new round of training with improved accuracy', NULL, 0, '2026-05-09 17:32:37');
+INSERT INTO `notification` VALUES (2, 2, 'COMMENT', 'Someone replied to your comment', 'researcher_li replied to your comment on the KG + recommendation post', NULL, 0, '2026-05-09 17:32:37');
+INSERT INTO `notification` VALUES (3, 5, 'LIKE', 'Your post received new likes', 'Your post on KG-enhanced recommendation received 5 new likes', NULL, 0, '2026-05-09 17:32:37');
+INSERT INTO `notification` VALUES (4, 6, 'SYSTEM', 'Research interest recommendation update', 'Based on your recent reading behavior, we recommend new papers on Transformer', NULL, 0, '2026-05-09 17:32:37');
+INSERT INTO `notification` VALUES (5, 8, 'MENTION', 'Someone mentioned you', 'alice_prof mentioned your work in a post', NULL, 0, '2026-05-09 17:32:37');
 
 -- ----------------------------
 -- Table structure for paper
@@ -207,7 +317,7 @@ CREATE TABLE `paper`  (
   INDEX `idx_year`(`year` ASC) USING BTREE,
   INDEX `idx_citation`(`citation_count` ASC) USING BTREE,
   FULLTEXT INDEX `ft_title_abstract`(`title`, `abstract`) COMMENT '全文检索索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 3017 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '论文表（AMiner 数据）' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 3016 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '论文表（AMiner 数据）' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of paper
@@ -1241,7 +1351,7 @@ CREATE TABLE `post`  (
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
   CONSTRAINT `fk_post_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '社区帖子表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '社区帖子表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of post
@@ -1251,6 +1361,11 @@ INSERT INTO `post` VALUES (2, 1, 1, 'Getting Started with Deep Reinforcement Lea
 INSERT INTO `post` VALUES (3, 2, 5, 'BERT Fine-Tuning Best Practices', 'After working with BERT for several downstream tasks, I found that the learning rate and batch size are critical hyperparameters. Too high a learning rate and the pre-trained weights get destroyed. I have compiled some best practices from recent papers — share your experiences too!', 5, 2, 1, NULL, NULL, NULL, 0, '2026-04-08 11:00:00', '2026-04-08 11:00:00');
 INSERT INTO `post` VALUES (4, 3, 2, 'A3C vs PPO — Which One Should I Use?', 'I am a student trying to implement a reinforcement learning project. I have read both the A3C and PPO papers. A3C is asynchronous and works well on CPU, while PPO is simpler and more stable. Which one would you recommend for a beginner project with limited GPU resources?', 3, 1, 1, '123', 1, '2026-05-08 20:14:28', 0, '2026-04-20 16:45:00', '2026-04-20 16:45:00');
 INSERT INTO `post` VALUES (5, 1, 3, 'PPO Implementation Tips and Tricks', 'I recently implemented PPO from scratch and learned a lot. Key takeaways: 1) the clipping parameter really matters, 2) GAE (Generalized Advantage Estimation) improves stability significantly, 3) normalizing rewards helps a lot. I am sharing my code and notes — feedback welcome!', 15, 4, 1, NULL, NULL, NULL, 0, '2026-04-18 08:15:00', '2026-04-18 08:15:00');
+INSERT INTO `post` VALUES (6, 5, 145, 'Recent advances in KG-enhanced recommendation', 'Recent papers show that combining KG embeddings with collaborative filtering significantly improves cold-start recommendation performance. Anyone has experience in this area?', 0, 0, 1, NULL, NULL, NULL, 0, '2026-05-05 10:00:00', '2026-05-09 17:26:50');
+INSERT INTO `post` VALUES (7, 6, 4, 'Transformer beyond NLP: application thoughts', 'Attention mechanism has revolutionized not only NLP but also CV, speech, and recommendation. I am exploring multi-head attention for user behavior sequence modeling. Welcome to discuss.', 0, 0, 0, '', 1, '2026-05-10 00:09:23', 0, '2026-05-06 14:30:00', '2026-05-09 17:26:50');
+INSERT INTO `post` VALUES (8, 7, 617, 'Privacy-preserving federated learning: balancing accuracy', 'A core challenge in federated learning: how to protect user privacy while maintaining model accuracy? Differential privacy and homomorphic encryption each have trade-offs.', 0, 0, 0, '', 1, '2026-05-10 00:09:07', 0, '2026-05-07 09:15:00', '2026-05-09 17:26:50');
+INSERT INTO `post` VALUES (9, 8, 1, 'RL beginner learning path recommendations', 'As a newcomer to RL, I started with the classic Sutton textbook combined with OpenAI Gym practice. Playing Atari with DRL is a great starting point, recommended to fellow beginners.', 0, 0, 2, '', 1, '2026-05-10 00:14:12', 0, '2026-05-08 11:00:00', '2026-05-09 17:26:50');
+INSERT INTO `post` VALUES (10, 2, NULL, 'Academic writing tools collection', 'I compiled my commonly used academic writing tools: Zotero for reference management, Overleaf for online LaTeX, Grammarly for grammar checking, Connected Papers for exploring related papers. Any other recommendations?', 0, 0, 1, NULL, NULL, NULL, 0, '2026-04-28 16:20:00', '2026-05-09 17:26:50');
 
 -- ----------------------------
 -- Table structure for private_messages
@@ -1272,7 +1387,7 @@ CREATE TABLE `private_messages`  (
   INDEX `idx_conversation`(`sender_id` ASC, `receiver_id` ASC, `create_time` ASC) USING BTREE,
   CONSTRAINT `fk_msg_receiver` FOREIGN KEY (`receiver_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_msg_sender` FOREIGN KEY (`sender_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户私信表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户私信表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of private_messages
@@ -1280,13 +1395,24 @@ CREATE TABLE `private_messages`  (
 INSERT INTO `private_messages` VALUES (1, 1, 2, 'Hi! I saw your post about Transformers — great analysis! I am working on a similar topic. Would you be interested in collaborating?', 1, 1, '2026-04-15 13:00:00', 1, '2026-04-15 12:30:00');
 INSERT INTO `private_messages` VALUES (2, 2, 1, 'Thanks! Yes, I would love to collaborate. I am currently experimenting with attention mechanisms for knowledge graph reasoning. What area are you focusing on?', 1, 1, '2026-04-15 13:05:00', 1, '2026-04-15 13:02:00');
 INSERT INTO `private_messages` VALUES (3, 1, 2, 'That sounds really interesting! I am exploring how RL can be combined with knowledge graphs for recommendation systems. Maybe we can combine our work — RL + attention for KG-based recommendations?', 1, 1, '2026-04-15 13:10:00', 1, '2026-04-15 13:08:00');
-INSERT INTO `private_messages` VALUES (4, 2, 1, 'That is a great idea! Let me put together some related work and share my notes. I will send you a document by end of week.', 1, 0, NULL, 1, '2026-04-15 13:15:00');
+INSERT INTO `private_messages` VALUES (4, 2, 1, 'That is a great idea! Let me put together some related work and share my notes. I will send you a document by end of week.', 1, 1, '2026-05-09 19:03:53', 1, '2026-04-15 13:15:00');
 INSERT INTO `private_messages` VALUES (5, 3, 2, 'Hello~ I saw you are a researcher in NLP and GNN. I am a student and would love to learn more about these fields. Do you have any advice?', 1, 1, '2026-04-16 10:00:00', 1, '2026-04-16 09:30:00');
 INSERT INTO `private_messages` VALUES (6, 2, 3, 'Hi xixihaha! Happy to help. I recommend starting with the fundamentals — Andrew Ng\'s ML course, then dive into specific papers. Start with something manageable like BERT fine-tuning before tackling GNNs.', 1, 1, '2026-04-16 10:05:00', 1, '2026-04-16 10:02:00');
 INSERT INTO `private_messages` VALUES (7, 3, 2, 'Thank you so much! I just finished the Stanford CS224N course on NLP. Should I move to graph neural networks next or focus more on Transformers?', 1, 1, '2026-04-16 11:00:00', 1, '2026-04-16 10:55:00');
 INSERT INTO `private_messages` VALUES (8, 2, 3, 'I would suggest spending more time on Transformers first — they are the foundation for many modern architectures including Graph Transformers. Once you are comfortable with attention mechanisms, GNNs will be much easier to understand.', 1, 0, NULL, 1, '2026-04-16 11:10:00');
 INSERT INTO `private_messages` VALUES (9, 1, 3, 'Welcome to the research community! I noticed you joined recently. Let me know if you have any questions about the platform.', 1, 1, '2026-04-18 09:00:00', 1, '2026-04-18 08:45:00');
 INSERT INTO `private_messages` VALUES (10, 3, 1, 'Thank you admin! The platform is really helpful. I am currently exploring the knowledge graph feature — the visualization is amazing!', 1, 1, '2026-04-18 09:05:00', 1, '2026-04-18 09:02:00');
+INSERT INTO `private_messages` VALUES (11, 1, 2, 'Hi, recently saw a paper on Graphormer, very relevant to your research direction.', 1, 0, NULL, 1, '2026-05-04 09:00:00');
+INSERT INTO `private_messages` VALUES (12, 2, 1, 'Thanks! I am preparing a Transformer+KG survey paper.', 1, 1, '2026-05-09 19:03:53', 1, '2026-05-04 09:15:00');
+INSERT INTO `private_messages` VALUES (13, 1, 2, 'Great, need any help with review?', 1, 0, NULL, 1, '2026-05-04 09:20:00');
+INSERT INTO `private_messages` VALUES (14, 5, 2, 'Are you presenting the KG progress update at next group meeting?', 1, 0, NULL, 1, '2026-05-05 14:00:00');
+INSERT INTO `private_messages` VALUES (15, 2, 5, 'Sure, I will prepare slides focusing on KG embedding and GNN integration.', 1, 0, NULL, 1, '2026-05-05 14:30:00');
+INSERT INTO `private_messages` VALUES (16, 6, 7, 'Want to go to the library this weekend? Found some good CV papers.', 1, 0, NULL, 1, '2026-05-06 10:00:00');
+INSERT INTO `private_messages` VALUES (17, 7, 6, 'Sounds good! I have been looking at DETR-related papers, can discuss together.', 1, 0, NULL, 1, '2026-05-06 10:10:00');
+INSERT INTO `private_messages` VALUES (18, 8, 1, 'Professor, I have some questions about the experimental design for the recommendation system.', 1, 1, '2026-05-09 19:03:55', 1, '2026-05-07 08:30:00');
+INSERT INTO `private_messages` VALUES (19, 1, 8, 'No problem, come to my office at 3pm and we can discuss in person.', 1, 0, NULL, 1, '2026-05-07 08:35:00');
+INSERT INTO `private_messages` VALUES (20, 9, 8, 'Chen, can you share your experience in multi-modal learning? Our group is also focusing on this.', 1, 0, NULL, 1, '2026-05-08 11:00:00');
+INSERT INTO `private_messages` VALUES (21, 1, 3, '你好', 1, 0, NULL, 1, '2026-05-09 19:04:14');
 
 -- ----------------------------
 -- Table structure for rl_training_log
@@ -1307,11 +1433,16 @@ CREATE TABLE `rl_training_log`  (
   INDEX `idx_episode`(`episode` ASC) USING BTREE,
   INDEX `idx_user`(`user_id` ASC) USING BTREE,
   INDEX `idx_time`(`create_time` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '强化学习训练日志表(用于模型优化)' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '强化学习训练日志表(用于模型优化)' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of rl_training_log
 -- ----------------------------
+INSERT INTO `rl_training_log` VALUES (1, 100, 1, NULL, NULL, 2.35, 185.6, 0.042, 'v1.0', '2026-05-09 17:32:37');
+INSERT INTO `rl_training_log` VALUES (2, 200, 1, NULL, NULL, 3.12, 392.1, 0.031, 'v1.1', '2026-05-09 17:32:37');
+INSERT INTO `rl_training_log` VALUES (3, 300, 1, NULL, NULL, 3.48, 521.7, 0.025, 'v1.2', '2026-05-09 17:32:37');
+INSERT INTO `rl_training_log` VALUES (4, 400, 1, NULL, NULL, 3.89, 668.3, 0.019, 'v1.3', '2026-05-09 17:32:37');
+INSERT INTO `rl_training_log` VALUES (5, 500, 1, NULL, NULL, 4.15, 803.5, 0.015, 'v1.4', '2026-05-09 17:32:37');
 
 -- ----------------------------
 -- Table structure for user
@@ -1332,14 +1463,19 @@ CREATE TABLE `user`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `username`(`username` ASC) USING BTREE,
   INDEX `idx_username`(`username` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (1, 'admin', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'admin@research.com', 'ADMIN', '/uploads/avatars/avatar_1_3a8e0b63.jpg', '', 'Machine Learning,Reinforcement Learning', 0, '2026-03-21 22:28:30', '2026-03-21 22:56:01');
+INSERT INTO `user` VALUES (1, 'admin', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'admin@research.com', 'ADMIN', '/uploads/avatars/avatar_1_40b139b7.png', '', 'Machine Learning,Reinforcement Learning', 0, '2026-03-21 22:28:30', '2026-03-21 22:56:01');
 INSERT INTO `user` VALUES (2, 'test_user', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'test@research.com', 'RESEARCHER', NULL, NULL, 'NLP,Graph Neural Networks', 0, '2026-03-21 22:28:30', '2026-03-21 22:56:01');
 INSERT INTO `user` VALUES (3, 'xixihaha', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', NULL, 'STUDENT', NULL, NULL, NULL, 0, '2026-03-21 22:54:42', '2026-03-21 22:54:42');
+INSERT INTO `user` VALUES (5, 'researcher_li', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'li@example.com', 'RESEARCHER', NULL, 'RL & KG researcher', 'Reinforcement Learning,Knowledge Graph,Graph Neural Networks', 0, '2026-05-09 17:24:20', '2026-05-09 17:24:20');
+INSERT INTO `user` VALUES (6, 'student_wang', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'wang@example.com', 'STUDENT', NULL, 'NLP student, year 2', 'NLP,Deep Learning,Transformer', 0, '2026-05-09 17:24:20', '2026-05-09 17:24:20');
+INSERT INTO `user` VALUES (7, 'student_zhang', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'zhang@example.com', 'STUDENT', NULL, 'CV and FL enthusiast', 'Computer Vision,Federated Learning,CNN', 0, '2026-05-09 17:24:20', '2026-05-09 17:24:20');
+INSERT INTO `user` VALUES (8, 'researcher_chen', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'chen@example.com', 'RESEARCHER', NULL, 'Postdoc in RecSys', 'Recommender Systems,User Modeling,Collaborative Filtering', 0, '2026-05-09 17:24:20', '2026-05-09 17:24:20');
+INSERT INTO `user` VALUES (9, 'alice_prof', '$2a$10$lqOCFA3Qd6/XWEmhkv0LjeKhTTc3H4k7ffiCUVpUIqnUGjJ9iyUSm', 'alice@example.com', 'RESEARCHER', NULL, 'Associate prof, multi-modal learning', 'Multi-modal Learning,Knowledge Distillation,GAN', 0, '2026-05-09 17:24:20', '2026-05-09 17:24:20');
 
 -- ----------------------------
 -- Table structure for user_contacts
@@ -1357,7 +1493,7 @@ CREATE TABLE `user_contacts`  (
   INDEX `idx_contact`(`contact_id` ASC) USING BTREE,
   CONSTRAINT `fk_contact_friend` FOREIGN KEY (`contact_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_contact_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户联系人/关注表(用于社交关系网络)' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 26 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户联系人/关注表(用于社交关系网络)' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_contacts
@@ -1367,6 +1503,15 @@ INSERT INTO `user_contacts` VALUES (2, 2, 1, 'FOLLOW', NULL, '2026-04-01 11:00:0
 INSERT INTO `user_contacts` VALUES (3, 1, 3, 'FOLLOW', NULL, '2026-04-05 09:00:00');
 INSERT INTO `user_contacts` VALUES (4, 3, 2, 'FOLLOW', 'test_user 学长', '2026-04-10 14:00:00');
 INSERT INTO `user_contacts` VALUES (5, 2, 3, 'FOLLOW', NULL, '2026-04-12 16:00:00');
+INSERT INTO `user_contacts` VALUES (16, 1, 8, 'MENTOR', 'advisor', '2026-05-09 17:32:37');
+INSERT INTO `user_contacts` VALUES (17, 2, 5, 'COLLABORATOR', 'collaborator', '2026-05-09 17:32:37');
+INSERT INTO `user_contacts` VALUES (18, 5, 1, 'COLLABORATOR', 'peer', '2026-05-09 17:32:37');
+INSERT INTO `user_contacts` VALUES (19, 5, 2, 'COLLABORATOR', 'peer', '2026-05-09 17:32:37');
+INSERT INTO `user_contacts` VALUES (20, 6, 7, 'CLASSMATE', 'classmate', '2026-05-09 17:32:37');
+INSERT INTO `user_contacts` VALUES (21, 7, 6, 'CLASSMATE', 'classmate', '2026-05-09 17:32:37');
+INSERT INTO `user_contacts` VALUES (22, 8, 9, 'COLLEAGUE', 'colleague', '2026-05-09 17:32:37');
+INSERT INTO `user_contacts` VALUES (23, 9, 8, 'COLLEAGUE', 'colleague', '2026-05-09 17:32:37');
+INSERT INTO `user_contacts` VALUES (26, 3, 1, 'FOLLOW', NULL, '2026-05-09 19:04:14');
 
 -- ----------------------------
 -- Table structure for user_feature_snapshot
@@ -1385,13 +1530,13 @@ CREATE TABLE `user_feature_snapshot`  (
   UNIQUE INDEX `uk_user_type`(`user_id` ASC, `feature_type` ASC) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_updated`(`updated_at` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户RL特征向量缓存表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户RL特征向量缓存表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of user_feature_snapshot
 -- ----------------------------
-INSERT INTO `user_feature_snapshot` VALUES (1, 1, 'interest', '[0.043416578322649, -0.1602335274219513, -0.09708259254693984, 0.11403817683458328, 0.05942031741142273, 0.015305018983781338, -0.0161606278270483, -0.03838575258851051, -0.05305557698011398, -0.1555873602628708, 0.01865331083536148, -0.15750901401042938, 0.04571488872170448, 0.06408397853374481, -0.14932380616664886, 0.06275277584791183, -0.13527901470661163, 0.017598554491996765, -0.061323460191488266, 0.20376235246658325, -0.06736189126968384, -0.05385447293519974, -0.04511554166674614, 0.15684300661087036, 0.15792587399482727, 0.13550302386283877, -0.02473665028810501, 0.015098252333700655, 0.05426580086350441, 0.25538063049316406, -0.07524947077035904, -0.28905829787254333, 0.11326707154512404, -0.07341501116752625, 0.1070769503712654, -0.12962248921394348, -0.0021648902911692858, -0.06718087941408157, -0.09580610692501068, -0.1054692417383194, -0.023935960605740547, -0.10075287520885468, -0.05523538589477539, 0.04984882473945618, 0.051917631179094315, 0.059781040996313095, 0.18105334043502808, 0.2181425988674164, -0.08215094357728958, 0.05444151163101196, -0.11211077123880386, -0.07530487328767776, -0.16359853744506836, -0.35061952471733093, -0.07692966610193253, -0.15240240097045898, 0.015619822777807713, -0.03975366055965424, 0.2363877296447754, -0.2274172306060791, -0.10165942460298538, -0.1196366623044014, 0.1881183683872223, 0.09978607296943665]', 64, 'computed', '2026-05-08 21:57:42', '2026-05-08 21:57:42');
-INSERT INTO `user_feature_snapshot` VALUES (2, 1, 'history', '[-0.2604665458202362, -0.056192267686128616, -0.2444186210632324, -0.07213929295539856, -0.03327765688300133, -0.05176888406276703, 0.19364041090011597, -0.0906405970454216, -0.2776801586151123, 0.00953613966703415, 0.09569616615772247, 0.0077025312930345535, 0.24359098076820376, -0.028604786843061447, -0.025461364537477493, -0.02058163285255432, -0.03339408338069916, 0.02773108147084713, 0.05900290608406067, 0.005205018911510706, -0.0810568705201149, 0.16126112639904022, 0.0224333256483078, -0.1372564435005188, 0.0767342746257782, -0.06246232986450195, 0.1694854348897934, 0.016253281384706497, -0.04579513520002365, -0.06345655024051666, -0.02819828875362873, 0.03531433641910553, 0.1285266876220703, -0.14754611253738403, -0.032987531274557114, 0.14922858774662018, 0.2089993953704834, 0.1626838445663452, 0.1182667538523674, -0.03518803417682648, 0.028806602582335472, 0.09656128287315369, 0.08467216044664383, 0.09047400951385498, -0.11827656626701356, 0.07674986124038696, -0.24298955500125885, -0.05762086063623428, 0.01070677675306797, 0.11933906376361848, 0.07185666263103485, 0.18383219838142395, 0.11586862802505492, -0.047386474907398224, 0.17353180050849917, 0.16147500276565552, 0.10679884254932404, 0.15589715540409088, 0.07289279252290726, 0.2226039916276932, 0.09313596785068512, 0.23125675320625305, -0.07480090856552124, -0.15617206692695618]', 64, 'computed', '2026-05-08 21:57:42', '2026-05-08 21:57:42');
+INSERT INTO `user_feature_snapshot` VALUES (1, 1, 'interest', '[-0.05590154230594635, -0.09835023432970048, 0.03769298642873764, -0.11939506977796556, -0.15109997987747192, 0.028012510389089584, 0.06849543750286102, -0.21359579265117645, 0.314527690410614, -0.10554555058479308, -0.17225444316864014, -0.13084301352500916, -0.1833416223526001, -0.17035265266895294, -0.14735247194766998, 0.005910910200327635, 0.14516787230968475, 0.0671372264623642, -0.020750129595398903, -0.031079325824975967, 0.030511274933815, 0.01485863607376814, 0.2562720775604248, 0.00579360406845808, -0.030102388933300972, -0.1375771164894104, 0.018341295421123505, -0.07087132334709167, 0.02875928580760956, 0.16798663139343262, 0.06829845160245895, -0.011669193394482136, -0.0490834005177021, 0.1518637239933014, -0.10603437572717668, -0.061899010092020035, 0.059729136526584625, 0.05246495455503464, 0.0019387757638469336, -0.13135869801044464, -0.1505073606967926, -0.0972084254026413, -0.09142280369997025, -0.21985982358455655, 0.015736795961856842, 0.009372523985803127, -0.0021072959061712027, -0.04748070612549782, -0.2294467091560364, 0.18388456106185913, 0.09605439752340315, -0.12458894401788712, -0.05661789700388909, 0.26633867621421814, -0.07105958461761475, -0.272405207157135, 0.04761398583650589, -0.2205297648906708, 0.16426092386245728, 0.030483949929475784, 0.050434332340955734, -0.025806987658143044, 0.002249856712296605, 0.036439307034015656]', 64, 'computed', '2026-05-08 21:57:42', '2026-05-09 19:01:00');
+INSERT INTO `user_feature_snapshot` VALUES (2, 1, 'history', '[0.21360789239406583, -0.016895899549126625, -0.07906807959079742, 0.3796839416027069, -0.23123332858085632, -0.1295037865638733, -0.030856065452098846, -0.010431402362883093, 0.22353972494602203, -0.02983412519097328, 0.03200368955731392, -0.1413722038269043, 0.09702018648386002, 0.3096334636211395, 0.16849491000175476, 0.01983664371073246, -0.09679612517356873, 0.2303486764431, 0.034295324236154556, 0.1507605016231537, -0.13478325307369232, -0.11829650402069092, 0.01052883081138134, -0.0961204320192337, 0.14995421469211578, -0.33304378390312195, -0.06425166875123978, 0.10774540156126022, 0.06756282597780228, -0.33578911423683167, -0.12373360246419908, 0.34178489446640015, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]', 64, 'computed', '2026-05-08 21:57:42', '2026-05-09 19:01:00');
 INSERT INTO `user_feature_snapshot` VALUES (3, 2, 'interest', '[0.018035899847745895, 0.2100982517004013, 0.0051106479950249195, 0.06655601412057877, 0.20403973758220673, 0.05383735150098801, 0.19579611718654633, -0.11721781641244888, -0.2558829188346863, 0.18390464782714844, -0.05612801015377045, -0.08416006714105606, -0.2270089685916901, -0.09288279712200163, 0.018035240471363068, 0.06013946235179901, 0.06496383249759674, 0.07256101816892624, -0.2069748491048813, 0.3441101610660553, -0.031974490731954575, -0.001296062022447586, 0.01583530381321907, -0.16716109216213226, -0.12255845963954926, 0.07065726071596146, -0.1425955295562744, -0.029744090512394905, -0.2342100590467453, 0.022237680852413177, -0.06069880723953247, 0.13531869649887085, -0.05948904529213905, -0.05296405404806137, -0.1134161576628685, 0.08971802145242691, -0.012120231054723265, 0.08302032202482224, -0.10502015054225922, -0.00012386949674692005, 0.2130252867937088, 0.011917698197066784, -0.1262289136648178, 0.006068195216357708, 0.020130880177021027, 0.06862742453813553, -0.04269206523895264, -0.015939749777317047, -0.24423401057720184, 0.04276670888066292, 0.13829393684864044, 0.07612831890583038, -0.06320477277040482, 0.055506255477666855, -0.030725615099072456, 0.2376553863286972, -0.0067944698967039585, -0.14668722450733185, -0.009094583801925182, -0.0815223902463913, -0.010865706950426102, 0.12309572100639345, -0.18667316436767575, -0.13780653476715088]', 64, 'computed', '2026-05-08 22:37:18', '2026-05-08 22:37:18');
 INSERT INTO `user_feature_snapshot` VALUES (4, 2, 'history', '[-0.20551356673240664, 0.009095963090658188, 0.04865540191531181, -0.2062692493200302, 0.09088336676359177, 0.2283828556537628, -0.17872484028339386, -0.054859962314367294, -0.09794362634420396, 0.14232882857322693, 0.11825437098741531, 0.1874707937240601, -0.17015548050403595, -0.27125436067581177, -0.32522761821746826, -0.023346615955233577, -0.2085813134908676, -0.23138898611068728, -0.2100994884967804, -0.27773916721343994, 0.3389519155025482, -0.007365943398326635, -0.09091033041477203, 0.04447381570935249, -0.13837577402591705, 0.05352846160531044, -0.06469129770994186, 0.14669658243656158, 0.24013328552246097, 0.18164707720279696, -0.03276100009679794, -0.21587641537189484, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]', 64, 'computed', '2026-05-08 22:37:18', '2026-05-08 22:37:18');
 
@@ -1411,7 +1556,7 @@ CREATE TABLE `user_interest_history`  (
   INDEX `idx_user_date`(`user_id` ASC, `record_date` ASC) USING BTREE,
   INDEX `idx_user_tag`(`user_id` ASC, `interest_tag` ASC) USING BTREE,
   CONSTRAINT `fk_interest_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 49 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户兴趣演化历史表(用于可视化兴趣变化趋势)' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 84 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户兴趣演化历史表(用于可视化兴趣变化趋势)' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_interest_history
@@ -1464,5 +1609,29 @@ INSERT INTO `user_interest_history` VALUES (45, 1, 'Reinforcement Learning', 0.8
 INSERT INTO `user_interest_history` VALUES (46, 2, 'Graph Neural Networks', 0.83, 'register', '2026-05-01', '2026-05-01 13:18:26');
 INSERT INTO `user_interest_history` VALUES (47, 1, 'Machine Learning', 0.7, 'register', '2026-05-01', '2026-05-01 13:18:26');
 INSERT INTO `user_interest_history` VALUES (48, 2, 'NLP', 0.7, 'register', '2026-05-01', '2026-05-01 13:18:26');
+INSERT INTO `user_interest_history` VALUES (61, 5, 'Reinforcement Learning', 0.9, 'registration', '2026-04-01', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (62, 5, 'Knowledge Graph', 0.8, 'behavior', '2026-04-15', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (63, 5, 'Graph Neural Networks', 0.7, 'behavior', '2026-04-20', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (64, 6, 'NLP', 0.85, 'registration', '2026-04-05', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (65, 6, 'Deep Learning', 0.75, 'behavior', '2026-04-18', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (66, 6, 'Transformer', 0.65, 'behavior', '2026-04-25', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (67, 7, 'Computer Vision', 0.88, 'registration', '2026-04-10', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (68, 7, 'Federated Learning', 0.72, 'behavior', '2026-04-22', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (69, 8, 'Recommender Systems', 0.92, 'registration', '2026-04-12', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (70, 8, 'User Modeling', 0.68, 'behavior', '2026-04-28', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (71, 9, 'Multi-modal Learning', 0.86, 'registration', '2026-04-08', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (72, 9, 'Knowledge Distillation', 0.74, 'behavior', '2026-05-01', '2026-05-09 17:26:50');
+INSERT INTO `user_interest_history` VALUES (73, 5, 'Reinforcement Learning', 0.9, 'registration', '2026-04-01', '2026-05-09 17:32:37');
+INSERT INTO `user_interest_history` VALUES (74, 5, 'Knowledge Graph', 0.8, 'behavior', '2026-04-15', '2026-05-09 17:32:37');
+INSERT INTO `user_interest_history` VALUES (75, 5, 'Graph Neural Networks', 0.7, 'behavior', '2026-04-20', '2026-05-09 17:32:37');
+INSERT INTO `user_interest_history` VALUES (76, 6, 'NLP', 0.85, 'registration', '2026-04-05', '2026-05-09 17:32:37');
+INSERT INTO `user_interest_history` VALUES (77, 6, 'Deep Learning', 0.75, 'behavior', '2026-04-18', '2026-05-09 17:32:37');
+INSERT INTO `user_interest_history` VALUES (78, 6, 'Transformer', 0.65, 'behavior', '2026-04-25', '2026-05-09 17:32:37');
+INSERT INTO `user_interest_history` VALUES (79, 7, 'Computer Vision', 0.88, 'registration', '2026-04-10', '2026-05-09 17:32:37');
+INSERT INTO `user_interest_history` VALUES (80, 7, 'Federated Learning', 0.72, 'behavior', '2026-04-22', '2026-05-09 17:32:37');
+INSERT INTO `user_interest_history` VALUES (81, 8, 'Recommender Systems', 0.92, 'registration', '2026-04-12', '2026-05-09 17:32:37');
+INSERT INTO `user_interest_history` VALUES (82, 8, 'User Modeling', 0.68, 'behavior', '2026-04-28', '2026-05-09 17:32:37');
+INSERT INTO `user_interest_history` VALUES (83, 9, 'Multi-modal Learning', 0.86, 'registration', '2026-04-08', '2026-05-09 17:32:37');
+INSERT INTO `user_interest_history` VALUES (84, 9, 'Knowledge Distillation', 0.74, 'behavior', '2026-05-01', '2026-05-09 17:32:37');
 
 SET FOREIGN_KEY_CHECKS = 1;

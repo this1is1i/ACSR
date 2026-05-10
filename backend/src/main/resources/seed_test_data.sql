@@ -112,7 +112,6 @@ INSERT INTO `user_contacts` (`user_id`, `contact_id`, `relation_type`, `remark`)
 (1, 2, 'COLLABORATOR', 'collaborator'),
 (1, 8, 'MENTOR', 'advisor'),
 (2, 1, 'COLLABORATOR', 'collaborator'),
-(2, 5, 'COLLABORATOR', 'collaborator'),
 (5, 1, 'COLLABORATOR', 'peer'),
 (5, 2, 'COLLABORATOR', 'peer'),
 (6, 7, 'CLASSMATE', 'classmate'),

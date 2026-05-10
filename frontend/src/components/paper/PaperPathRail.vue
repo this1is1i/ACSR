@@ -7,7 +7,7 @@
     </section>
 
     <section class="paper-path-rail__section paper-path-rail__actions">
-      <button class="back-btn" type="button" @click="emit('back')">← 返回搜索</button>
+      <button class="back-btn" type="button" @click="emit('back')">← 返回</button>
       <button class="download-btn" type="button" :disabled="downloading || !paper" @click="emit('download')">
         {{ downloading ? '下载中...' : '下载 TXT' }}
       </button>

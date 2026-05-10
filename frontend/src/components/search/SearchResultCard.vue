@@ -6,18 +6,9 @@
         <h3 class="result-title">{{ paper.title }}</h3>
         <p class="result-authors">{{ paper.authors }} · {{ paper.venue }} · {{ paper.year }}</p>
       </div>
-      <div class="search-result-card__path">
-        <span>研究路径</span>
-        <strong>{{ pathLabel }}</strong>
-      </div>
     </div>
 
     <p class="result-abstract">{{ paper.abstract }}</p>
-
-    <div class="search-result-card__context">
-      <span v-if="query" class="search-result-card__chip">查询：{{ query }}</span>
-      <span v-for="label in contextLabels" :key="label" class="search-result-card__chip">{{ label }}</span>
-    </div>
 
     <div class="result-meta">
       <div class="result-tags">

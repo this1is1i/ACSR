@@ -120,7 +120,7 @@ const historyLoading = ref(false)
 const collections = ref([])
 const history = ref([])
 const historyPage = ref(1)
-const historyPageSize = ref(10)
+const historyPageSize = ref(4)
 const pagedHistory = computed(() => {
   const start = (historyPage.value - 1) * historyPageSize.value
   return history.value.slice(start, start + historyPageSize.value)

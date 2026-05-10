@@ -10,6 +10,7 @@ import com.example.research.entity.User;
 import com.example.research.enums.PostStatus;
 import com.example.research.enums.UserRole;
 import com.example.research.repository.CommentMapper;
+import com.example.research.repository.PostLikeMapper;
 import com.example.research.repository.PostMapper;
 import com.example.research.repository.UserMapper;
 import com.example.research.service.CommunityService;
@@ -20,10 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +39,7 @@ public class CommunityServiceImpl implements CommunityService {
     private final CommentMapper commentMapper;
     private final UserMapper userMapper;
     private final PaperService paperService;
+    private final PostLikeMapper postLikeMapper;
 
     @Override
     public List<CommunityDto.PostItem> listPosts(Long currentUserId, String filter) {
@@ -55,10 +59,14 @@ public class CommunityServiceImpl implements CommunityService {
         List<Post> posts = new ArrayList<>(mergedPosts.values());
         posts.sort(resolveComparator(filter));
 
+        Set<Long> likedPostIds = currentUserId != null
+                ? new HashSet<>(postLikeMapper.findLikedPostIds(currentUserId))
+                : Set.of();
+
         Map<Long, User> userCache = new LinkedHashMap<>();
         Map<Long, Paper> paperCache = new LinkedHashMap<>();
         return posts.stream()
-                .map(post -> toPostItem(post, currentUserId, userCache, paperCache))
+                .map(post -> toPostItem(post, currentUserId, userCache, paperCache, likedPostIds))
                 .collect(Collectors.toList());
     }
 
@@ -82,7 +90,7 @@ public class CommunityServiceImpl implements CommunityService {
         }
 
         postMapper.insert(post);
-        return toPostItem(postMapper.selectById(post.getId()), userId, new LinkedHashMap<>(), new LinkedHashMap<>());
+        return toPostItem(postMapper.selectById(post.getId()), userId, new LinkedHashMap<>(), new LinkedHashMap<>(), Set.of());
     }
 
     @Override
@@ -195,7 +203,8 @@ public class CommunityServiceImpl implements CommunityService {
             Post post,
             Long currentUserId,
             Map<Long, User> userCache,
-            Map<Long, Paper> paperCache) {
+            Map<Long, Paper> paperCache,
+            Set<Long> likedPostIds) {
 
         CommunityDto.PostItem item = new CommunityDto.PostItem();
         item.setId(post.getId());
@@ -207,6 +216,7 @@ public class CommunityServiceImpl implements CommunityService {
         item.setReviewComment(post.getReviewComment());
         item.setCreateTime(post.getCreateTime());
         item.setOwn(Objects.equals(post.getUserId(), currentUserId));
+        item.setLiked(likedPostIds.contains(post.getId()));
         item.applyStatus(PostStatus.fromCode(post.getStatus()));
 
         User author = userCache.computeIfAbsent(post.getUserId(), userMapper::selectById);
@@ -247,6 +257,27 @@ public class CommunityServiceImpl implements CommunityService {
         User author = userCache.computeIfAbsent(comment.getUserId(), userMapper::selectById);
         item.setAuthor(toAuthor(author));
         return item;
+    }
+
+    @Override
+    @Transactional
+    public boolean toggleLike(Long userId, Long postId) {
+        int exists = postLikeMapper.existsLike(userId, postId);
+        Post post = postMapper.selectById(postId);
+        if (post == null) return false;
+        if (exists > 0) {
+            postLikeMapper.deleteLike(userId, postId);
+            if (post.getLikeCount() != null && post.getLikeCount() > 0) {
+                post.setLikeCount(post.getLikeCount() - 1);
+                postMapper.updateById(post);
+            }
+            return false;
+        } else {
+            postLikeMapper.insertLike(userId, postId);
+            post.setLikeCount(post.getLikeCount() == null ? 1 : post.getLikeCount() + 1);
+            postMapper.updateById(post);
+            return true;
+        }
     }
 
     private CommunityDto.AuthorInfo toAuthor(User user) {

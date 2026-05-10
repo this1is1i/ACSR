@@ -66,6 +66,7 @@ public class CommunityDto {
         private String reviewComment;
         private LocalDateTime createTime;
         private boolean own;
+        private boolean liked;
         private AuthorInfo author;
         private PaperInfo paper;
 

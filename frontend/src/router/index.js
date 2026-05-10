@@ -7,6 +7,7 @@ const routes = [
   { path: '/home', component: () => import('@/views/Home.vue') },
   { path: '/search', component: () => import('@/views/Search.vue'), meta: { public: true } },
   { path: '/paper/:id', component: () => import('@/views/PaperDetail.vue'), meta: { public: true } },
+  { path: '/paper/aminer/:aminerId', component: () => import('@/views/PaperDetail.vue'), meta: { public: true } },
   { path: '/knowledge-graph', component: () => import('@/views/KnowledgeGraph.vue') },
   { path: '/community', component: () => import('@/views/Community.vue') },
   { path: '/profile', component: () => import('@/views/Profile.vue') },

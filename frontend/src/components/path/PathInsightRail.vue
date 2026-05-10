@@ -100,7 +100,8 @@
               <article
                 v-for="paper in summary.resourcePapers.slice(0, 3)"
                 :key="paper.id"
-                class="path-insight-rail__item"
+                class="path-insight-rail__item path-insight-rail__item--clickable"
+                @click="goToPaper(paper.id)"
               >
                 <strong>{{ paper.name }}</strong>
                 <small>{{ getPathStepMeta(paper) }}</small>
@@ -114,7 +115,8 @@
               <article
                 v-for="paper in recommendations.slice(0, 2)"
                 :key="paper.paperId || paper.id"
-                class="path-insight-rail__item"
+                class="path-insight-rail__item path-insight-rail__item--clickable"
+                @click="goToPaper(paper.paperId || paper.id)"
               >
                 <strong>{{ paper.title }}</strong>
                 <small>{{ paper.reason || recommendationMeta(paper) }}</small>
@@ -152,7 +154,19 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { formatMastery, getPathStepMeta } from '@/utils/path'
+
+const router = useRouter()
+
+function goToPaper(id) {
+  if (!id) return
+  if (typeof id === 'string' && !/^\d+$/.test(id)) {
+    router.push(`/paper/aminer/${id}`)
+  } else {
+    router.push(`/paper/${id}`)
+  }
+}
 
 const props = defineProps({
   loading: {
@@ -366,6 +380,16 @@ function recommendationMeta(paper) {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.path-insight-rail__item--clickable {
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease;
+}
+
+.path-insight-rail__item--clickable:hover {
+  transform: translateX(2px);
+  border-color: var(--color-border-strong);
 }
 
 .path-insight-rail__route-item {
