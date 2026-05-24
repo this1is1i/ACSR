@@ -260,6 +260,72 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
+    public List<CommunityDto.PostItem> searchPosts(String keyword, Long currentUserId) {
+        if (keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
+        String pattern = "%" + keyword.trim() + "%";
+        List<Post> posts = postMapper.selectList(Wrappers.<Post>lambdaQuery()
+                .eq(Post::getStatus, PostStatus.APPROVED.getCode())
+                .and(w -> w.like(Post::getTitle, pattern).or().like(Post::getContent, pattern))
+                .orderByDesc(Post::getCreateTime));
+
+        Set<Long> likedPostIds = currentUserId != null
+                ? new HashSet<>(postLikeMapper.findLikedPostIds(currentUserId))
+                : Set.of();
+        Map<Long, User> userCache = new LinkedHashMap<>();
+        Map<Long, Paper> paperCache = new LinkedHashMap<>();
+        return posts.stream()
+                .map(post -> toPostItem(post, currentUserId, userCache, paperCache, likedPostIds))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CommunityDto.PostItem> listMyPosts(Long userId) {
+        List<Post> posts = postMapper.selectList(Wrappers.<Post>lambdaQuery()
+                .eq(Post::getUserId, userId)
+                .orderByDesc(Post::getCreateTime));
+
+        Set<Long> likedPostIds = new HashSet<>(postLikeMapper.findLikedPostIds(userId));
+        Map<Long, User> userCache = new LinkedHashMap<>();
+        Map<Long, Paper> paperCache = new LinkedHashMap<>();
+        return posts.stream()
+                .map(post -> toPostItem(post, userId, userCache, paperCache, likedPostIds))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public CommunityDto.PostItem updatePost(Long userId, Long postId, CommunityDto.PostUpdateRequest request) {
+        Post post = requirePost(postId);
+        if (!Objects.equals(post.getUserId(), userId)) {
+            throw new IllegalArgumentException("只能修改自己的帖子");
+        }
+        if (request.getTitle() != null) {
+            post.setTitle(request.getTitle());
+        }
+        if (request.getContent() != null) {
+            post.setContent(request.getContent().trim());
+        }
+        if (request.getPaperId() != null) {
+            paperService.getPaperById(request.getPaperId());
+            post.setPaperId(request.getPaperId());
+        }
+        postMapper.updateById(post);
+        return toPostItem(postMapper.selectById(postId), userId, new LinkedHashMap<>(), new LinkedHashMap<>(), Set.of());
+    }
+
+    @Override
+    @Transactional
+    public void deletePost(Long userId, Long postId) {
+        Post post = requirePost(postId);
+        if (!Objects.equals(post.getUserId(), userId)) {
+            throw new IllegalArgumentException("只能删除自己的帖子");
+        }
+        postMapper.deleteById(postId);
+    }
+
+    @Override
     @Transactional
     public boolean toggleLike(Long userId, Long postId) {
         int exists = postLikeMapper.existsLike(userId, postId);

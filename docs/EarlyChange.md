@@ -277,4 +277,193 @@ Home("Future Lab" eyebrow、描述文本)、Search(空状态文案)、Community(
 12. 搜索页筛选器仅前端展示未传后端 → 连通 yearFrom/sortBy 参数链路
 
 ### 今日提交
-`<pending>` chore: researcher collaborator recommendation, search filters, community likes, UI fixes, behavior tracking
+`ff96232` chore: researcher collaborator recommendation, search filters, community likes, UI fixes, behavior tracking
+
+---
+
+## 2026-05-12
+
+### 核心目标
+编写本科毕业论文，以项目为根基撰写《基于知识图谱与强化学习的科研成果推荐系统》。
+
+### 论文编写
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 新增 | `docs/论文第二版.md` | 五章结构：引言→需求分析→概要设计→详细设计→总结展望，约2.6万字 |
+| 新增 | `docs/论文第二版.docx` | pandoc md→docx 导出 |
+| 修改 | 同上 | 新增 1.5 开发与运行环境章节 |
+| 修改 | 同上 | 新增 3.1 系统包图（Mermaid → PlantUML → draw.io 三次迭代） |
+| 修改 | 同上 | 新增后端推荐类图、社区消息类图、Python 服务类图 |
+
+### 图表绘制（draw.io）
+| 操作 | 说明 |
+|------|------|
+| 安装 | `@drawio/mcp`（JGraph 官方 MCP Server），配置到 `.mcp.json` |
+| 新增 | `docs/draw/01-system-overview.drawio` — 系统总体包图 |
+| 新增 | `docs/draw/02-frontend-package.drawio` — 前端层包图（7 子包） |
+| 新增 | `docs/draw/03-backend-package.drawio` — 后端层包图（8 子包） |
+| 新增 | `docs/draw/04-python-package.drawio` — 推荐引擎层包图（9 子包） |
+| 新增 | `docs/draw/05-backend-recommend-class.drawio` — 推荐与行为追踪类图 |
+| 新增 | `docs/draw/06-backend-community-class.drawio` — 社区与消息类图 |
+| 新增 | `docs/draw/07-python-class.drawio` — Python 推荐服务核心类图（14 类） |
+| 新增 | `docs/draw/08-recommend-pipeline-flow.drawio` — 推荐流水线流程图（基于实际代码） |
+| 新增 | `docs/draw/09-learning-path-flow.drawio` — 学习路径构建流程图 |
+| 新增 | `docs/draw/10-collaborator-matching-flow.drawio` — 合作者匹配流程图 |
+| 新增 | `docs/draw/11-er-diagram.drawio` — 数据库 ER 图（13 表，中文标签） |
+
+### 图表迭代修复
+1. **mxGeometry 序列化错误**：Python `ET.tostring` 将 dict 序列化为字符串 `"{'x': '60'...}"` 而非 XML 子元素 → 改为独立 `<mxGeometry x="60" y="60" .../>` 子元素
+2. **Mermaid→PlantUML→draw.io 三次迁移**：Mermaid 包图 `graph` 关键字冲突 → PlantUML 字体偏小 → 最终直接用 Python 生成 draw.io XML
+3. **包图子包样式**：普通矩形→`shape=tab`（UML 标准 package 图标）
+4. **流程图内容不对**：基于文字描述→基于实际代码逻辑（含 MySQL 回退、判空分支、DFS 分支等）
+5. **ER 图中文化**：表名与字段名改为中文，去掉 PK/FK 标记，添加 1/N 关系基数
+
+### .bashrc 修复
+- `C:\Users\Eternity\.bashrc` 被存为 UTF-16 LE 编码导致每次 bash 命令报 `\377\376export: command not found` → 重写为 UTF-8
+
+## 2026-05-15
+
+### 核心目标
+数据库精简、新论文版本导入、图表导出。
+
+### 数据库精简
+| 删除表 | 原因 |
+|--------|------|
+| board | 从未被代码引用，仅 2 条 seed 数据 |
+| browse_history | 功能已被 behavior_log(action=read) 覆盖，Mapper 已删除 |
+| notification | 通知功能从未实现，无 Mapper/Service/Controller |
+| kg_relation | 数据已迁移至 Neo4j，仅剩死 Mapper 代码 |
+
+MySQL 从 16 张表精简至 13 张（核心 9 张 + 辅助 1 张 + 基础设施 3 张）。
+
+### 论文更新
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 导入 | `docs/论文第三版.docx` | 用户提供的最新版论文，结构重组：引言→开发工具→需求分析与概要设计→详细设计→软件介绍 |
+
+### draw.io 图表最终修复
+| 问题 | 修复 |
+|------|------|
+| 类图旋转 90 度 | 移除 `horizontal` 约束，使用 `container=0` |
+| 流程图有颜色 | 全部改为 `fillColor=none;strokeColor=#333333` |
+| ER 图结构不对 | 重绘：表名方框 + 字段椭圆 + 关系菱形 + 1/N 基数标记 |
+
+### Git 提交
+`<pending>` feat: add paper v2, database cleanup, draw.io diagrams, ER diagram
+
+---
+
+## 2026-05-17
+
+### 核心目标
+文档维护：CLAUDE.md 补全遗漏 API 路由与架构图引用，修正记忆文件数据表计数错误。
+
+### CLAUDE.md 更新
+| 操作 | 说明 |
+|------|------|
+| 新增 | 5 条遗漏 API 路由（`/api/user/favorites`、`/api/behavior/history`、`/api/recommend/train`、`/api/recommend/model/info`） |
+| 新增 | `## Architecture Diagrams` 章节，索引 `docs/draw/` 下 16 张 draw.io 图表 |
+| 新增 | `favourite` 表孤儿状态说明（无 Mapper，实际走 behavior_log） |
+| 修正 | MCP 配置描述（区分 server name vs npm package name） |
+
+### 新增 BPD 图表
+| 文件 | 说明 |
+|------|------|
+| `docs/draw/13-recommend-BPD.drawio` | 推荐业务流程 |
+| `docs/draw/14-learning-path-BPD.drawio` | 学习路径业务流程 |
+| `docs/draw/15-collaborator-matching-BPD.drawio` | 合作者匹配业务流程 |
+| `docs/draw/16-forum-judge-BPD.drawio` | 论坛审核业务流程 |
+
+### 记忆文件修正
+- `data-architecture-snapshot.md`：表计数 13→12（去除重复计数的 comment 表）
+
+---
+
+## 2026-05-24
+
+### 核心目标
+功能补全 + 系统审计 + BUG 修复 + 死代码清理 + UI 精简。
+
+### 功能实现
+
+#### 作者认领功能（QA.md Q10）
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 新增 | `research_db.sql` | `paper_author_claim` 表（13 列，4 索引，2 外键） |
+| 新增 | `entity/PaperAuthorClaim.java` | 认领记录实体 |
+| 新增 | `repository/PaperAuthorClaimMapper.java` | INSERT IGNORE + JOIN 查询 |
+| 新增 | `dto/ClaimDto.java` | 认领请求/响应 DTO |
+| 新增 | `service/ClaimService.java` + `impl/ClaimServiceImpl.java` | 确认/否认/列表逻辑 |
+| 新增 | `controller/ClaimController.java` | `/api/paper/{id}/claim-confirm\|deny`，`/api/user/claimed-papers` |
+| 修改 | `AdminController/Service/ServiceImpl` | 论文导入时自动匹配作者→创建认领记录→发送系统通知 |
+| 修改 | `PrivateMessageService/Impl` | 新增 `msgType` 重载方法（msgType=4 为认领通知） |
+| 新增 | `frontend/src/api/claim.js` | 认领 API 模块 |
+| 修改 | `frontend/src/views/Profile.vue` | 「我的论文」卡片（待确认/已确认双标签） |
+| 新增 | `seed_claim_test_data.sql` | 基于 Neo4j 真实作者名 + BCrypt 密码的测试数据 |
+
+#### 论坛帖子搜索 + 个人帖子管理
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `CommunityDto.java` | 新增 `PostUpdateRequest` |
+| 修改 | `CommunityService/Impl` | 新增 searchPosts/listMyPosts/updatePost/deletePost |
+| 修改 | `CommunityController.java` | 新增搜索、我的帖子、编辑、删除 4 个端点 |
+| 修改 | `frontend/src/api/community.js` | 新增 4 个 API 调用 |
+| 修改 | `frontend/src/views/Community.vue` | 搜索栏 + 300ms 防抖 |
+| 修改 | `frontend/src/views/Profile.vue` | 「我的帖子」卡片 + 编辑弹框 + 删除确认 |
+
+### UI 精简（本轮累计）
+
+| 涉及页面 | 删除项 |
+|---------|--------|
+| 首页 | "补充检索""打开图谱"按钮；RecommendationStream/LearningPathPanel 死描述 |
+| 检索页 | SearchFilterRail 死描述 |
+| 图谱页 | PathInsightRail 3 段 verbose 描述 |
+| 私信页 | "实时同步""论文线索""行动路径"标签；修复长用户名挤占状态标签的 CSS 溢出 |
+| 登录页 | 英文→中文；删除"30天内记住我"+"忘记密码？"摆设 |
+| 侧边栏 | 全部 7 个导航项的描述副标题 |
+| 管理员控制台 | "导入准备度""导入载荷"两个无用信号卡片 |
+| Profile | "我的收藏"改为分页式（4 条/页 + el-pagination） |
+| 全局 | scrollbar 变窄变淡（5px + 半透明） |
+
+### 全项目代码审计（QA.md Q11）
+
+三个并行代理审计 ~122 个文件、~520 个函数/方法：
+
+| 层级 | BUG | DEAD | MINOR |
+|------|-----|------|-------|
+| 后端 Java | 0 | 12 | 9 |
+| 前端 Vue | 4 | 12 | ~15 |
+| Python RL | 2 | 13 | ~12 |
+
+审计报告详见 `docs/QA.md` Q11 节。
+
+### BUG 修复（6 项，详见 QA.md Q12）
+
+| BUG | 文件 | 根因 |
+|-----|------|------|
+| Actor 评分 hash 碰撞 | `ranker.py:76` | `hash(item_id) % 20` 导致 500→20 槽位碰撞率 95% |
+| KG reward 训练恒为 0 | `rec_env.py + mock_data.py` | kg_node_id 格式不匹配 + ID 越界 |
+| AMiner 路由下载失败 | `PaperDetail.vue` | `route.params.id` 在 `/paper/aminer/:id` 下为 undefined |
+| logout 未清 Pinia | `Profile.vue` | 手动操作 localStorage 绕过 store |
+| 排序选项无效 | `Search.vue` | sortMap 遗漏'影响力'+'相关度' |
+| 随机 ID 破坏收藏 | `Search.vue` | Math.random() 跨导航不唯一 |
+
+### 推荐管线修复
+
+| 问题 | 修复 |
+|------|------|
+| 候选数 `action_num * 2 = 40` 超出 AC 网络 20 槽位 | 改为 `action_num = 20`，1:1 精准打分 |
+| `ranker.py` hash 碰撞使 Actor 评分随机 | 改为按位置线性映射 |
+| `candidate_generator.py` mock pool `kg_node_id` 格式 `kg_node_xxx` 不匹配 AMiner | 改为 `aminer_xxx` 格式 |
+| `mock_data.py` 候选 ID 仅前 20 个对齐 | 改为随机索引覆盖 500 范围 |
+
+### 死代码清理（37 项）
+
+| 层级 | 删除文件 | 删除方法/块 |
+|------|---------|------------|
+| Java | BrowseHistory.java, KgRelation.java, KgRelationMapper.java, KnowledgeService.java, KnowledgeServiceImpl.java | PaperMapper.searchByKeyword, UserRole.isHigherOrEqual, PythonRecClient.isAvailable, UserInterestHistoryMapper 2 方法 |
+| Vue | HelloWorld.vue, KnowledgeGraph3D.vue, AppShell.vue, design-tokens.css | getPaperList, contextLabels/pathLabel computed, messages prop, .app-shell CSS |
+| Python | text_utils.py, data_importer.py, embedding_builder.py | mysql_data 3 方法, kg_builder 1, kg_embedder 1, graph_query 1, graph_storage 1, path_builder 2, reward 2 字段 |
+
+### Git 提交
+`<pending>`

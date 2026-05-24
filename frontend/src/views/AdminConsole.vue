@@ -128,13 +128,24 @@ const postPreviewVisible = ref(false)
 const previewPost = ref(null)
 const lastSyncedAt = ref(null)
 const lastImportSummary = ref(null)
-const paperImportText = ref('')
+const paperImportText = ref(`[
+  {
+    "aminerId": "aminer_999",
+    "title": "A Survey of Graph Neural Networks for Recommendation",
+    "abstract": "Graph Neural Networks have emerged as a powerful paradigm...",
+    "authors": "Zhang San, Li Si",
+    "keywords": "Graph Neural Networks, Recommender Systems",
+    "venue": "WWW 2025",
+    "year": 2025,
+    "citationCount": 42
+  }
+]`)
 
 const dashboardLoading = computed(() => loadingPosts.value || loadingUsers.value)
 const postCounts = computed(() => adminPostOverview.value.reduce((summary, post) => {
-  if (post.status === 'PENDING') summary.pending += 1
-  if (post.status === 'APPROVED') summary.approved += 1
-  if (post.status === 'REJECTED') summary.rejected += 1
+  if (post.statusName === 'PENDING') summary.pending += 1
+  if (post.statusName === 'APPROVED') summary.approved += 1
+  if (post.statusName === 'REJECTED') summary.rejected += 1
   return summary
 }, { pending: 0, approved: 0, rejected: 0 }))
 const roleCounts = computed(() => adminUsers.value.reduce((summary, user) => {
@@ -191,11 +202,6 @@ const heroSignals = computed(() => ([
     value: postCounts.value.pending ? '审核高峰' : '队列平稳',
     caption: `已发布 ${postCounts.value.approved} · 已驳回 ${postCounts.value.rejected}`,
   },
-  {
-    label: '导入准备度',
-    value: paperDraftState.value.isValid ? '可执行' : '待修正',
-    caption: paperDraftState.value.isValid ? '继续使用现有导入接口' : paperDraftState.value.message,
-  },
 ]))
 const dashboardActions = computed(() => ([
   {
@@ -232,14 +238,6 @@ const kpiItems = computed(() => ([
     value: `${adminUsers.value.length} 个`,
     caption: `管理员 ${roleCounts.value.ADMIN || 0} · 研究者 ${roleCounts.value.RESEARCHER || 0} · 学生 ${roleCounts.value.STUDENT || 0}`,
     tone: 'accent',
-  },
-  {
-    label: '导入载荷',
-    value: paperDraftState.value.isValid ? `${paperDraftState.value.count} 篇` : '待修正',
-    caption: lastImportSummary.value
-      ? `上次成功导入 ${lastImportSummary.value.count} 篇`
-      : '继续通过现有 /admin/papers/import 提交',
-    tone: paperDraftState.value.isValid ? 'success' : 'danger',
   },
 ]))
 onMounted(async () => {
@@ -368,7 +366,7 @@ async function saveUserRole(user) {
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-hover);
 }
 
 .admin-header-status__item span {
@@ -426,8 +424,8 @@ async function saveUserRole(user) {
 .json-editor {
   width: 100%;
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.45);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: var(--bg-card);
+  border: 1px solid var(--design-border);
   color: var(--text-primary);
   padding: 14px;
   resize: vertical;
@@ -461,8 +459,8 @@ async function saveUserRole(user) {
 }
 
 :deep(.admin-tabs .el-table) {
-  --el-table-border-color: rgba(148, 163, 184, 0.18);
-  --el-table-header-bg-color: rgba(15, 23, 42, 0.42);
+  --el-table-border-color: var(--color-border-subtle);
+  --el-table-header-bg-color: var(--bg-hover);
   --el-table-bg-color: transparent;
   --el-table-tr-bg-color: transparent;
   --el-table-text-color: var(--color-text-primary);
@@ -500,8 +498,8 @@ async function saveUserRole(user) {
 .post-preview__content {
   padding: 16px;
   border-radius: 8px;
-  background: rgba(148, 163, 184, 0.06);
-  color: var(--color-text-secondary, #94a3b8);
+  background: var(--bg-hover);
+  color: var(--color-text-secondary);
   line-height: 1.8;
   white-space: pre-wrap;
   max-height: 400px;

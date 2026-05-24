@@ -38,8 +38,18 @@
               <button class="feed-tab" :class="{ active: activeTab === 'hot' }" @click="activeTab = 'hot'">热门</button>
             </div>
 
+            <div class="search-bar">
+              <input
+                v-model="searchKeyword"
+                class="search-input"
+                placeholder="搜索帖子标题或内容..."
+                @input="onSearchInput"
+              />
+              <button v-if="searchKeyword" class="search-clear" @click="searchKeyword = ''; loadPosts()">✕</button>
+            </div>
+
             <div v-if="loading" class="empty-state">社区内容加载中...</div>
-            <div v-else-if="!posts.length" class="empty-state">还没有社区帖子，发一条试试。</div>
+            <div v-else-if="!posts.length" class="empty-state">{{ searchKeyword ? '未找到匹配的帖子' : '还没有社区帖子，发一条试试。' }}</div>
 
             <article v-for="post in posts" :key="post.id" class="post-card" data-area="community">
               <div class="post-header">
@@ -131,7 +141,7 @@ import { ElMessage } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
 import CommunityCommentTree from '@/components/CommunityCommentTree.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
-import { createCommunityPost, createPostComment, getCommunityPosts, getPostComments, togglePostLike } from '@/api/community'
+import { createCommunityPost, createPostComment, getCommunityPosts, getPostComments, searchPosts, togglePostLike } from '@/api/community'
 import { useUserStore } from '@/store/userStore'
 
 const userStore = useUserStore()
@@ -153,6 +163,8 @@ const postForm = ref({
 const commentForm = ref({
   content: '',
 })
+const searchKeyword = ref('')
+let searchTimer = null
 
 const publishHint = computed(() => {
   switch (userStore.userInfo?.role) {
@@ -180,11 +192,23 @@ onMounted(async () => {
   loadPosts()
 })
 
+function onSearchInput() {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    loadPosts()
+  }, 300)
+}
+
 async function loadPosts() {
   loading.value = true
   try {
-    const res = await getCommunityPosts(activeTab.value)
-    posts.value = res.data || []
+    if (searchKeyword.value.trim()) {
+      const res = await searchPosts(searchKeyword.value.trim())
+      posts.value = res.data || []
+    } else {
+      const res = await getCommunityPosts(activeTab.value)
+      posts.value = res.data || []
+    }
   } finally {
     loading.value = false
   }
@@ -222,7 +246,7 @@ async function handleLike(post) {
     post.liked = !post.liked
     post.likeCount += post.liked ? 1 : -1
   } catch (e) {
-    console.error('toggleLike failed', e)
+    // console.error('toggleLike failed', e)
   }
 }
 
@@ -296,7 +320,7 @@ function formatTime(value) {
 .author-avatar { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; font-weight: 700; }
 .creator-form { flex: 1; display: flex; flex-direction: column; gap: 10px; }
 .creator-title,
-.creator-input { width: 100%; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.2); background: rgba(15, 23, 42, 0.45); color: var(--text-primary); padding: 12px 14px; }
+.creator-input { width: 100%; border-radius: 10px; border: 1px solid var(--design-border); background: var(--bg-card); color: var(--text-primary); padding: 12px 14px; }
 .creator-input { resize: vertical; min-height: 100px; }
 .creator-actions,
 .post-actions,
@@ -308,6 +332,11 @@ function formatTime(value) {
 .feed-tabs { display: flex; gap: 10px; margin-bottom: 16px; }
 .feed-tab { padding: 8px 12px; border-radius: 8px; background: transparent; border: 1px solid var(--design-border); color: var(--text-secondary); cursor: pointer; }
 .feed-tab.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; }
+.search-bar { position: relative; margin-bottom: 16px; }
+.search-input { width: 100%; padding: 10px 36px 10px 14px; border-radius: 10px; border: 1px solid var(--design-border); background: var(--bg-card); color: var(--text-primary); font-size: 14px; outline: none; }
+.search-input:focus { border-color: var(--primary); }
+.search-input::placeholder { color: var(--text-secondary); }
+.search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 4px; }
 .post-header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
 .post-author { display: flex; gap: 12px; align-items: center; }
 .post-meta { display: flex; gap: 10px; align-items: center; }

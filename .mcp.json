@@ -3,6 +3,10 @@
     "refactor": {
       "command": "npx",
       "args": ["@myuon/refactor-mcp"]
+    },
+    "drawio": {
+      "command": "npx",
+      "args": ["@drawio/mcp"]
     }
   }
 }

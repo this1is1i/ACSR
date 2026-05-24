@@ -55,7 +55,9 @@ public class AdminController {
 
     @PostMapping("/papers/import")
     public Result<CommunityDto.PaperImportResult> importPapers(
-            @Valid @RequestBody CommunityDto.PaperImportRequest request) {
-        return Result.success(adminService.importPapers(request));
+            @Valid @RequestBody CommunityDto.PaperImportRequest request,
+            Authentication authentication) {
+        Long adminId = (Long) authentication.getPrincipal();
+        return Result.success(adminService.importPapers(adminId, request));
     }
 }

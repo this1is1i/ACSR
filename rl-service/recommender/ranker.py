@@ -71,9 +71,9 @@ class RLRanker:
                 else:
                     cos_sim = 0.0
 
-                # Actor 策略分
+                # Actor 策略分 — 按候选位置映射到 action 槽位（避免 hash 碰撞）
                 probs = self.agent.actor(state_t)
-                action_idx = hash(item.item_id) % self.config.action_num
+                action_idx = min(i * self.config.action_num // max(len(candidates), 1), self.config.action_num - 1)
                 actor_score = float(probs[action_idx].item())
 
                 # KG 拓扑分

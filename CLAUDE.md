@@ -96,6 +96,13 @@ Standard Spring Boot layered architecture:
 | `/api/visualization/data` | Auth | Visualization payload for profile page; builds KG from Python /learning-path, keyword frequencies from interest_history |
 | `/api/community/posts` | Auth* | GET list (optional auth); POST create |
 | `/api/community/posts/{id}/comments` | Auth* | GET list (optional auth); POST create |
+| `/api/community/posts/{postId}/like` | Auth | POST toggle like (creates/deletes `post_like` row, adjusts `like_count`) |
+| `/api/message/recommended-collaborators` | Auth | Researcher collaborator recommendations (shared-interest overlap, top 2, excludes contacts/self) |
+| `/api/user/search` | Auth | Search users by username or research_interests, query params `q` + `limit` |
+| `/api/user/favorites` | Auth | Papers favorited by current user (from `behavior_log`, not `favourite` table) |
+| `/api/behavior/history` | Auth | GET user's behavior log history; DELETE to clear |
+| `/api/recommend/train` | Auth | POST trigger RL model training |
+| `/api/recommend/model/info` | Auth | GET current model state (version, trainStep, bestReward) |
 | `/api/admin/posts` | ADMIN | List all posts with status filter |
 | `/api/admin/posts/{id}/status` | ADMIN | Review/approve/reject posts |
 | `/api/admin/users` | ADMIN | List users, update roles |
@@ -104,10 +111,10 @@ Standard Spring Boot layered architecture:
 | `/ws-messages/**` | STOMP | Real-time messaging (JWT in STOMP body, whitelisted in SecurityConfig) |
 
 ### Community data model
-Posts and comments use `post` and `comment` tables. Posts have status lifecycle (`draft` → `published` / `rejected`) managed by admin. Comments support nested replies via `parent_id`. The `CommunityDto` classes encode the request/response shapes; see `CommunityController` for the exact contract.
+Posts and comments use `post` and `comment` tables. Posts have status lifecycle (0=PENDING → 1=APPROVED / 2=REJECTED) managed by admin via `/api/admin/posts/{id}/status`. Comments support nested replies via `parent_id`. The `CommunityDto` classes encode the request/response shapes; see `CommunityController` for the exact contract.
 
 ### User interest tracking
-`UserInterestHistory` (table `user_interest_history`) records interest tags per user with weight, source, and date. Interests are seeded at registration from the `researchInterests` comma-separated field and feed into the recommendation pipeline. The `browse_history` table separately tracks paper reads.
+`UserInterestHistory` (table `user_interest_history`) records interest tags per user with weight, source, and date. Interests are seeded at registration from the `researchInterests` comma-separated field and feed into the recommendation pipeline. Paper reads are tracked via `behavior_log` (action=`read`) — the `browse_history` table was removed (2026-05-15) as its functionality was subsumed.
 
 ### Frontend route structure
 | Path | Auth | Role | View |
@@ -115,6 +122,7 @@ Posts and comments use `post` and `comment` tables. Posts have status lifecycle 
 | `/login` | Public | — | Login |
 | `/search` | Public | — | Search |
 | `/paper/:id` | Public | — | PaperDetail |
+| `/paper/aminer/:aminerId` | Public | — | PaperDetail (by AMiner ID) |
 | `/` | Auth redirect | — | → `/home` or `/search` |
 | `/home` | Auth | — | Home |
 | `/knowledge-graph` | Auth | — | KnowledgeGraph |
@@ -135,18 +143,35 @@ Router guards check `public` meta and `roles` meta, redirecting unauthenticated 
 - **JSON contract**: snake_case between Java and Python. `PythonRecClient` uses `@JsonProperty` for camelCase/snake_case mapping on all request/response DTOs.
 - **`abstract` column**: Mapped to `Paper.java` field `abstrakt`. Preserve this mapping when modifying paper entities/DTOs.
 - **Config properties** (`application.yml` or env vars): `python.rec-service.base-url` (default `http://localhost:8000`), `python.rec-service.timeout` (default 5000ms), `python.rec-service.read-timeout` (default 10000ms), `jwt.header` (default `Authorization`).
-- **Behavior tracking feeds recommendation**: POST `/api/behavior` writes to `behavior_log` (actions: `click`, `favorite`, `read`) → recommendation history is built from `behavior_log` before calling Python.
+- **Behavior tracking feeds recommendation**: POST `/api/behavior` writes to `behavior_log` (actions: `click`, `favorite`, `read`). `feature_builder.py` builds user vectors via weighted pooling: click=0.5, read=1.0, favorite=2.0, plus reading duration bonus (+0.5 per 60s, max +2.0). PaperDetail tracks real reading duration via `enterTime` → `onBeforeUnmount` delta.
+- **Collaborator recommendations**: `PrivateMessageServiceImpl.getRecommendedCollaborators()` parses each user's `researchInterests` comma-separated string into a Set, computes intersection overlap between same-role users, returns top 2 by overlap descending, excluding existing contacts and self.
+- **Community post likes**: `post_like` table (user_id + post_id unique constraint). `PostItem.liked` field is backfilled from `PostLikeMapper.findLikedPostIds()` during `listPosts()`. Toggle endpoint creates or deletes the like row and increments/decrements `post.like_count`.
+- **Paper search filters**: `/api/paper/search` accepts `yearFrom` (int year) and `sortBy` (`relevance` / `newest` / `cited`). These are applied in both the MyBatis SQL path and the Neo4j fallback path.
 - **Tune recommender** via `rl-service/config.py:default_config`, not scattered constants. Config includes MySQL connection (`MYSQL_HOST`, `MYSQL_PORT` env vars), Neo4j connection (`GRAPH_NEO4J_URI`, `GRAPH_NEO4J_USERNAME`, `GRAPH_NEO4J_PASSWORD` env vars), and RL hyperparameters.
 - **Python service data sources**: MySQL for user behavior/interest history (`data/mysql_data.py`), Neo4j for paper graph and KG embeddings (`knowledge_graph/`). Data flow: `behavior_log` + `user_interest_history` → feature building → MySQL-backed `user_feature_snapshot` cache; Paper pool and KG from Neo4j, embeddings computed from graph structure at runtime.
 - **Frontend stack**: Vue 3 + Vite + Element Plus + Pinia. `@` alias maps to `src/`. Vite dev server proxies `/api` → `http://localhost:8080`. CORS on backend permits `http://localhost:*` and `http://127.0.0.1:*`.
 - **WebSocket auth**: `MessageWebSocketController` validates JWT from STOMP message body, not headers. The `/ws-messages/**` path is in the Spring Security whitelist (auth happens at STOMP CONNECT).
-- **Database**: MySQL 8.0 (`research_db`, user=root, pass=qwer1234). Tables: `user`, `paper`, `behavior_log`, `private_message`, `user_contact`, `post`, `comment`, `announcements`, `user_interest_history`, `browse_history`, `user_feature_snapshot`, `rl_training_log`, `favourite`, `board`, `notification`.
+- **Database**: MySQL 8.0 (`research_db`, user=root, pass=qwer1234). Current tables (12): `user`, `paper`, `behavior_log`, `private_messages`, `user_contacts`, `post`, `post_like`, `comment`, `user_interest_history`, `favourite`, `user_feature_snapshot`, `rl_training_log`. Removed tables (2026-05-15): `board`, `browse_history`, `notification`, `kg_relation`.
 - **Neo4j**: `bolt://localhost:7687`, user=neo4j, pass=seeworld123. Stores Paper nodes and 5 relationship types (HAS_KEYWORD, AUTHOR_OF, CITE, PUBLISH_IN, CO_AUTHOR). KG data flows through Python service — backend no longer uses MySQL `kg_entity`/`kg_relation` tables.
 - **KnowledgeGraph edges**: Python `path_builder.to_dict()` outputs `src`/`dst`, but 3D force-graph expects `source`/`target`. The frontend normalizes edges with `l.src || l.source` / `l.dst || l.target` fallback. Keep both field forms when modifying the graph pipeline.
-- **MCP config**: `.mcp.json` at repo root configures `@myuon/refactor-mcp` for regex-based code search/replace.
+- **MCP config**: `.mcp.json` at repo root configures two MCP servers — `refactor` (regex-based code search/replace via `@myuon/refactor-mcp`) and `drawio` (JGraph draw.io diagram generation via `@drawio/mcp`).
 - **Avatar uploads**: Frontend dev server proxies `/uploads` → `http://localhost:8080` for avatar image loading.
+
+## Architecture Diagrams
+
+`docs/draw/` contains 16 draw.io diagrams (open with draw.io desktop or VS Code extension):
+
+| File | Content |
+|------|---------|
+| `01-04-*-package.drawio` | System overview + 3-layer package diagrams |
+| `05-07-*-class.drawio` | Backend recommend, community/message, and Python service class diagrams |
+| `08-10-*-flow.drawio` | Recommend pipeline, learning path, and collaborator matching flowcharts |
+| `11-er-diagram.drawio` | Database ER diagram (Chinese labels, 1/N cardinality) |
+| `12-neo4j-graph.drawio` | Neo4j graph schema (Paper nodes + 5 relationship types) |
+| `13-16-*-BPD.drawio` | Business process diagrams: recommend, learning-path, collaborator-matching, forum-judge |
 
 ## Known Limitations
 - The repo contains a Playwright smoke test (`tests/design.spec.js`) but no comprehensive test suite for any service.
 - Python service must be running for KG, visualization, and recommendation features to work with real data (no in-process fallback for KG/learning-path).
 - `VisualizationServiceImpl` was slimmed to a single method (`buildKnowledgeGraph`); all stats/chart/trend endpoints are gone — the profile page now gets visualization data from the KG endpoint only.
+- The `favourite` table exists in MySQL but has no dedicated Java mapper/service — favorites are tracked via `behavior_log` (action=`favorite`) and queried through `BehaviorLogMapper.findFavoritesByUserId()`.

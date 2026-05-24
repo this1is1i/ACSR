@@ -291,16 +291,3 @@ class KGBuilder:
                             relation="co_author",
                             weight=1.0,
                         ))
-
-    # ── 引用计数更新 ──────────────────────────────────────────────
-
-    def update_citation_counts(self, kg: KnowledgeGraph) -> None:
-        """统计每篇论文被引次数，更新 Paper 节点属性。"""
-        from collections import Counter
-        cited_count: Counter = Counter()
-        for edge in kg.edges:
-            if edge.relation == "cite":
-                cited_count[edge.dst_id] += 1
-        for node_id, count in cited_count.items():
-            if node_id in kg.nodes:
-                kg.nodes[node_id].properties["citation_count"] = count

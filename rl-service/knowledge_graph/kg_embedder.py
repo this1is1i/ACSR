@@ -75,16 +75,6 @@ class KGEmbedder:
             return np.mean(vecs, axis=0).astype(np.float32)
         return np.zeros(self.embed_dim, dtype=np.float32)
 
-    def get_kg_similarity(self, paper_id_a: str, paper_id_b: str) -> float:
-        """计算两篇论文在 KG 空间的余弦相似度。"""
-        ea = self._embeddings.get(paper_id_a)
-        eb = self._embeddings.get(paper_id_b)
-        if ea is None or eb is None:
-            return 0.0
-        norm_a = np.linalg.norm(ea) + 1e-8
-        norm_b = np.linalg.norm(eb) + 1e-8
-        return float(np.dot(ea, eb) / (norm_a * norm_b))
-
     # ── 内部实现 ──────────────────────────────────────────────────
 
     def _compute_all_embeddings(self) -> None:

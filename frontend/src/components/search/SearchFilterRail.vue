@@ -3,7 +3,6 @@
     <section class="search-filter-rail__section">
       <p class="search-filter-rail__eyebrow">Auxiliary Workspace</p>
       <h2>筛选轨道</h2>
-      <p>把检索词、筛选条件与主题标签稳定地放在侧边，方便连续比对论文。</p>
     </section>
 
     <section class="search-filter-rail__section search-filter-rail__stats">

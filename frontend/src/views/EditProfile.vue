@@ -58,8 +58,10 @@ import { getProfile, updateProfile } from '@/api/user'
 import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/store/userStore'
 
 const router = useRouter()
+const userStore = useUserStore()
 const form = ref({ username: '', email: '', avatar: '', bio: '', researchInterests: '' })
 const previewUrl = ref('')
 const fileInput = ref(null)
@@ -125,6 +127,7 @@ async function save() {
       researchInterests: form.value.researchInterests
     })
     ElMessage.success('保存成功')
+    await userStore.fetchProfile()
     router.push('/profile')
   } catch (e) {
     ElMessage.error('保存失败')

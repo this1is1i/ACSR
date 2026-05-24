@@ -33,7 +33,6 @@
           <span class="sidebar__icon" aria-hidden="true">{{ item.icon }}</span>
           <span class="sidebar__link-copy">
             <span class="sidebar__link-label">{{ item.label }}</span>
-            <small aria-hidden="true">{{ item.description }}</small>
           </span>
         </router-link>
       </section>
@@ -66,24 +65,24 @@ const displayAvatar = computed(() => (username.value ? username.value.charAt(0).
 const userAvatar = computed(() => userInfo.value?.avatar || '')
 
 const exploreItems = computed(() => [
-  ...(isLoggedIn.value ? [{ to: '/home', label: '研究中心', description: '推荐与路径', icon: '研' }] : []),
-  { to: '/search', label: '智能搜索', description: '目标导向检索', icon: '搜' },
-  { to: '/knowledge-graph', label: '知识图谱', description: '图谱与洞察', icon: '图' },
+  ...(isLoggedIn.value ? [{ to: '/home', label: '研究中心', icon: '研' }] : []),
+  { to: '/search', label: '智能搜索', icon: '搜' },
+  { to: '/knowledge-graph', label: '知识图谱', icon: '图' },
 ])
 
 const collaborationItems = computed(() => (
   isLoggedIn.value
     ? [
-        { to: '/community', label: '科研社区', description: '同行交流', icon: '社' },
-        { to: '/messages', label: '实时私信', description: '即时协作', icon: '信' },
-        { to: '/profile', label: '个人中心', description: '账号与偏好', icon: '我' },
+        { to: '/community', label: '科研社区', icon: '社' },
+        { to: '/messages', label: '实时私信', icon: '信' },
+        { to: '/profile', label: '个人中心', icon: '我' },
       ]
     : []
 ))
 
 const managementItems = computed(() => (
   isAdmin.value
-    ? [{ to: '/admin', label: '管理员后台', description: '控制与治理', icon: '管' }]
+    ? [{ to: '/admin', label: '管理员后台', icon: '管' }]
     : []
 ))
 

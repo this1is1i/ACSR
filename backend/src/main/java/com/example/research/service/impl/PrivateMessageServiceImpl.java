@@ -31,16 +31,20 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
 
     @Override
     public void sendMessage(Long senderId, Long receiverId, String content) {
-        // 创建消息
+        sendMessage(senderId, receiverId, content, 1);
+    }
+
+    @Override
+    public void sendMessage(Long senderId, Long receiverId, String content, Integer msgType) {
         PrivateMessage message = new PrivateMessage();
         message.setSenderId(senderId);
         message.setReceiverId(receiverId);
         message.setContent(content);
+        message.setMsgType(msgType != null ? msgType : 1);
         message.setCreateTime(LocalDateTime.now());
 
         privateMessageMapper.insert(message);
 
-        // 更新或创建联系人关系
         updateContact(senderId, receiverId);
         updateContact(receiverId, senderId);
     }

@@ -99,6 +99,15 @@ public class CommunityDto {
     }
 
     @Data
+    public static class PostUpdateRequest {
+        @Size(max = 200)
+        private String title;
+        @Size(max = 5000)
+        private String content;
+        private Long paperId;
+    }
+
+    @Data
     public static class PaperImportItem {
         private String aminerId;
         @NotBlank

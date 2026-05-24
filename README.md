@@ -84,6 +84,6 @@ python -m unittest tests.test_runtime_fixes.RuntimeFixesTest.test_config_reads_n
 
 ## 当前实现状态提示
 
-- `KnowledgeController` 和 `VisualizationController` 中部分数据仍然是演示/静态 payload，而不是完整数据库驱动结果。
-- 仓库已包含 `.github/copilot-instructions.md`，用于为后续 Copilot 会话提供更细粒度的仓库说明。
-- 仓库已新增 Copilot 云代理初始化工作流 `.github/workflows/copilot-setup-steps.yml`，用于在未来的云代理会话中预装前端依赖和 Playwright 浏览器。
+- KG 和可视化数据已通过 Python 服务走 Neo4j + MySQL 真实数据链路，不再是静态/演示 payload。
+- Python 服务必须运行才能使用 KG、可视化和推荐功能（不可用时推荐有本地 fallback，但 KG 无 fallback）。
+- 仓库仅包含一个 Playwright 烟雾测试（`tests/design.spec.js`），无完整测试套件。

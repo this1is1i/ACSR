@@ -161,7 +161,7 @@ class CandidateGenerator:
                 citation_count=int(self.rng.integers(0, 800)),
                 topics=[topic],
                 topic_vector=vec,
-                kg_node_id=f"kg_node_{i:04d}",
+                kg_node_id=f"aminer_{i:06d}",
             ))
         return items
 

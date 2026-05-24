@@ -46,7 +46,7 @@
             <div class="empty-hint">加载中...</div>
           </div>
           <div class="collection-list" v-else-if="collections.length">
-            <div v-for="(c, idx) in collections" :key="idx" class="collection-item" @click="c.id && router.push(`/paper/${c.id}`)">
+            <div v-for="(c, idx) in pagedCollections" :key="idx" class="collection-item" @click="c.id && router.push(`/paper/${c.id}`)">
               <div class="collection-thumb">📄</div>
               <div class="collection-info">
                 <div class="collection-title">{{ c.title }}</div>
@@ -56,6 +56,9 @@
           </div>
           <div class="collection-list" v-else>
             <div class="empty-hint">还没有收藏论文</div>
+          </div>
+          <div v-if="collections.length > collectionsPageSize" class="history-pagination">
+            <el-pagination background :current-page="collectionsPage" :page-size="collectionsPageSize" :total="collections.length" layout="prev, pager, next" @current-change="collectionsPage = $event" />
           </div>
         </div>
 
@@ -87,6 +90,105 @@
         </div>
       </div>
 
+      <div class="profile-card card animate-fade-up my-papers-card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon">📄</div>
+            我的论文
+          </div>
+          <div class="claims-tabs">
+            <button :class="['tab-btn', { active: claimsTab === 'pending' }]" @click="claimsTab = 'pending'">
+              待确认 ({{ pendingClaims.length }})
+            </button>
+            <button :class="['tab-btn', { active: claimsTab === 'confirmed' }]" @click="claimsTab = 'confirmed'">
+              已确认 ({{ confirmedClaims.length }})
+            </button>
+          </div>
+        </div>
+
+        <div v-if="claimsLoading" class="empty-hint">加载中...</div>
+
+        <div v-else-if="claimsTab === 'pending'">
+          <div v-if="pendingClaims.length" class="claims-list">
+            <div v-for="claim in pendingClaims" :key="claim.claimId" class="claim-item">
+              <div class="claim-thumb">📄</div>
+              <div class="claim-info" @click="claim.paperId && router.push(`/paper/${claim.paperId}`)">
+                <div class="claim-title">{{ claim.title }}</div>
+                <div class="claim-meta">{{ [claim.venue, claim.year].filter(Boolean).join(' · ') || '—' }}</div>
+                <div class="claim-authors">{{ claim.authors }}</div>
+              </div>
+              <div class="claim-actions">
+                <button class="btn primary sm" @click.stop="doConfirmClaim(claim.paperId)">确认</button>
+                <button class="btn secondary sm" @click.stop="doDenyClaim(claim.paperId)">否认</button>
+              </div>
+            </div>
+          </div>
+          <div v-else class="empty-hint">没有待确认的论文</div>
+        </div>
+
+        <div v-else>
+          <div v-if="confirmedClaims.length" class="claims-list">
+            <div v-for="claim in confirmedClaims" :key="claim.claimId" class="claim-item"
+                 @click="claim.paperId && router.push(`/paper/${claim.paperId}`)">
+              <div class="claim-thumb">✅</div>
+              <div class="claim-info">
+                <div class="claim-title">{{ claim.title }}</div>
+                <div class="claim-meta">{{ [claim.venue, claim.year].filter(Boolean).join(' · ') || '—' }}</div>
+                <div class="claim-authors">{{ claim.authors }}</div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="empty-hint">还没有已确认的论文</div>
+        </div>
+      </div>
+
+      <div class="profile-card card animate-fade-up my-posts-card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon">📝</div>
+            我的帖子
+          </div>
+          <span class="post-count-badge" v-if="myPosts.length">共 {{ myPosts.length }} 篇</span>
+        </div>
+
+        <div v-if="myPostsLoading" class="empty-hint">加载中...</div>
+        <div v-else-if="myPosts.length" class="myposts-list">
+          <div v-for="post in pagedMyPosts" :key="post.id" class="mypost-item">
+            <div class="mypost-info">
+              <div class="mypost-title">{{ post.title || '(无标题)' }}</div>
+              <div class="mypost-meta">
+                <el-tag size="small" :type="post.statusName === 'APPROVED' ? 'success' : post.statusName === 'REJECTED' ? 'danger' : 'warning'">
+                  {{ post.statusLabel }}
+                </el-tag>
+                <span class="mypost-time">{{ formatRelativeTime(post.createTime) }}</span>
+              </div>
+              <div class="mypost-content-preview">{{ post.content?.slice(0, 80) }}{{ post.content?.length > 80 ? '...' : '' }}</div>
+            </div>
+            <div class="mypost-actions">
+              <button class="btn sm secondary" @click="openEditPostDialog(post)">编辑</button>
+              <button class="btn sm danger" @click="doDeletePost(post)">删除</button>
+            </div>
+          </div>
+          <div v-if="myPosts.length > myPostsPageSize" class="history-pagination">
+            <el-pagination background :current-page="myPostsPage" :page-size="myPostsPageSize" :total="myPosts.length" layout="prev, pager, next" @current-change="myPostsPage = $event" />
+          </div>
+        </div>
+        <div v-else class="empty-hint">还没有发布帖子</div>
+      </div>
+
+      <!-- Edit post dialog -->
+      <div class="dialog-overlay" v-if="editPostVisible" @click.self="editPostVisible = false">
+        <div class="dialog-card">
+          <h3>编辑帖子</h3>
+          <input v-model="editPostForm.title" class="dialog-input" placeholder="帖子标题（可选）" maxlength="200" />
+          <textarea v-model="editPostForm.content" class="dialog-textarea" rows="5" placeholder="帖子内容" maxlength="5000"></textarea>
+          <div class="dialog-actions">
+            <button class="btn secondary" @click="editPostVisible = false">取消</button>
+            <button class="btn primary" @click="doUpdatePost">保存</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Interests edit dialog -->
       <div class="dialog-overlay" v-if="interestsEditVisible" @click.self="interestsEditVisible = false">
         <div class="dialog-card">
@@ -110,6 +212,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import Sidebar from '@/components/Sidebar.vue'
 import { getProfile, updateProfile, getFavorites } from '@/api/user'
 import { getActivityHistory, clearActivityHistory } from '@/api/recommend'
+import { getClaimedPapers, confirmClaim, denyClaim } from '@/api/claim'
+import { getMyPosts, updatePost, deletePost } from '@/api/community'
 
 const router = useRouter()
 
@@ -118,9 +222,30 @@ const collectionsLoading = ref(false)
 const historyLoading = ref(false)
 
 const collections = ref([])
+const collectionsPage = ref(1)
+const collectionsPageSize = ref(4)
+const pagedCollections = computed(() => {
+  const start = (collectionsPage.value - 1) * collectionsPageSize.value
+  return collections.value.slice(start, start + collectionsPageSize.value)
+})
 const history = ref([])
 const historyPage = ref(1)
 const historyPageSize = ref(4)
+const claimsLoading = ref(false)
+const pendingClaims = ref([])
+const confirmedClaims = ref([])
+const claimsTab = ref('pending')
+const myPostsLoading = ref(false)
+const myPosts = ref([])
+const myPostsPage = ref(1)
+const myPostsPageSize = ref(4)
+const editPostVisible = ref(false)
+const editingPost = ref(null)
+const editPostForm = ref({ title: '', content: '' })
+const pagedMyPosts = computed(() => {
+  const start = (myPostsPage.value - 1) * myPostsPageSize.value
+  return myPosts.value.slice(start, start + myPostsPageSize.value)
+})
 const pagedHistory = computed(() => {
   const start = (historyPage.value - 1) * historyPageSize.value
   return history.value.slice(start, start + historyPageSize.value)
@@ -139,7 +264,7 @@ async function fetchFavorites() {
       meta: [p.authors, p.venue, p.year].filter(Boolean).join(' · ') || '—'
     }))
   } catch (e) {
-    console.error('Failed to load favorites', e)
+    // console.error('Failed to load favorites', e)
     collections.value = []
   } finally {
     collectionsLoading.value = false
@@ -162,10 +287,105 @@ async function fetchHistory() {
       }
     })
   } catch (e) {
-    console.error('Failed to load history', e)
+    // console.error('Failed to load history', e)
     history.value = []
   } finally {
     historyLoading.value = false
+  }
+}
+
+async function fetchClaims(status) {
+  try {
+    const res = await getClaimedPapers(status)
+    const data = res.data || res
+    if (status === 0) {
+      pendingClaims.value = data || []
+    } else {
+      confirmedClaims.value = data || []
+    }
+  } catch (e) {
+    // console.error('Failed to load claims', e)
+  }
+}
+
+async function fetchAllClaims() {
+  claimsLoading.value = true
+  try {
+    await Promise.all([fetchClaims(0), fetchClaims(1)])
+  } finally {
+    claimsLoading.value = false
+  }
+}
+
+async function doConfirmClaim(paperId) {
+  try {
+    await confirmClaim(paperId)
+    ElMessage.success('已确认为您的研究成果')
+    await fetchAllClaims()
+  } catch (e) {
+    ElMessage.error('操作失败，请重试')
+  }
+}
+
+async function doDenyClaim(paperId) {
+  try {
+    await denyClaim(paperId)
+    ElMessage.success('已否认')
+    await fetchAllClaims()
+  } catch (e) {
+    ElMessage.error('操作失败，请重试')
+  }
+}
+
+async function fetchMyPosts() {
+  myPostsLoading.value = true
+  try {
+    const res = await getMyPosts()
+    myPosts.value = (res.data || res) || []
+  } catch (e) {
+    // console.error('Failed to load my posts', e)
+    myPosts.value = []
+  } finally {
+    myPostsLoading.value = false
+  }
+}
+
+function openEditPostDialog(post) {
+  editingPost.value = post
+  editPostForm.value = { title: post.title || '', content: post.content || '' }
+  editPostVisible.value = true
+}
+
+async function doUpdatePost() {
+  if (!editingPost.value) return
+  try {
+    await updatePost(editingPost.value.id, {
+      title: editPostForm.value.title?.trim() || null,
+      content: editPostForm.value.content.trim(),
+    })
+    ElMessage.success('帖子已更新')
+    editPostVisible.value = false
+    editingPost.value = null
+    await fetchMyPosts()
+  } catch (e) {
+    ElMessage.error('修改失败，请重试')
+  }
+}
+
+async function doDeletePost(post) {
+  try {
+    await ElMessageBox.confirm('确定要删除这篇帖子吗？删除后无法恢复。', '确认删除', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
+    await deletePost(post.id)
+    ElMessage.success('帖子已删除')
+    await fetchMyPosts()
+  } catch (e) {
+    if (e !== 'cancel') {
+      ElMessage.error('删除失败，请重试')
+    }
   }
 }
 
@@ -220,13 +440,12 @@ async function doClearHistory() {
     history.value = []
     ElMessage.success('已清空')
   } catch (e) {
-    if (e !== 'cancel') console.error('Failed to clear history', e)
+    if (e !== 'cancel') // console.error('Failed to clear history', e)
   }
 }
 
 function logout() {
-  localStorage.removeItem('token')
-  localStorage.removeItem('userId')
+  userStore.clearToken()
   ElMessage.success('已退出登录')
   router.push('/login')
 }
@@ -239,11 +458,13 @@ onMounted(async () => {
         const data = res.data || res
         profile.value = { id: data.id, username: data.username, avatar: data.avatar, email: data.email, bio: data.bio, researchInterests: data.researchInterests }
       } catch (e) {
-        console.error('failed to load profile', e)
+        // console.error('failed to load profile', e)
       }
     })(),
     fetchFavorites(),
     fetchHistory(),
+    fetchAllClaims(),
+    fetchMyPosts(),
   ])
 })
 </script>
@@ -586,6 +807,221 @@ onMounted(async () => {
 /* ─── Animation Delays ───────────────────────────────────────── */
 .profile-grid .profile-card:nth-child(1) { animation-delay: 0.1s; }
 .profile-grid .profile-card:nth-child(2) { animation-delay: 0.2s; }
+
+/* ─── My Papers Card ─────────────────────────────────────────── */
+.my-papers-card {
+  margin-top: 24px;
+  border-left: 3px solid var(--color-area-profile);
+}
+
+.claims-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab-btn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.tab-btn:hover:not(.active) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.claims-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.claim-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(148,163,184,0.04);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.claim-item:hover {
+  background: rgba(99,102,241,0.06);
+  border-color: rgba(99,102,241,0.15);
+}
+
+.claim-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.15));
+}
+
+.claim-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.claim-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-h);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.claim-meta {
+  font-size: 12px;
+  color: var(--text);
+  margin-top: 2px;
+}
+
+.claim-authors {
+  font-size: 11px;
+  color: var(--text);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.claim-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn.sm {
+  padding: 4px 14px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+.btn.danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.btn.danger:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* ─── My Posts Card ─────────────────────────────────────────── */
+.my-posts-card {
+  margin-top: 24px;
+  border-left: 3px solid var(--color-area-community);
+}
+
+.post-count-badge {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: var(--bg-hover);
+}
+
+.myposts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mypost-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(148,163,184,0.04);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.mypost-item:hover {
+  background: rgba(99,102,241,0.06);
+  border-color: rgba(99,102,241,0.15);
+}
+
+.mypost-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mypost-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-h);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mypost-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.mypost-time {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mypost-content-preview {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.mypost-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ─── Edit Post Dialog ───────────────────────────────────────── */
+.dialog-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+  min-height: 120px;
+  margin-bottom: 20px;
+  font-family: inherit;
+}
+
+.dialog-textarea:focus {
+  border-color: var(--primary);
+}
 
 /* ─── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 1200px) {

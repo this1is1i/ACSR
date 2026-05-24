@@ -4,12 +4,7 @@
     <main class="main-content">
       <header class="workspace-header card glass">
         <div>
-          <h2>💬 协作消息工作台</h2>
-        </div>
-        <div class="thread-pills">
-          <span class="thread-pill">实时同步</span>
-          <span class="thread-pill">论文线索</span>
-          <span class="thread-pill">行动路径</span>
+          <h2>协作消息工作台</h2>
         </div>
       </header>
 
@@ -121,10 +116,10 @@ async function loadConversations() {
         const nodes = kgd.nodes || []
         contacts.value = nodes.map(n => ({ id: n.id, name: n.name, unreadCount: 0, lastMessage: '', isRealUser: false }))
         ElMessage.info('当前没有真实联系人，已使用知识图谱节点作为展示（不能发送）')
-      } catch(e) { console.error('fallback kg failed', e) }
+      } catch(e) { // console.error('fallback kg failed', e) }
     }
   } catch (e) {
-    console.error('loadConversations failed', e)
+    // console.error('loadConversations failed', e)
   }
 }
 
@@ -136,7 +131,7 @@ async function loadRecommendations() {
     const data = res.data || res || []
     recommendations.value = Array.isArray(data) ? data : []
   } catch (e) {
-    console.error('loadRecommendations failed', e)
+    // console.error('loadRecommendations failed', e)
   }
 }
 
@@ -152,7 +147,7 @@ async function handleSearch(query) {
       const data = res.data || res || []
       searchResults.value = Array.isArray(data) ? data : []
     } catch (e) {
-      console.error('searchUsers failed', e)
+      // console.error('searchUsers failed', e)
     }
   }, 300)
 }
@@ -163,7 +158,7 @@ async function startChatWithUser(user) {
     await sendMessageRest(user.id, greeting)
     ElMessage.success('已发送协作邀请')
   } catch (e) {
-    console.error('send greeting failed', e)
+    // console.error('send greeting failed', e)
     ElMessage.error('发送邀请失败')
     return
   }
@@ -179,7 +174,7 @@ async function startChatWithRecommended(rec) {
     await sendMessageRest(rec.userId, greeting)
     ElMessage.success('已发送协作邀请')
   } catch (e) {
-    console.error('send greeting failed', e)
+    // console.error('send greeting failed', e)
     ElMessage.error('发送邀请失败')
     return
   }
@@ -206,11 +201,11 @@ async function selectContact(id) {
     // mark unread messages as read
     for (const msg of messages[id]) {
       if (msg.to === meId && !msg.isRead) {
-        try { await markMessageRead(msg.id); msg.isRead = true } catch (e) { console.error('markRead failed', e) }
+        try { await markMessageRead(msg.id); msg.isRead = true } catch (e) { // console.error('markRead failed', e) }
       }
     }
   } catch (e) {
-    console.error('load history failed', e)
+    // console.error('load history failed', e)
   }
 
   nextTick(() => { scrollToBottom() })
@@ -265,7 +260,7 @@ async function connect() {
       onConnect: () => {
         connected.value = true
         client.subscribe('/user/queue/private', msg => {
-          try { const d = JSON.parse(msg.body); handleIncoming(d) } catch(e) { console.error(e) }
+          try { const d = JSON.parse(msg.body); handleIncoming(d) } catch(e) { // console.error(e) }
         })
         client.subscribe('/topic/user-status', msg => {
           try { const d = JSON.parse(msg.body); if (d?.userId) {
@@ -277,14 +272,14 @@ async function connect() {
         // refresh conversations after connect
         loadConversations()
       },
-      onStompError: e => { console.error('STOMP error', e) },
+      onStompError: e => { // console.error('STOMP error', e) },
       onDisconnect: () => { connected.value = false }
     })
 
     stompClient = client
     if (client.activate) client.activate()
   } catch (e) {
-    console.error('Failed to load stomp/sockjs', e)
+    // console.error('Failed to load stomp/sockjs', e)
   }
 }
 
@@ -330,7 +325,7 @@ async function sendMessage() {
   try {
     await sendMessageRest(selected.value, text)
   } catch (e) {
-    console.error('persist failed', e)
+    // console.error('persist failed', e)
     // remove optimistic message
     const arr = messages[selected.value]
     const idx = arr.findIndex(m => m.id === tmpId)
@@ -341,7 +336,7 @@ async function sendMessage() {
 
   // send via STOMP if available
   if (stompClient && connected.value) {
-    try { stompClient.publish({ destination: '/app/send-private', body: JSON.stringify({ token, receiverId: String(selected.value), content: text }) }) } catch (e) { console.error(e) }
+    try { stompClient.publish({ destination: '/app/send-private', body: JSON.stringify({ token, receiverId: String(selected.value), content: text }) }) } catch (e) { // console.error(e) }
   }
 }
 
@@ -402,6 +397,17 @@ onBeforeUnmount(() => { if (stompClient && stompClient.deactivate) stompClient.d
   padding: 0 4px 12px;
   border-bottom: 1px solid var(--design-border);
   flex-shrink: 0;
+}
+
+.thread-header > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.thread-header h3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .thread-summary {

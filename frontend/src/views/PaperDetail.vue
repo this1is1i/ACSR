@@ -110,13 +110,13 @@ async function handleDownload() {
 
   downloading.value = true
   try {
-    const response = await downloadPaperTxt(route.params.id)
+    const response = await downloadPaperTxt(paper.value.id)
     const url = window.URL.createObjectURL(response.data)
     const link = document.createElement('a')
     link.href = url
     link.download = getDownloadFilename(
       response.headers?.['content-disposition'],
-      `${paper.value.title || `paper-${route.params.id}`}.txt`
+      `${paper.value.title || `paper-${paper.value.id}`}.txt`
     )
     link.click()
     window.URL.revokeObjectURL(url)

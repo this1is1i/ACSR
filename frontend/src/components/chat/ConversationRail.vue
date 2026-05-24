@@ -120,10 +120,6 @@ const props = defineProps({
     type: [String, Number],
     default: null,
   },
-  messages: {
-    type: Object,
-    default: () => ({}),
-  },
   onlineSet: {
     type: Object,
     default: () => new Set(),
@@ -262,7 +258,7 @@ function isOnline(contactId) {
   padding: 0.85rem 0.9rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-subtle);
-  background: rgba(15, 23, 42, 0.36);
+  background: var(--bg-card);
 }
 
 .conversation-item {
@@ -364,7 +360,7 @@ function isOnline(contactId) {
   padding: 0.85rem 0.9rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-subtle);
-  background: rgba(15, 23, 42, 0.36);
+  background: var(--bg-card);
   display: flex;
   gap: 0.85rem;
 }

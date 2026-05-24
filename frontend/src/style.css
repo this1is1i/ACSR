@@ -40,6 +40,24 @@ a {
   min-height: 100vh;
 }
 
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-subtle);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
 h1,
 h2,
 h3,
@@ -62,7 +80,7 @@ code {
   padding: 0.2rem 0.45rem;
   border-radius: var(--radius-sm);
   font-family: var(--font-mono);
-  background: rgba(15, 23, 42, 0.55);
+  background: var(--bg-hover);
 }
 
 .card,
@@ -114,7 +132,7 @@ code {
 .btn.secondary,
 .profile-btn.secondary,
 .edit-btn.secondary {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-hover);
   color: var(--color-text-primary);
   border-color: var(--design-border);
   box-shadow: none;
@@ -162,7 +180,7 @@ textarea,
 select {
   border: 1px solid var(--design-border);
   border-radius: var(--radius-md);
-  background: rgba(7, 17, 31, 0.72);
+  background: var(--bg-card);
   color: var(--color-text-primary);
   transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }

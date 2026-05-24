@@ -10,12 +10,10 @@
           :items="recommendations"
           :loading="loading"
           :focus-topic="pathSummary.topic"
-          @explore="router.push('/search')"
         />
         <LearningPathPanel
           :loading="loading"
           :summary="pathSummary"
-          @view-path="router.push('/knowledge-graph')"
         />
       </div>
     </main>

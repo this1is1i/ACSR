@@ -70,7 +70,6 @@
               </div>
               <div class="detail-row" v-if="selectedNode.year"><span class="detail-label">年份</span><span>{{ selectedNode.year }}</span></div>
               <div class="detail-row"><span class="detail-label">深度层</span><span>{{ depthLabel(selectedNode.depth) }}</span></div>
-              <div class="detail-row"><span class="detail-label">节点 ID</span><span class="detail-id">{{ selectedNode.id }}</span></div>
             </div>
           </div>
         </div>
@@ -253,15 +252,16 @@ async function initKnowledgeGraph(data) {
     .linkDirectionalParticleColor(link => link._highlight ? '#ffffff' : '#6366f1')
     // Interaction
     .onNodeClick(node => {
-      selectedNode.value = node
-      // Camera zoom to node
-      const dist = 120
-      const pos = node
-      Graph3D.cameraPosition(
-        { x: pos.x, y: pos.y + 40, z: pos.z + dist },
-        { x: pos.x, y: pos.y, z: pos.z },
-        1000
-      )
+      selectedNode.value = { ...node }
+      if (node.x !== undefined && node.y !== undefined && node.z !== undefined) {
+        try {
+          Graph3D.cameraPosition(
+            { x: node.x, y: node.y + 40, z: node.z + 120 },
+            { x: node.x, y: node.y, z: node.z },
+            1000
+          )
+        } catch { /* camera move best-effort */ }
+      }
     })
     .onBackgroundClick(() => { selectedNode.value = null })
     .width(container.clientWidth)
@@ -413,7 +413,7 @@ onMounted(async () => {
       await initKnowledgeGraph(data.knowledge)
     }
   } catch (e) {
-    console.error('Failed to load visualization data', e)
+    // console.error('Failed to load visualization data', e)
   } finally {
     surfaceLoading.value = false
   }
@@ -444,8 +444,8 @@ onBeforeUnmount(() => {
 .viz-surface-layout { display: grid; gap: 24px; margin-bottom: 30px }
 .viz-surface-layout__main { display: grid; gap: 24px; align-content: start }
 .chart-card {
-  background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(20px);
-  border-radius: 24px; border: 1px solid rgba(148, 163, 184, 0.1);
+  background: var(--bg-card); backdrop-filter: blur(20px);
+  border-radius: 24px; border: 1px solid var(--design-border);
   border-left: 3px solid transparent; padding: 30px; overflow: hidden;
 }
 .chart-card[data-area="knowledge"] { border-left-color: var(--color-area-knowledge) }
@@ -462,11 +462,11 @@ onBeforeUnmount(() => {
 .chart-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap }
 .chart-btn {
   padding: 8px 16px; border-radius: 8px;
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  background: rgba(255, 255, 255, 0.05); color: #94a3b8;
+  border: 1px solid var(--design-border);
+  background: var(--bg-hover); color: var(--color-text-secondary);
   cursor: pointer; transition: all 0.2s; font-size: 13px;
 }
-.chart-btn:hover:not(:disabled) { background: #6366f1; color: white }
+.chart-btn:hover:not(:disabled) { background: var(--primary); color: white }
 .chart-btn:disabled { opacity: 0.4; cursor: not-allowed }
 .fullwidth-chart { grid-column: 1 / -1 }
 
@@ -501,14 +501,14 @@ onBeforeUnmount(() => {
 .reset-btn:hover { background: #ef4444 !important; border-color: #ef4444 !important; color: white !important }
 .speed-select {
   padding: 6px 12px; border-radius: 8px;
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  background: rgba(255, 255, 255, 0.05); color: #94a3b8;
+  border: 1px solid var(--design-border);
+  background: var(--bg-card); color: var(--color-text-primary);
   font-size: 13px; cursor: pointer; outline: none;
 }
-.speed-select option { background: #1e293b; color: #e2e8f0 }
+.speed-select option { background: var(--color-bg-elevated); color: var(--color-text-primary) }
 
 /* Mastery legend */
-.mastery-legend { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #94a3b8 }
+.mastery-legend { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-muted) }
 .legend-bar { width: 120px; height: 8px; border-radius: 4px; background: linear-gradient(to right, #3B82F6, #F59E0B, #10B981) }
 .legend-min { color: #3B82F6; font-size: 11px }
 .legend-max { color: #10B981; font-size: 11px }
@@ -517,21 +517,21 @@ onBeforeUnmount(() => {
 .path-info-bar {
   display: flex; justify-content: space-between; align-items: center;
   padding: 14px 20px; margin-bottom: 16px;
-  background: rgba(99, 102, 241, 0.08); border-radius: 14px;
-  border: 1px solid rgba(99, 102, 241, 0.15);
+  background: var(--bg-hover); border-radius: 14px;
+  border: 1px solid var(--color-border-strong);
 }
 .path-meta { display: flex; gap: 16px; flex-wrap: wrap }
 .meta-chip {
   display: flex; align-items: center; gap: 6px;
   padding: 6px 14px; border-radius: 20px;
-  background: rgba(255, 255, 255, 0.06); font-size: 13px; font-weight: 500;
-  color: #f8fafc;
+  background: var(--bg-card); font-size: 13px; font-weight: 500;
+  color: var(--color-text-primary);
 }
 .meta-icon { font-size: 15px }
 .path-progress { display: flex; align-items: center; gap: 10px }
-.progress-track { width: 140px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.1); overflow: hidden }
+.progress-track { width: 140px; height: 6px; border-radius: 3px; background: var(--bg-hover); overflow: hidden }
 .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #6366f1, #06b6d4); transition: width 0.4s ease }
-.progress-text { font-size: 12px; color: #94a3b8; white-space: nowrap }
+.progress-text { font-size: 12px; color: var(--color-text-muted); white-space: nowrap }
 
 /* KG layout */
 .kg-layout { display: flex; gap: 16px; position: relative }
@@ -546,8 +546,8 @@ onBeforeUnmount(() => {
 .node-detail {
   position: relative;
   width: 260px; flex-shrink: 0; padding: 20px; border-radius: 16px;
-  background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(16px);
-  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: var(--bg-card); backdrop-filter: blur(16px);
+  border: 1px solid var(--design-border);
   animation: slideIn 0.3s ease;
 }
 @keyframes slideIn { from { opacity: 0; transform: translateX(20px) } to { opacity: 1; transform: translateX(0) } }
@@ -555,25 +555,24 @@ onBeforeUnmount(() => {
   position: absolute; top: 12px; right: 12px;
   width: 28px; height: 28px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 14px; color: #94a3b8;
-  background: rgba(255, 255, 255, 0.05); transition: all 0.2s;
+  cursor: pointer; font-size: 14px; color: var(--color-text-muted);
+  background: var(--bg-hover); transition: all 0.2s;
 }
 .detail-close:hover { background: rgba(239, 68, 68, 0.3); color: white }
 .detail-type-badge { display: inline-flex; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-bottom: 12px }
-.detail-type-badge.paper { background: rgba(245, 158, 11, 0.15); color: #fbbf24 }
-.detail-type-badge.keyword { background: rgba(99, 102, 241, 0.15); color: #a5b4fc }
+.detail-type-badge.paper { background: rgba(245, 158, 11, 0.15); color: #d97706 }
+.detail-type-badge.keyword { background: rgba(99, 102, 241, 0.15); color: #6366f1 }
 .detail-name { font-size: 16px; font-weight: 600; margin-bottom: 16px; line-height: 1.4 }
 .detail-mastery { display: flex; align-items: center; gap: 8px; margin-bottom: 14px }
-.detail-mastery span:first-child { font-size: 12px; color: #94a3b8; white-space: nowrap }
-.mastery-bar-wrap { flex: 1; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.08); overflow: hidden }
+.detail-mastery span:first-child { font-size: 12px; color: var(--color-text-muted); white-space: nowrap }
+.mastery-bar-wrap { flex: 1; height: 8px; border-radius: 4px; background: var(--bg-hover); overflow: hidden }
 .mastery-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease }
 .mastery-pct { font-size: 13px; font-weight: 600; min-width: 36px; text-align: right }
 .detail-row {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04); font-size: 13px;
+  padding: 8px 0; border-bottom: 1px solid var(--color-border-subtle); font-size: 13px;
 }
-.detail-label { color: #94a3b8 }
-.detail-id { font-family: monospace; font-size: 11px; color: #94a3b8; word-break: break-all }
+.detail-label { color: var(--color-text-muted) }
 
 @media (max-width: 1200px) {
   .kg-layout { flex-direction: column }

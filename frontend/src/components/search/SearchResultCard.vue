@@ -57,13 +57,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['open', 'toggle-favorite'])
-
-const contextLabels = computed(() => [...props.activeFilters, ...props.activeTags].slice(0, 3))
-const pathLabel = computed(() => {
-  if (props.query) return `围绕 ${props.query} 展开比对`
-  if (props.activeTags.length) return `围绕 ${props.activeTags[0]} 延伸阅读`
-  return '进入论文阅读画布'
-})
 </script>
 
 <style scoped>

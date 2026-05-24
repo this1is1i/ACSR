@@ -141,7 +141,7 @@ class RecommendationService:
             user_id=user_id,
             user_embedding=user_features.interest_vector,
             history=history,
-            limit=min(self.config.action_num * 2, 50),
+            limit=min(self.config.action_num, 50),
             strategy=strategy,
         )
         logger.debug(f"[{user_id}] Step2 候选集生成: {len(candidates)} 篇")

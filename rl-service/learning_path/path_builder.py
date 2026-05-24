@@ -123,29 +123,6 @@ class PathBuilder:
         )
         return path
 
-    def build_prerequisite_chain(
-        self,
-        target_paper_id: str,
-        depth: int = 3,
-    ) -> List[PathNode]:
-        """
-        为目标论文生成前置知识链（从基础到高级）。
-
-        例如：Machine Learning → Deep Learning → Transformer → BERT
-
-        Args:
-            target_paper_id: 目标论文 ID
-            depth:           向前追溯的层数
-
-        Returns:
-            有序 PathNode 列表（前置优先）
-        """
-        visited: set = set()
-        chain: List[PathNode] = []
-        self._dfs_prerequisites(target_paper_id, 0, depth, visited, chain)
-        chain.reverse()  # 翻转为「基础 → 目标」顺序
-        return chain
-
     # ── 内部方法 ──────────────────────────────────────────────────
 
     def _extract_known_keywords(self, history: List[str]) -> Dict[str, float]:
@@ -244,33 +221,6 @@ class PathBuilder:
                     if len(edges) > 50:  # 防止边过多
                         break
         return edges
-
-    def _dfs_prerequisites(
-        self,
-        paper_id: str,
-        cur_depth: int,
-        max_depth: int,
-        visited: set,
-        chain: List[PathNode],
-    ) -> None:
-        """DFS 递归追溯前置论文。"""
-        if cur_depth >= max_depth or paper_id in visited:
-            return
-        visited.add(paper_id)
-        node = self.kg.nodes.get(paper_id)
-        if not node:
-            return
-        chain.append(PathNode(
-            node_id=paper_id, label=node.label,
-            node_type="paper", mastery=0.0, depth=cur_depth,
-            year=node.properties.get("year"),
-        ))
-        # 递归到被引用的论文（前置知识）
-        for edge in self.kg._adj.get(paper_id, []):
-            if edge.relation == "cite":
-                self._dfs_prerequisites(
-                    edge.dst_id, cur_depth + 1, max_depth, visited, chain
-                )
 
     def to_dict(self, path: LearningPath) -> dict:
         """序列化学习路径为 JSON 格式（供前端三维可视化使用）。"""

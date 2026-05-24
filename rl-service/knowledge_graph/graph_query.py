@@ -120,52 +120,6 @@ class GraphQuery:
         results.sort(key=lambda x: -x["score"])
         return results[:k]
 
-    def get_author_neighbors(
-        self,
-        author_id: str,
-        hops: int = 1,
-    ) -> List[Dict[str, Any]]:
-        """
-        获取作者的合著网络邻居。
-
-        Args:
-            author_id: 目标作者 ID
-            hops:      跳数（1=直接合著者，2=二阶合著者）
-
-        Returns:
-            List of {"author_id": ..., "name": ..., "hop": ...}
-        """
-        visited: Dict[str, int] = {author_id: 0}
-        queue = deque([(author_id, 0)])
-        results = []
-
-        while queue:
-            cur_id, cur_hop = queue.popleft()
-            if cur_hop >= hops:
-                continue
-            for edge in self.kg._adj.get(cur_id, []):
-                if edge.relation == "co_author" and edge.dst_id not in visited:
-                    visited[edge.dst_id] = cur_hop + 1
-                    queue.append((edge.dst_id, cur_hop + 1))
-            # 反向合著边
-            for edge in self.kg._rev_adj.get(cur_id, []):
-                if edge.relation == "co_author" and edge.src_id not in visited:
-                    visited[edge.src_id] = cur_hop + 1
-                    queue.append((edge.src_id, cur_hop + 1))
-
-        for nid, hop in visited.items():
-            if nid == author_id:
-                continue
-            node = self.kg.nodes.get(nid)
-            if node and node.node_type == "author":
-                results.append({
-                    "author_id": nid,
-                    "name": node.label,
-                    "org": node.properties.get("org", ""),
-                    "hop": hop,
-                })
-        return sorted(results, key=lambda x: x["hop"])
-
     def get_keyword_cluster(
         self,
         keyword: str,

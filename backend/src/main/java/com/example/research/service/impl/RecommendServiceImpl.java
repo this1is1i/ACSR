@@ -41,7 +41,7 @@ public class RecommendServiceImpl implements RecommendService {
         // ── Step 1: 获取用户历史行为（构建推荐上下文）─────────────
         List<Long> historyPaperIds = behaviorLogMapper.findInteractedPaperIds(userId, 20);
         List<String> historyAminers = resolveAminers(historyPaperIds);
-        log.info("用户 [{}] 历史行为论文数: {}", userId, historyAminers.size());
+        log.debug("用户 [{}] 历史行为论文数: {}", userId, historyAminers.size());
 
         // ── Step 2: 调用 Python 推荐服务 ─────────────────────────
         PythonRecClient.RecResponse pyResp = pythonRecClient.getRecommendations(
@@ -55,9 +55,7 @@ public class RecommendServiceImpl implements RecommendService {
             // ── Step 3: 组装推荐结果（Python 正常响应）────────────
             items = assembleFromPython(pyResp.getRecommendations());
             if (!items.isEmpty()) {
-                log.info("Python 推荐组装完成, 首条 reason={}, details={}",
-                    items.get(0).getReason(),
-                    items.get(0).getReasonDetails());
+                log.debug("Python 推荐首条: reason={}", items.get(0).getReason());
             }
         } else {
             // ── Step 4: 降级：返回热门论文 ─────────────────────────
@@ -80,8 +78,8 @@ public class RecommendServiceImpl implements RecommendService {
         response.setRecommendations(items);
         response.setPythonServiceAvailable(pythonAvailable);
 
-        log.info("推荐完成: userId={}, items={}, latencyMs={}, pythonAvailable={}",
-                 userId, items.size(), latencyMs, pythonAvailable);
+        log.info("推荐完成: userId={}, {}条推荐, {}ms, python={}",
+                 userId, items.size(), (long) latencyMs, pythonAvailable ? "可用" : "降级");
         return response;
     }
 

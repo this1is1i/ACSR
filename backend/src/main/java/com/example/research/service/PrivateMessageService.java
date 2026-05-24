@@ -16,6 +16,8 @@ public interface PrivateMessageService {
      */
     void sendMessage(Long senderId, Long receiverId, String content);
 
+    void sendMessage(Long senderId, Long receiverId, String content, Integer msgType);
+
     /**
      * 标记消息为已读
      */

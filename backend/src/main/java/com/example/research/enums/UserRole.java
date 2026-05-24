@@ -27,10 +27,6 @@ public enum UserRole {
         return directPublish;
     }
 
-    public boolean isHigherOrEqual(UserRole other) {
-        return this.level >= other.level;
-    }
-
     public static UserRole from(String rawRole) {
         if (rawRole == null || rawRole.isBlank()) {
             return GUEST;

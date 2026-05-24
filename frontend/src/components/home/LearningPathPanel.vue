@@ -4,9 +4,7 @@
       <div>
         <p class="panel-header__eyebrow">Learning Path</p>
         <h2>学习路径</h2>
-        <p>直接复用可视化数据，提炼当前路径进度、关键节点与下一步研究方向。</p>
       </div>
-      <button class="btn secondary" type="button" @click="$emit('viewPath')">打开图谱</button>
     </div>
 
     <template v-if="loading">
@@ -83,8 +81,6 @@
 
 <script setup>
 import { formatMastery, getPathStepMeta } from '@/utils/path'
-
-defineEmits(['viewPath'])
 
 defineProps({
   loading: {

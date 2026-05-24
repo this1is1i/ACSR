@@ -22,10 +22,6 @@ class InteractionSignal:
     # ── 知识图谱维度 ─────────────────────────────────────────────
     kg_topology_score: float = 0.0    # KG 拓扑相关度（引用链接近度、主题连通度）
 
-    # ── 预留扩展字段 ─────────────────────────────────────────────
-    citation_potential: float = 0.0   # 论文引用潜力（预留）
-    collaboration_score: float = 0.0  # 科研合作匹配度（预留）
-
 
 class BaseRewardFunction:
     """

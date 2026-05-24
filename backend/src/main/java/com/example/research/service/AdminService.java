@@ -10,5 +10,5 @@ public interface AdminService {
     CommunityDto.PostItem updatePostStatus(Long adminId, Long postId, CommunityDto.PostStatusUpdateRequest request);
     List<UserDto.AdminUserItem> listUsers();
     UserDto.AdminUserItem updateUserRole(Long adminId, Long userId, UserDto.UserRoleUpdateRequest request);
-    CommunityDto.PaperImportResult importPapers(CommunityDto.PaperImportRequest request);
+    CommunityDto.PaperImportResult importPapers(Long adminId, CommunityDto.PaperImportRequest request);
 }

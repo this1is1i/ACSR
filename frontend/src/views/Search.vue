@@ -190,7 +190,7 @@ function restoreSearchState() {
 function getFilterParams() {
   const params = {}
   const timeMap = { '近一年': 2025, '近三年': 2023, '近五年': 2021 }
-  const sortMap = { '引用次数': 'citation', '发表时间': 'year' }
+  const sortMap = { '相关度': 'relevance', '引用次数': 'citation', '发表时间': 'year', '影响力': 'cited' }
   if (filters.value.time && timeMap[filters.value.time]) params.yearFrom = timeMap[filters.value.time]
   if (filters.value.sort && sortMap[filters.value.sort]) params.sortBy = sortMap[filters.value.sort]
   return params
@@ -205,7 +205,7 @@ async function handleSearch() {
     results.value = (res.data || []).map((paper) => {
       const normalized = normalizePaper(paper)
       return {
-        id: paper.id || paper.paperId || Math.random().toString(36).slice(2, 9),
+        id: paper.id || paper.aminerId,
         title: paper.title || paper.paper_title || 'Untitled',
         authors: normalized.authorText === '未知作者' ? 'Unknown' : normalized.authorText,
         venue: paper.venue || paper.journal || '未知来源',
@@ -220,7 +220,7 @@ async function handleSearch() {
     currentPage.value = 1
     saveSearchState()
   } catch (error) {
-    console.error(error)
+    // console.error(error)
   } finally {
     loading.value = false
   }
@@ -288,7 +288,7 @@ function toggleFavorite(paper) {
   localStorage.setItem('favorites', JSON.stringify(Array.from(favorites.value)))
   // Call API to persist
   recordFavorite(paper.id, 'search').catch(err => {
-    console.error('Failed to record favorite', err)
+    // console.error('Failed to record favorite', err)
     // Revert on failure
     if (wasFav) {
       favorites.value.add(paper.id)
@@ -405,7 +405,7 @@ onMounted(() => {
   padding: 0.55rem 0.85rem;
   border: 1px solid var(--color-border-subtle);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-hover);
   color: var(--color-text-primary);
 }
 
@@ -425,7 +425,7 @@ onMounted(() => {
   padding: 0.9rem 1rem;
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-hover);
 }
 
 .search-header-status__item span {
@@ -471,7 +471,7 @@ onMounted(() => {
   padding: 0.65rem 0.9rem;
   border: 1px solid var(--color-border-subtle);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-hover);
   color: var(--color-text-secondary);
   cursor: pointer;
 }

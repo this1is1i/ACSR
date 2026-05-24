@@ -31,6 +31,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Result<Void> handleGeneral(Exception e) {
         log.error("未处理异常", e);
-        return Result.fail("服务器内部错误: " + e.getMessage());
+        return Result.fail("服务器内部错误，请稍后重试");
     }
 }

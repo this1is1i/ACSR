@@ -72,32 +72,6 @@ class MySQLDataSource:
             cursor.execute(sql, (user_id,))
             return cursor.fetchall()
 
-    def get_user_browse_stats(self, user_id: int) -> dict:
-        """获取用户浏览统计：总阅读论文数、平均阅读时长、活跃天数。"""
-        sql = """
-            SELECT
-                COUNT(DISTINCT paper_id) AS distinct_papers,
-                COUNT(*) AS total_actions,
-                COALESCE(AVG(CASE WHEN action = 'read' THEN duration END), 0) AS avg_read_seconds,
-                COUNT(DISTINCT DATE(timestamp)) AS active_days
-            FROM behavior_log
-            WHERE user_id = %s
-        """
-        with self.conn.cursor() as cursor:
-            cursor.execute(sql, (user_id,))
-            return cursor.fetchone()
-
-    def get_user_profile(self, user_id: int) -> Optional[dict]:
-        """获取用户基础信息（含 research_interests）。"""
-        sql = """
-            SELECT id, username, research_interests
-            FROM user
-            WHERE id = %s AND deleted = 0
-        """
-        with self.conn.cursor() as cursor:
-            cursor.execute(sql, (user_id,))
-            return cursor.fetchone()
-
     # ── 论文数据查询 ──────────────────────────────────────────────
 
     def get_papers_by_ids(self, paper_ids: List[int]) -> List[dict]:
@@ -112,20 +86,6 @@ class MySQLDataSource:
         """
         with self.conn.cursor() as cursor:
             cursor.execute(sql, paper_ids)
-            return cursor.fetchall()
-
-    def get_paper_by_aminer_ids(self, aminer_ids: List[str]) -> List[dict]:
-        """根据 AMiner ID 批量获取论文。"""
-        if not aminer_ids:
-            return []
-        placeholders = ",".join(["%s"] * len(aminer_ids))
-        sql = f"""
-            SELECT id, aminer_id, title, keywords, authors, citation_count, year
-            FROM paper
-            WHERE aminer_id IN ({placeholders}) AND deleted = 0
-        """
-        with self.conn.cursor() as cursor:
-            cursor.execute(sql, aminer_ids)
             return cursor.fetchall()
 
     # ── 特征快照缓存 ──────────────────────────────────────────────

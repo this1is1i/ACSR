@@ -89,34 +89,6 @@ class GraphStorage:
             kg = pickle.load(f)
         logger.info(f"知识图谱已从 Pickle 加载：{kg.stats}")
         return kg
-
-    # ── NetworkX 导出（用于图算法分析）──────────────────────────
-
-    def to_networkx(self, kg: KnowledgeGraph, relation_filter: Optional[str] = None):
-        """
-        将知识图谱转换为 NetworkX DiGraph。
-
-        Args:
-            relation_filter: 仅保留特定关系类型的边（None 保留全部）
-
-        Returns:
-            nx.DiGraph 对象，可用于 PageRank、社区发现等算法
-        """
-        try:
-            import networkx as nx
-        except ImportError:
-            raise ImportError("请安装 networkx：pip install networkx")
-
-        G = nx.DiGraph()
-        for node in kg.nodes.values():
-            G.add_node(node.node_id, node_type=node.node_type, label=node.label)
-        for edge in kg.edges:
-            if relation_filter is None or edge.relation == relation_filter:
-                G.add_edge(edge.src_id, edge.dst_id,
-                           relation=edge.relation, weight=edge.weight)
-        logger.info(f"NetworkX 图创建完成：{G.number_of_nodes()} 节点，{G.number_of_edges()} 边")
-        return G
-
     # ── Neo4j 接入接口 ──────────────────────────────────────────────
 
     def save_to_neo4j(

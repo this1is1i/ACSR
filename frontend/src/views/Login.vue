@@ -48,9 +48,9 @@
       </div>
 
       <div class="footer-links">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
-        <a href="#">Contact</a>
+        <a href="#">隐私政策</a>
+        <a href="#">服务条款</a>
+        <a href="#">联系我们</a>
       </div>
     </div>
 
@@ -62,22 +62,22 @@
         </div>
 
         <div class="form-header">
-          <h1>{{ isRegister ? 'Create your account' : 'Welcome back!' }}</h1>
-          <p>{{ isRegister ? 'Start your research journey' : 'Please enter your details' }}</p>
+          <h1>{{ isRegister ? '创建账户' : '欢迎回来！' }}</h1>
+          <p>{{ isRegister ? '开启您的研究之旅' : '请输入您的登录信息' }}</p>
         </div>
 
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
-            <label :class="{ 'error-label': errors.username }">Username</label>
+            <label :class="{ 'error-label': errors.username }">用户名</label>
             <div class="input-wrapper">
-              <input type="text" v-model="form.username" placeholder="Enter your username"
+              <input type="text" v-model="form.username" placeholder="请输入用户名"
                 :class="{ error: errors.username }"
                 @focus="onFieldFocus" @blur="onFieldBlur" @input="onFieldInput" />
             </div>
           </div>
 
           <div class="form-group">
-            <label :class="{ 'error-label': errors.password }">Password</label>
+            <label :class="{ 'error-label': errors.password }">密码</label>
             <div class="input-wrapper">
               <input :type="showPwd ? 'text' : 'password'" v-model="form.password"
                 placeholder="••••••••" :class="{ error: errors.password }"
@@ -101,27 +101,20 @@
             <p class="interest-hint">用逗号分隔多个研究方向，用于初始化个性化推荐</p>
           </div>
 
-          <div class="form-options">
-            <label class="remember-me">
-              <input type="checkbox" checked /> Remember for 30 days
-            </label>
-            <a href="#" class="forgot-link">Forgot password?</a>
-          </div>
-
           <div class="error-msg" v-if="errorMsg">{{ errorMsg }}</div>
 
           <button type="submit" class="btn-login" :disabled="submitting">
-            <span class="btn-text">{{ isRegister ? (submitting ? 'Creating...' : 'Sign Up') : (submitting ? 'Signing in...' : 'Log In') }}</span>
+            <span class="btn-text">{{ isRegister ? (submitting ? '创建中...' : '注册') : (submitting ? '登录中...' : '登录') }}</span>
             <div class="btn-hover-content">
-              <span>{{ isRegister ? 'Sign Up' : 'Log In' }}</span>
+              <span>{{ isRegister ? '注册' : '登录' }}</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </div>
           </button>
         </form>
 
         <div class="signup-link">
-          {{ isRegister ? 'Already have an account?' : "Don't have an account?" }}
-          <a href="#" @click.prevent="toggleMode">{{ isRegister ? 'Log In' : 'Sign Up' }}</a>
+          {{ isRegister ? '已有账户？' : '还没有账户？' }}
+          <a href="#" @click.prevent="toggleMode">{{ isRegister ? '登录' : '注册' }}</a>
         </div>
 
         <div class="guest-link">
@@ -396,13 +389,13 @@ async function handleSubmit() {
 
   if (!form.username || form.username.trim().length < 2) {
     errors.username = true
-    errorMsg.value = 'Please enter a valid username (at least 2 characters).'
+    errorMsg.value = '请输入有效用户名（至少2个字符）。'
     triggerLoginError()
     return
   }
   if (!form.password || form.password.length < 6) {
     errors.password = true
-    errorMsg.value = 'Password must be at least 6 characters.'
+    errorMsg.value = '密码至少需要6个字符。'
     triggerLoginError()
     return
   }
@@ -422,11 +415,11 @@ async function handleSubmit() {
     } else {
       const res = await login({ username: form.username.trim(), password: form.password })
       userStore.setAuth(res.data)
-      ElMessage.success('Login successful')
+      ElMessage.success('登录成功')
       router.push(res.data.role === 'ADMIN' ? '/admin' : '/home')
     }
   } catch (e) {
-    const msg = e?.response?.data?.message || 'Invalid credentials. Please try again.'
+    const msg = e?.response?.data?.message || '登录失败，请检查用户名和密码。'
     errorMsg.value = msg
     errors.username = true
     errors.password = true
@@ -527,11 +520,6 @@ onBeforeUnmount(() => {
   background:none; border:none; cursor:pointer; color:#666; padding:6px; transition:color 0.2s;
 }
 .toggle-password:hover { color:#333 }
-.form-options { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px }
-.remember-me { display:flex; align-items:center; gap:8px; font-size:13px; color:#555; cursor:pointer }
-.remember-me input[type="checkbox"] { width:16px; height:16px; accent-color:#5b21b6; cursor:pointer }
-.forgot-link { font-size:13px; color:#5b21b6; text-decoration:none; font-weight:500; transition:opacity 0.2s }
-.forgot-link:hover { opacity:0.8 }
 .error-msg {
   padding:10px 14px; font-size:13px; color:#dc2626;
   background:rgba(220,38,38,0.08); border:1px solid rgba(220,38,38,0.2);

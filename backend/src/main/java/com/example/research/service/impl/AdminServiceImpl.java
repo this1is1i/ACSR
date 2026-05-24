@@ -4,16 +4,19 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.research.dto.CommunityDto;
 import com.example.research.dto.UserDto;
 import com.example.research.entity.Paper;
+import com.example.research.entity.PaperAuthorClaim;
 import com.example.research.entity.Post;
 import com.example.research.entity.User;
 import com.example.research.enums.PostStatus;
 import com.example.research.enums.UserRole;
 import com.example.research.graph.GraphPaper;
 import com.example.research.graph.GraphPaperService;
+import com.example.research.repository.PaperAuthorClaimMapper;
 import com.example.research.repository.PaperMapper;
 import com.example.research.repository.PostMapper;
 import com.example.research.repository.UserMapper;
 import com.example.research.service.AdminService;
+import com.example.research.service.PrivateMessageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +40,8 @@ public class AdminServiceImpl implements AdminService {
     private final PaperMapper paperMapper;
     private final GraphPaperService graphPaperService;
     private final ObjectMapper objectMapper;
+    private final PrivateMessageService privateMessageService;
+    private final PaperAuthorClaimMapper paperAuthorClaimMapper;
 
     @Override
     public List<CommunityDto.PostItem> listPosts(String status) {
@@ -98,7 +103,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public CommunityDto.PaperImportResult importPapers(CommunityDto.PaperImportRequest request) {
+    public CommunityDto.PaperImportResult importPapers(Long adminId, CommunityDto.PaperImportRequest request) {
         List<String> importedIds = new ArrayList<>();
         List<GraphPaper> graphPapers = new ArrayList<>();
         long base = System.currentTimeMillis();
@@ -112,6 +117,9 @@ public class AdminServiceImpl implements AdminService {
 
             upsertShadowPaper(aminerId, item);
             importedIds.add(aminerId);
+
+            Paper savedPaper = paperMapper.findByAminer(aminerId);
+            matchAuthorsForClaim(savedPaper, item.getAuthors(), adminId);
 
             GraphPaper graphPaper = new GraphPaper();
             graphPaper.setGraphNodeId(aminerId);
@@ -166,6 +174,62 @@ public class AdminServiceImpl implements AdminService {
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("论文导入序列化失败", e);
         }
+    }
+
+    private void matchAuthorsForClaim(Paper paper, List<String> authorNames, Long adminId) {
+        if (authorNames == null || authorNames.isEmpty() || paper == null || paper.getId() == null) {
+            return;
+        }
+        for (String authorName : authorNames) {
+            if (authorName == null || authorName.isBlank()) {
+                continue;
+            }
+            String trimmed = authorName.trim();
+            User exactMatch = userMapper.findByUsername(trimmed);
+            if (exactMatch != null) {
+                createClaimIfNew(paper.getId(), exactMatch.getId(), trimmed, "exact", 1.0, adminId, paper);
+                continue;
+            }
+            List<User> fuzzyMatches = userMapper.selectList(
+                    new LambdaQueryWrapper<User>().like(User::getUsername, trimmed));
+            for (User fuzzyUser : fuzzyMatches) {
+                double confidence = computeFuzzyConfidence(trimmed, fuzzyUser.getUsername());
+                createClaimIfNew(paper.getId(), fuzzyUser.getId(), trimmed, "fuzzy", confidence, adminId, paper);
+            }
+        }
+    }
+
+    private void createClaimIfNew(Long paperId, Long userId, String authorName,
+                                   String matchMethod, double confidence, Long adminId, Paper paper) {
+        PaperAuthorClaim claim = new PaperAuthorClaim();
+        claim.setPaperId(paperId);
+        claim.setUserId(userId);
+        claim.setAuthorName(authorName);
+        claim.setMatchMethod(matchMethod);
+        claim.setConfidence(confidence);
+        claim.setStatus(0);
+        claim.setCreateTime(LocalDateTime.now());
+        claim.setUpdateTime(LocalDateTime.now());
+        int inserted = paperAuthorClaimMapper.insertIgnore(claim);
+        if (inserted > 0) {
+            String content = buildClaimNotificationMessage(paper);
+            privateMessageService.sendMessage(adminId, userId, content, 4);
+        }
+    }
+
+    private String buildClaimNotificationMessage(Paper paper) {
+        return "系统检测到一篇新导入的论文可能与您有关：\n\n" +
+               "标题：《" + (paper.getTitle() != null ? paper.getTitle() : "未知") + "》\n" +
+               "作者列表：" + (paper.getAuthors() != null ? paper.getAuthors() : "未知") + "\n" +
+               "发表年份：" + (paper.getYear() != null ? paper.getYear().toString() : "未知") + "\n" +
+               "发表期刊：" + (paper.getVenue() != null ? paper.getVenue() : "未知") + "\n\n" +
+               "如果这是您的论文，请在\"我的论文\"页面确认；如果不是，请忽略此消息。";
+    }
+
+    private double computeFuzzyConfidence(String authorName, String username) {
+        double ratio = (double) Math.min(authorName.length(), username.length())
+                     / Math.max(authorName.length(), username.length());
+        return Math.max(0.5, Math.min(0.9, ratio));
     }
 
     private CommunityDto.PostItem toPostItem(Post post, Map<Long, User> userCache, Map<Long, Paper> paperCache) {

@@ -4,9 +4,7 @@
       <div>
         <p class="stream-header__eyebrow">Recommendation Stream</p>
         <h2>推荐流</h2>
-        <p>围绕当前研究主线持续刷新推荐，保留原有阅读与收藏行为记录。</p>
       </div>
-      <button class="btn secondary" type="button" @click="$emit('explore')">补充检索</button>
     </div>
 
     <div class="stream-highlights">
@@ -20,8 +18,6 @@
 
 <script setup>
 import RecommendList from '@/components/RecommendList.vue'
-
-defineEmits(['explore'])
 
 defineProps({
   items: {

@@ -83,7 +83,7 @@ class MockDataGenerator:
                 topic_vector=self._rand_vec(),
                 citation_count=int(self.rng.integers(0, 500)),
                 year=int(self.rng.integers(2018, 2025)),
-                kg_node_id=f"aminer_{i:06d}",
+                kg_node_id=f"aminer_{int(self.rng.integers(0, max(500, n))):06d}",
             )
             for i in range(n)
         ]

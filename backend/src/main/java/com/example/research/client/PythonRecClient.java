@@ -142,7 +142,7 @@ public class PythonRecClient {
         RecRequest request = new RecRequest(userId, k, history);
 
         try {
-            log.info("调用 Python 推荐服务: userId={}, k={}", userId, k);
+            log.debug("调用 Python 推荐: userId={}, k={}", userId, k);
             long start = System.currentTimeMillis();
 
             ResponseEntity<RecResponse> response = restTemplate.postForEntity(
@@ -152,10 +152,9 @@ public class PythonRecClient {
             );
 
             long elapsed = System.currentTimeMillis() - start;
-            log.info("Python 推荐服务响应成功，耗时 {}ms，推荐数量: {}",
-                     elapsed,
-                     response.getBody() != null && response.getBody().getRecommendations() != null
-                             ? response.getBody().getRecommendations().size() : 0);
+            int count = response.getBody() != null && response.getBody().getRecommendations() != null
+                    ? response.getBody().getRecommendations().size() : 0;
+            log.info("Python 推荐成功: {}ms, {}条推荐", elapsed, count);
 
             return response.getBody();
 
@@ -186,7 +185,7 @@ public class PythonRecClient {
             );
             boolean success = response.getStatusCode().is2xxSuccessful();
             if (success) {
-                log.info("Python 模型训练已触发，status={}", response.getBody());
+                log.info("Python 模型训练已触发");
             }
             return success;
         } catch (Exception e) {
@@ -269,20 +268,6 @@ public class PythonRecClient {
         } catch (Exception e) {
             log.warn("获取 Python 模型状态失败: {}", e.getMessage());
             return null;
-        }
-    }
-
-    /**
-     * 检查 Python 推荐服务是否可用
-     */
-    public boolean isAvailable() {
-        String url = baseUrl + "/health";
-        try {
-            ResponseEntity<Map> resp = restTemplate.getForEntity(url, Map.class);
-            return resp.getStatusCode().is2xxSuccessful();
-        } catch (Exception e) {
-            log.warn("Python 推荐服务不可达: {}", e.getMessage());
-            return false;
         }
     }
 

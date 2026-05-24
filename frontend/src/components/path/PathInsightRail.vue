@@ -50,7 +50,6 @@
             <p class="path-insight-rail__section-eyebrow">Path Progress</p>
             <h3>推进节奏</h3>
           </div>
-          <p>把完成度、预估投入与基础铺垫拆开观察，避免一条长卡吞掉重点。</p>
         </div>
 
         <div class="path-insight-rail__metrics">
@@ -90,7 +89,6 @@
             <p class="path-insight-rail__section-eyebrow">Resource Stack</p>
             <h3>关键资源</h3>
           </div>
-          <p>把路径论文与推荐资产放进并列资源视图，保持信息密度但不再拉成长列。</p>
         </div>
 
         <div class="path-insight-rail__resource-columns">
@@ -135,7 +133,6 @@
             <p class="path-insight-rail__section-eyebrow">Route Checkpoints</p>
             <h3>路径检查点</h3>
           </div>
-          <p>把路线拆成短栈式检查点，浏览时不再需要扫完整条长轨。</p>
         </div>
 
         <ol class="path-insight-rail__route">
@@ -234,12 +231,10 @@ function recommendationMeta(paper) {
   display: grid;
   gap: var(--space-4);
   padding: clamp(1.25rem, 1.9vw, 1.7rem);
-  border: 1px solid rgba(124, 140, 255, 0.16);
+  border: 1px solid var(--design-border);
   border-radius: calc(var(--radius-lg) + 0.2rem);
-  background:
-    linear-gradient(145deg, rgba(16, 24, 46, 0.96), rgba(10, 16, 30, 0.92)),
-    rgba(255, 255, 255, 0.03);
-  box-shadow: 0 18px 38px rgba(2, 8, 23, 0.28);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
 }
 
 .path-insight-rail__card--loading,
@@ -278,7 +273,7 @@ function recommendationMeta(paper) {
   font-size: 0.74rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(148, 163, 184, 0.84);
+  color: var(--color-text-muted);
 }
 
 .path-insight-rail__header h2,
@@ -312,11 +307,9 @@ function recommendationMeta(paper) {
   display: grid;
   gap: var(--space-3);
   padding: var(--space-4);
-  border: 1px solid rgba(124, 140, 255, 0.22);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background:
-    linear-gradient(135deg, rgba(124, 140, 255, 0.14), rgba(55, 213, 255, 0.06)),
-    rgba(255, 255, 255, 0.03);
+  background: var(--bg-hover);
 }
 
 .path-insight-rail__spotlight-main strong {
@@ -347,7 +340,7 @@ function recommendationMeta(paper) {
   padding: var(--space-4);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-hover);
 }
 
 .path-insight-rail__chips {
@@ -400,7 +393,7 @@ function recommendationMeta(paper) {
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-hover);
 }
 
 .path-insight-rail__index {
@@ -409,7 +402,7 @@ function recommendationMeta(paper) {
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-hover);
   color: var(--color-text-primary);
 }
 
