@@ -413,7 +413,7 @@ onMounted(async () => {
       await initKnowledgeGraph(data.knowledge)
     }
   } catch (e) {
-    // console.error('Failed to load visualization data', e)
+    console.debug('Failed to load visualization data', e)
   } finally {
     surfaceLoading.value = false
   }

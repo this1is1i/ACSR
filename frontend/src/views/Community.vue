@@ -246,7 +246,7 @@ async function handleLike(post) {
     post.liked = !post.liked
     post.likeCount += post.liked ? 1 : -1
   } catch (e) {
-    // console.error('toggleLike failed', e)
+    console.debug('toggleLike failed', e)
   }
 }
 

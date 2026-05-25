@@ -214,8 +214,10 @@ import { getProfile, updateProfile, getFavorites } from '@/api/user'
 import { getActivityHistory, clearActivityHistory } from '@/api/recommend'
 import { getClaimedPapers, confirmClaim, denyClaim } from '@/api/claim'
 import { getMyPosts, updatePost, deletePost } from '@/api/community'
+import { useUserStore } from '@/store/userStore'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 const profile = ref({ id: null, username: '', avatar: '', email: '', bio: '', researchInterests: '' })
 const collectionsLoading = ref(false)
@@ -264,7 +266,7 @@ async function fetchFavorites() {
       meta: [p.authors, p.venue, p.year].filter(Boolean).join(' · ') || '—'
     }))
   } catch (e) {
-    // console.error('Failed to load favorites', e)
+    console.debug('Failed to load favorites', e)
     collections.value = []
   } finally {
     collectionsLoading.value = false
@@ -287,7 +289,7 @@ async function fetchHistory() {
       }
     })
   } catch (e) {
-    // console.error('Failed to load history', e)
+    console.debug('Failed to load history', e)
     history.value = []
   } finally {
     historyLoading.value = false
@@ -304,7 +306,7 @@ async function fetchClaims(status) {
       confirmedClaims.value = data || []
     }
   } catch (e) {
-    // console.error('Failed to load claims', e)
+    console.debug('Failed to load claims', e)
   }
 }
 
@@ -343,7 +345,7 @@ async function fetchMyPosts() {
     const res = await getMyPosts()
     myPosts.value = (res.data || res) || []
   } catch (e) {
-    // console.error('Failed to load my posts', e)
+    console.debug('Failed to load my posts', e)
     myPosts.value = []
   } finally {
     myPostsLoading.value = false
@@ -440,7 +442,7 @@ async function doClearHistory() {
     history.value = []
     ElMessage.success('已清空')
   } catch (e) {
-    if (e !== 'cancel') // console.error('Failed to clear history', e)
+    if (e !== 'cancel') console.debug('Failed to clear history', e)
   }
 }
 
@@ -458,7 +460,7 @@ onMounted(async () => {
         const data = res.data || res
         profile.value = { id: data.id, username: data.username, avatar: data.avatar, email: data.email, bio: data.bio, researchInterests: data.researchInterests }
       } catch (e) {
-        // console.error('failed to load profile', e)
+        console.debug('failed to load profile', e)
       }
     })(),
     fetchFavorites(),

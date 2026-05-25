@@ -220,7 +220,7 @@ async function handleSearch() {
     currentPage.value = 1
     saveSearchState()
   } catch (error) {
-    // console.error(error)
+    console.debug(error)
   } finally {
     loading.value = false
   }
@@ -288,7 +288,7 @@ function toggleFavorite(paper) {
   localStorage.setItem('favorites', JSON.stringify(Array.from(favorites.value)))
   // Call API to persist
   recordFavorite(paper.id, 'search').catch(err => {
-    // console.error('Failed to record favorite', err)
+    console.debug('Failed to record favorite', err)
     // Revert on failure
     if (wasFav) {
       favorites.value.add(paper.id)

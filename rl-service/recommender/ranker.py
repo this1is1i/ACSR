@@ -63,7 +63,7 @@ class RLRanker:
         with torch.no_grad():
             state_t = torch.FloatTensor(user_state).to(self.device)
 
-            for item in candidates:
+            for i, item in enumerate(candidates):
                 # 语义相似度
                 if item.topic_vector is not None:
                     cos_sim = float(np.dot(base_state, item.topic_vector))

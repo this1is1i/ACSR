@@ -466,4 +466,35 @@ MySQL 从 16 张表精简至 13 张（核心 9 张 + 辅助 1 张 + 基础设施
 | Python | text_utils.py, data_importer.py, embedding_builder.py | mysql_data 3 方法, kg_builder 1, kg_embedder 1, graph_query 1, graph_storage 1, path_builder 2, reward 2 字段 |
 
 ### Git 提交
+`da1460c` feat: author claim, post search/management, code audit, bug fixes, dead code cleanup, UI polish
+
+---
+
+## 2026-05-25
+
+### 核心目标
+修复昨日改动引入的回归 BUG + 系统理论分析文档。
+
+### 回归 BUG 修复
+
+| 问题 | 根因 | 修复 |
+|------|------|------|
+| Python 推荐服务 500 崩溃 | `ranker.py` 循环 `for item in candidates:` 缺少索引 `i`，但 B1 修复用了 `i` 变量 → NameError | `for item in candidates:` → `for i, item in enumerate(candidates):` |
+| 前端页面样式崩溃、Profile/RealtimeChat 语法错误 | `sed` 注释 `console.error` 破坏了 JS 语法 | 全局替换 `// console.error` → `console.debug` |
+| 左侧导航栏悬浮遮住主内容 | `sed` 删除 `.app-shell` 响应式规则时误删 `@media (max-width: 980px)` 包装行，导致 `margin-left:0;width:100%` 全屏生效 | 恢复 `@media (max-width: 980px) { ... }` 包裹 |
+| 退出登录失效 | Profile.vue 调用 `userStore.clearToken()` 但未导入 `useUserStore` | 添加 `import { useUserStore }` + `const userStore = useUserStore()` |
+
+### QA 文档更新
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 新增 | `docs/QA.md` Q13 | 知识图谱-强化学习协同机制（Actor/Critic 影响路径、拓扑特征-兴趣耦合循环、四层鲁棒性保障） |
+| 新增 | 同上 Q13 | 推荐评估指标体系（HR/MRR/NDCG/ILS/Coverage/Novelty/Explanation Coverage） |
+| 新增 | 同上 Q13 | MDP 形式化定义（S/A/R/P 严格定义 + Sutton & Barto 章节引用） |
+
+### 记忆文件维护
+- `memory/audit-plan-status.md`：审计计划 P0/P1/P2 标记为已完成
+- `memory/MEMORY.md`：新增两条记录
+
+### Git 提交
 `<pending>`
