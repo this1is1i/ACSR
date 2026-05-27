@@ -54,17 +54,69 @@ No dedicated lint/checkstyle is configured for any service.
 
 ### Python service internal structure
 `services/recommendation_service.py` orchestrates: feature building → candidate generation → Actor-Critic ranking → explanation generation → model reload. Key subdirectories:
-- `recommender/` — candidate generation, ranking
+- `recommender/` — candidate generation (`candidate_generator.py`), ranking (`ranker.py`)
 - `env/` — RL environment (`rec_env.py`)
 - `models/` — actor/critic network definitions
 - `features/` — feature building from MySQL behavior data
-- `data/` — `mysql_data.py` (MySQL access layer for behavior_log, user_interest_history)
+- `data/` — `mysql_data.py` (MySQL access layer for behavior_log, user_interest_history), `mock_data.py` (training-only mock data generator)
 - `knowledge_graph/` — KG construction (`kg_builder.py`), embedding (`kg_embedder.py`), Neo4j queries (`graph_query.py`), storage abstraction (`graph_storage.py`)
 - `learning_path/` — path building and propagation
 - `api/` — FastAPI server (recommend, train, model management, learning-path, health)
 - `utils/text_utils.py` — text cleaning/tokenization utilities
 
 Everything is driven from `config.py:default_config` — a single `@dataclass` with state dims, KG settings, network structure, training hyperparameters, and reward weights.
+
+### Mock data: training vs production split
+
+Training and production now share the same data architecture — both prefer real data with graceful fallback:
+
+- **Training** (`train.py` → `env/rec_env.py`): Initializes MySQL + KG data sources via `_init_real_data_sources()`. When available, `reset()` samples real users from MySQL, builds states from real behavior data, and generates candidates from the real paper pool. The `_simulate_interaction()` method still simulates user feedback (we can't get real-time user feedback during training), but the simulation uses real user interest × real paper topic vectors for realistic reward signals. Falls back to `MockDataGenerator` only when MySQL or KG is unavailable.
+- **Production** (`recommendation_service.py`): Same data path — real MySQL + Neo4j with three-tier fallback:
+  - Feature building: MySQL `user_feature_snapshot` cache (6h TTL) → MySQL real-time from `behavior_log` + `user_interest_history` → deterministic hash-based random vectors (`_fallback_vec`)
+  - KG loading: Neo4j → local JSON/Pickle file → AMiner data file → no KG (mock paper pool fallback)
+  - Paper pool: Real papers from KG nodes → 500 fake `CandidateItem` entries (`_build_mock_pool()`)
+
+There is no `use_mock` config flag — all fallback decisions are made at runtime by checking resource availability.
+
+### AC network: per-paper pairwise scoring
+
+The Actor network in `models/actor.py` takes **both user state AND paper features** as input, producing a per-paper relevance score:
+
+```
+Input:  [user_state(96) | paper_features(32)] → 128 维
+Output: 1 scalar logit per paper
+For N candidates: batch N×(128) → N logits → softmax → N probabilities
+```
+
+**`score_candidates(state, candidate_features)`** (`actor.py:67-85`): Expands user state to (N, 96), concatenates with (N, 32) paper features, runs a single GPU forward pass, applies softmax. N=50 papers in ∼0.1ms.
+
+**Production ranking** (`recommender/ranker.py`): Three components computed for each candidate:
+1. **Actor score** — per-paper probability from `score_candidates()` (batched, one forward pass)
+2. **Cosine similarity** — vectorized matrix operation: `cos_sims = clip(topic_matrix @ base_state, 0, None)` (Numpy, single call)
+3. **KG topology score** — `user_kg` computed once outside the loop, then per-paper `dot(user_kg, paper_emb)`
+
+**Final ranking formula** (`ranker.py`):
+- With KG: `final = 0.5 * actor_score + 0.3 * cosine_similarity + 0.2 * kg_topology_score`
+- Without KG: `final = 0.6 * actor_score + 0.4 * cosine_similarity`
+
+The Critic (`models/critic.py`) is unchanged: input state_dim, output scalar V(s), used only during training for TD error calculation.
+
+### Config parameters (Python RL service)
+
+Key numbers in `rl-service/config.py`:
+
+| Parameter | Value | Role |
+|-----------|-------|------|
+| `base_state_dim` | 64 | interest(32) + history(32) |
+| `paper_feature_dim` | 32 | Paper features for actor input |
+| `action_num` | 50 | Max candidates per request |
+| `top_k` | 10 | Default recommendation count (overridden by request param `k`) |
+| `kg_embedding_dim` | 32 | KG embedding dimension |
+| `state_dim` | 96 (=64+32) | Full actor/critic input |
+| `actor_hidden` | 128 | Actor hidden layer width |
+| `critic_hidden` | 128 | Critic hidden layer width |
+| `max_episodes` | 500 | Training episodes |
+| `max_steps` | 50 | Steps per episode |
 
 ### Backend package conventions
 Standard Spring Boot layered architecture:

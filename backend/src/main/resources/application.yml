@@ -26,7 +26,6 @@ mybatis-plus:
   type-aliases-package: com.example.research.entity
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       id-type: auto
@@ -59,7 +58,9 @@ graph:
 # ── 日志配置 ──────────────────────────────────────────────────
 logging:
   level:
-    com.example.research: DEBUG
+    com.example.research: INFO
     org.springframework.security: INFO
+    org.apache.ibatis: WARN
+    com.zaxxer.hikari: WARN
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

@@ -10,8 +10,9 @@ from typing import Dict
 class Config:
     # ── 基础维度 ──────────────────────────────────────────────────
     base_state_dim: int = 64     # 基础状态维度 = interest(32) + history(32)
-    action_num: int = 20         # 候选科研内容数量（离散动作空间大小）
-    top_k: int = 5               # Top-K 推荐数量
+    paper_feature_dim: int = 32  # 论文特征维度（用于 Actor 逐论文打分）
+    action_num: int = 50         # 最大候选数量（训练/推理时动态调整）
+    top_k: int = 10              # Top-K 推荐默认值（由请求参数 k 覆盖）
 
     # ── 知识图谱 ──────────────────────────────────────────────────
     kg_embedding_dim: int = 32   # 知识图谱 embedding 维度

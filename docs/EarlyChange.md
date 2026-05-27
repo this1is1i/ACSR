@@ -497,4 +497,48 @@ MySQL 从 16 张表精简至 13 张（核心 9 张 + 辅助 1 张 + 基础设施
 - `memory/MEMORY.md`：新增两条记录
 
 ### Git 提交
+`c39fbf8` fix: regression bugs from yesterday + Q13 docs
+
+---
+
+## 2026-05-27
+
+### 核心目标
+Actor 网络架构重构（位置打分→逐论文打分）、训练接入真实数据、前端卡片溢出修复、后端日志精简。
+
+### Actor 架构重构（rl-service/）
+**问题：** Actor 输出 20 个固定槽位概率，ranker 按候选位置映射到槽位——同一论文在不同位置得分不同，Actor 从未见过论文特征。
+**方案：** Actor 改为 pairwise scoring：输入 `[user_state(96) | paper_features(32)]` → 128 维，输出 1 个 logit。N 篇候选一次 GPU 前向传播打分，softmax 后得 N 个独立概率。
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 重写 | `models/actor.py` | 输入 96+32→128，输出 1；新增 `score_candidates()` 批量打分方法 |
+| 修改 | `agent.py` | `select_action`/`update`/`recommend_top_k` 全部接受 `candidate_features` 参数 |
+| 重写 | `env/rec_env.py` | 新增 `_reset_real()` 路径：MySQL 采样用户→FeatureBuilder 构建状态→CandidateGenerator 生成候选；`_reset_mock()` 兜底 |
+| 修改 | `recommender/ranker.py` | 删除位置→槽位映射；余弦相似度矩阵向量化；`user_kg` 提到循环外只算一次 |
+| 修改 | `train.py` | `_init_real_data_sources()` 逐级初始化 MySQL→KG→FeatureBuilder→CandidateGenerator→用户ID列表 |
+| 修改 | `config.py` | +`paper_feature_dim:32`；`action_num` 20→50；`top_k` 5→10 |
+| 修改 | `features/feature_builder.py` | `build_item_vector()` 加入标题+关键词哈希编码 |
+| 修改 | `data/mysql_data.py` | +`get_all_user_ids()` 训练用户池查询 |
+
+### 前端卡片修复（frontend/）
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `components/PaperCard.vue` | 标题 `line-clamp:2`；推荐理由 `line-clamp:2` icon 顶部对齐；作者单行省略号；el-tag 内容 `text-overflow:ellipsis`；`displayTags` 跳过与 reason 重复的第一条；删除"阅读"按钮（标题点击已导航）；header/footer/meta 防溢出约束 |
+
+### 后端日志精简（backend/）
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `application.yml` | `com.example.research` DEBUG→INFO；+`org.apache.ibatis:WARN`；+`com.zaxxer.hikari:WARN`；移除 MyBatis `StdOutImpl` |
+
+### CLAUDE.md 更新
+- AC 网络描述：位置打分→逐论文 pairwise scoring
+- 新增 Config 参数表（13 项关键参数 + 含义）
+- Mock data 章节：训练已接入真实数据
+- 推荐流水线流程更新
+
+### 记忆文件
+- 新增 `memory/rl-actor-refactor-20260527.md`：Actor 架构变更 + 训练数据源变更 + 关键配置
+
+### Git 提交
 `<pending>`

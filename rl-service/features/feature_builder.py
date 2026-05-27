@@ -84,10 +84,25 @@ class FeatureBuilder:
         """
         构建科研内容（论文）的特征向量（base_state_dim 维）。
 
-        注意：item 向量维度固定为 base_state_dim，不包含 KG 部分。
+        使用论文标题和关键词的确定性哈希编码，保证相同内容的论文得到相同向量。
         KG 信息通过 state 中的 kg_vector 段传入 Actor/Critic。
         """
-        seed = hash(str(item_meta.get("item_id", "unknown"))) % (2**31)
+        text_parts = [str(item_meta.get("item_id", "unknown"))]
+
+        title = item_meta.get("title", "")
+        if title:
+            text_parts.append(str(title))
+
+        keywords = item_meta.get("keywords") or item_meta.get("topics") or []
+        if isinstance(keywords, list):
+            text_parts.extend(str(k) for k in keywords[:5])
+
+        topics = item_meta.get("topics") or []
+        if isinstance(topics, list):
+            text_parts.extend(str(t) for t in topics[:5])
+
+        text = " ".join(text_parts).lower()
+        seed = hash(text) % (2**31)
         rng = np.random.default_rng(seed)
         v = rng.standard_normal(self.base_state_dim).astype(np.float32)
         return v / (np.linalg.norm(v) + 1e-8)

@@ -69,7 +69,7 @@ python -m unittest tests.test_runtime_fixes.RuntimeFixesTest.test_config_reads_n
 - 后端会先把本地论文 ID 转换成 AMiner ID 发给 Python 服务，再把 Python 返回的 AMiner ID 映射回本地 `Paper` 数据。
 - 如果 Python 推荐服务不可用，`RecommendServiceImpl` 会自动降级为本地热门论文推荐，而不是直接让接口失败。
 - 实时私信采用双通道：历史记录和持久化走 `/api/message/*` REST 接口，实时收发与在线状态走 `/ws-messages` SockJS/STOMP 通道。
-- Python 服务不只是一个推理包装层。`rl-service/services/recommendation_service.py` 统一编排用户特征、候选生成、强化学习排序、解释生成与模型热重载。
+- Python 服务不只是一个推理包装层。`rl-service/services/recommendation_service.py` 统一编排用户特征、候选生成、强化学习排序、解释生成与模型热重载。Actor 采用 pairwise scoring：输入 `[user_state(96) | paper_features(32)]`，逐论文打分后 softmax 归一化，CGitric 提供状态价值估计用于训练。
 
 ## 关键约定
 

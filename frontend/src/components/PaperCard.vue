@@ -44,7 +44,6 @@
         </span>
       </div>
       <div class="actions">
-        <el-button size="small" @click="handleClick">阅读</el-button>
         <el-button size="small" type="warning" plain @click="handleFavorite">收藏</el-button>
       </div>
     </div>
@@ -94,7 +93,8 @@ function isAminerId(id) {
 
 const displayTags = computed(() => {
   const reasonDetails = Array.isArray(props.paper.reasonDetails) ? props.paper.reasonDetails : []
-  if (reasonDetails.length) return reasonDetails.slice(0, 3)
+  // reason 已经展示了第一条，reason-details 展示剩余补充原因
+  if (reasonDetails.length > 1) return reasonDetails.slice(1, 4)
   return parseList(props.paper.keywords).slice(0, 3)
 })
 
@@ -155,12 +155,14 @@ async function handleFavorite() {
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .paper-card__title-group {
   display: grid;
   gap: var(--space-2);
   min-width: 0;
+  flex: 1;
 }
 
 .paper-card__eyebrow {
@@ -175,17 +177,29 @@ async function handleFavorite() {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-2);
+  flex-shrink: 0;
 }
 
 .title {
   color: var(--color-text-primary);
-  font-size: 1.02rem; line-height: 1.5; overflow-wrap: break-word; word-break: break-word;
+  font-size: 1.02rem;
   line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+}
+.title:hover {
+  color: var(--color-accent-secondary);
 }
 
 .authors {
   color: var(--color-text-secondary);
   font-size: 0.92rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .abstract {
@@ -200,10 +214,21 @@ async function handleFavorite() {
 
 .reason {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.4rem;
   color: #8bf0c5;
   font-size: 0.9rem;
+  line-height: 1.5;
+}
+.reason .el-icon {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+.reason span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .reason-details {
@@ -215,6 +240,14 @@ async function handleFavorite() {
 .detail-tag,
 .meta-tag {
   border-color: rgba(124, 140, 255, 0.22);
+  max-width: 100%;
+}
+.detail-tag :deep(.el-tag__content),
+.meta-tag :deep(.el-tag__content) {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .card-footer {
@@ -231,6 +264,7 @@ async function handleFavorite() {
   color: var(--color-text-secondary);
   font-size: 0.82rem;
   align-items: center;
+  min-width: 0;
 }
 
 .meta b {
@@ -240,6 +274,7 @@ async function handleFavorite() {
 .actions {
   display: flex;
   gap: var(--space-2);
+  flex-shrink: 0;
 }
 
 @media (max-width: 640px) {

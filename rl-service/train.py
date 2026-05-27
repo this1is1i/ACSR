@@ -1,5 +1,5 @@
 # train.py
-# 主训练脚本
+# 主训练脚本 —— 支持真实数据（MySQL + KG）和模拟数据回退
 
 from __future__ import annotations
 import sys
@@ -62,6 +62,121 @@ class GracefulStopController:
             signal.signal(sig, handler)
 
 
+def _init_real_data_sources(config: Config):
+    """
+    初始化真实数据源：MySQL → FeatureBuilder → CandidateGenerator → user_ids。
+
+    Returns:
+        (feature_builder, candidate_gen, user_ids, paper_catalog)
+        任一为 None 表示该环节不可用。
+    """
+    feature_builder = None
+    candidate_gen = None
+    user_ids = []
+    paper_catalog = []
+    kg = None
+
+    # ── 1. MySQL 连接 ──────────────────────────────────────────
+    mysql_source = None
+    try:
+        from data.mysql_data import MySQLDataSource
+        mysql_source = MySQLDataSource(config)
+        _ = mysql_source.conn
+        logger.info("MySQL 数据源连接成功")
+    except Exception as e:
+        logger.warning(f"MySQL 不可用: {e}")
+
+    # ── 2. 知识图谱 / 论文池 ──────────────────────────────────
+    if config.use_kg:
+        kg_embedder, kg = create_kg_embedder(config)
+        if kg is not None:
+            paper_catalog = _extract_papers_from_kg(kg)
+            logger.info(f"KG 论文池加载完成: {len(paper_catalog)} 篇")
+        else:
+            logger.warning("KG 加载失败，论文池不可用")
+
+    # ── 3. FeatureBuilder ─────────────────────────────────────
+    if mysql_source is not None:
+        kg_dim = config.kg_embedding_dim if config.use_kg else 0
+        try:
+            from features.feature_builder import FeatureBuilder
+            feature_builder = FeatureBuilder(
+                base_state_dim=config.base_state_dim,
+                kg_dim=kg_dim,
+                kg_embedder=kg_embedder if config.use_kg else None,
+                mysql_source=mysql_source,
+            )
+            logger.info("FeatureBuilder 初始化完成")
+        except Exception as e:
+            logger.warning(f"FeatureBuilder 初始化失败: {e}")
+
+    # ── 4. CandidateGenerator ────────────────────────────────
+    if paper_catalog:
+        try:
+            from recommender.candidate_generator import CandidateGenerator
+            candidate_gen = CandidateGenerator.from_papers(paper_catalog, state_dim=config.base_state_dim)
+            logger.info(f"CandidateGenerator 初始化完成: {len(paper_catalog)} 篇论文")
+        except Exception as e:
+            logger.warning(f"CandidateGenerator 初始化失败: {e}")
+
+    # ── 5. 用户 ID 列表 ──────────────────────────────────────
+    if mysql_source is not None:
+        try:
+            user_ids = mysql_source.get_all_user_ids()
+            logger.info(f"训练用户池: {len(user_ids)} 人")
+        except Exception as e:
+            logger.warning(f"获取用户列表失败: {e}")
+
+    return feature_builder, candidate_gen, user_ids
+
+
+def _extract_papers_from_kg(kg) -> list:
+    """从 KG 节点中提取论文列表。"""
+    from dataset.aminer_loader import Paper as SourcePaper
+
+    papers = []
+    for node in kg.nodes.values():
+        if node.node_type != "paper":
+            continue
+
+        props = node.properties
+        authors = props.get("authors") or []
+        keywords = props.get("keywords") or []
+        if isinstance(authors, str):
+            authors = [authors]
+        if isinstance(keywords, str):
+            keywords = [keywords]
+
+        year = _safe_int(props.get("year"), 0)
+        citation_count = _safe_int(props.get("citation_count"), 0)
+
+        papers.append(SourcePaper(
+            paper_id=props.get("aminer_id") or node.node_id,
+            title=props.get("title") or node.label,
+            abstract=props.get("abstract") or "",
+            authors=[str(a) for a in authors],
+            keywords=[str(k) for k in keywords],
+            venue=str(props.get("venue") or ""),
+            year=year,
+            citation_count=citation_count,
+            references=[],
+        ))
+    return papers
+
+
+def _safe_int(value, default: int = 0) -> int:
+    if value is None:
+        return default
+    if isinstance(value, int):
+        return value
+    if isinstance(value, dict):
+        return int(value.get("low", default))
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def train(
     config: Optional[Config] = None,
     stop_controller: Optional[GracefulStopController] = None,
@@ -71,11 +186,12 @@ def train(
 
     流程：
         for each episode:
-            state = env.reset()
+            state, info = env.reset()
+            candidate_features = info["candidate_features"]
             for each step:
-                action, log_prob = agent.select_action(state)
-                next_state, reward, done = env.step(action)
-                agent.update(...)
+                action, log_prob = agent.select_action(state, candidate_features)
+                next_state, reward, done, step_info = env.step(action)
+                agent.update(state, action, reward, next_state, done, log_prob, candidate_features)
                 state = next_state
     """
     import copy
@@ -84,15 +200,26 @@ def train(
     torch.manual_seed(42)
     np.random.seed(42)
 
+    # ── 初始化数据源 ────────────────────────────────────────────
+    feature_builder, candidate_gen, user_ids = _init_real_data_sources(config)
+
     # ── 初始化组件 ────────────────────────────────────────────────
     kg_embedder, _ = create_kg_embedder(config)
     reward_fn = WeightedRewardFunction(config.reward_weights)
-    env = ResearchRecEnv(config=config, reward_fn=reward_fn, kg_embedder=kg_embedder)
+    env = ResearchRecEnv(
+        config=config,
+        reward_fn=reward_fn,
+        kg_embedder=kg_embedder,
+        feature_builder=feature_builder,
+        candidate_gen=candidate_gen,
+        user_ids=user_ids,
+    )
     agent = ActorCriticAgent(config=config)
     train_logger = TrainingLogger(log_dir=config.log_dir, experiment_name="ac_recommender")
 
     train_logger.logger.info(
         f"训练配置: state_dim={config.state_dim}, action_num={config.action_num}, "
+        f"paper_feature_dim={config.paper_feature_dim}, "
         f"episodes={config.max_episodes}, steps={config.max_steps}, use_kg={config.use_kg}"
     )
 
@@ -106,6 +233,7 @@ def train(
             break
 
         state, info = env.reset()
+        candidate_features = info["candidate_features"]
 
         episode_reward   = 0.0
         episode_steps    = 0
@@ -117,7 +245,7 @@ def train(
                 stop_reason = stop_controller.reason or "stop requested during episode"
                 break
 
-            action, log_prob = agent.select_action(state)
+            action, log_prob = agent.select_action(state, candidate_features)
             next_state, reward, done, step_info = env.step(action)
 
             losses = agent.update(
@@ -127,6 +255,7 @@ def train(
                 next_state=next_state,
                 done=done,
                 log_prob=log_prob,
+                candidate_features=candidate_features,
             )
 
             episode_reward   += reward
@@ -191,7 +320,8 @@ def _demo_recommendation(
 ) -> None:
     """展示当前策略的 Top-K 推荐结果（用于训练过程监控）。"""
     state, info = env.reset()
-    indices, probs = agent.recommend_top_k(state, k=config.top_k)
+    candidate_features = info["candidate_features"]
+    indices, probs = agent.recommend_top_k(state, candidate_features, k=config.top_k)
 
     train_logger.logger.info("── Top-K 推荐示例 ──────────────────────────")
     for rank, (idx, prob) in enumerate(zip(indices, probs), 1):
@@ -220,5 +350,6 @@ if __name__ == "__main__":
     # ── 推理演示 ──────────────────────────────────────────────────
     print("\n[推理演示] Top-K 推荐：")
     state = np.random.randn(default_config.state_dim).astype(np.float32)
-    indices, probs = trained_agent.recommend_top_k(state, k=default_config.top_k)
+    dummy_features = np.random.randn(default_config.action_num, default_config.paper_feature_dim).astype(np.float32)
+    indices, probs = trained_agent.recommend_top_k(state, dummy_features, k=default_config.top_k)
     print(f"  Top-{default_config.top_k}: indices={indices}, probs={[round(p, 4) for p in probs]}")

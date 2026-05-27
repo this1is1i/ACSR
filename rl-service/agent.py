@@ -26,6 +26,9 @@ class ActorCriticAgent:
         Actor 损失：L_a = −log π(a_t|s_t) · δ_t − β·H(π)
 
     其中 H(π) 为策略熵，用于鼓励探索，防止推荐系统陷入信息茧房。
+
+    Actor 逐论文打分：输入 [user_state | paper_features]，输出单篇 logit，
+    对 N 篇候选 softmax 后得到概率分布。动作空间大小 = 候选集大小（动态）。
     """
 
     def __init__(self, config: Config = default_config):
@@ -35,7 +38,7 @@ class ActorCriticAgent:
         # 初始化网络
         self.actor = Actor(
             state_dim=config.state_dim,
-            action_num=config.action_num,
+            paper_feature_dim=config.paper_feature_dim,
             hidden_dim=config.actor_hidden,
         ).to(self.device)
 
@@ -57,41 +60,45 @@ class ActorCriticAgent:
     def select_action(
         self,
         state: np.ndarray,
+        candidate_features: np.ndarray,
         deterministic: bool = False,
     ) -> Tuple[int, torch.Tensor]:
         """
-        根据当前策略选择动作。
+        根据当前策略选择动作（推荐哪篇论文）。
 
         Args:
-            state:         当前状态向量 (state_dim,)
-            deterministic: 推理阶段置 True，返回概率最大的动作
+            state:              当前状态向量 (state_dim,)
+            candidate_features: 候选论文特征矩阵 (N, paper_feature_dim)
+            deterministic:      推理阶段置 True，返回概率最大的动作
 
         Returns:
-            action:     选中动作的索引
+            action:     选中动作的索引（0..N-1）
             log_prob:   log π(a|s)，用于 Actor 损失计算
         """
         state_t = torch.FloatTensor(state).to(self.device)
-        probs = self.actor(state_t)                  # (action_num,)
-        dist  = Categorical(probs)
+        feat_t = torch.FloatTensor(candidate_features).to(self.device)
+        probs = self.actor.score_candidates(state_t, feat_t)
+        dist = Categorical(probs)
 
         if deterministic:
             action = torch.argmax(probs).item()
             log_prob = dist.log_prob(torch.tensor(action).to(self.device))
         else:
-            action   = dist.sample()
+            action = dist.sample()
             log_prob = dist.log_prob(action)
-            action   = action.item()
+            action = action.item()
 
         return int(action), log_prob
 
     def update(
         self,
-        state:      np.ndarray,
-        action:     int,
-        reward:     float,
+        state: np.ndarray,
+        action: int,
+        reward: float,
         next_state: np.ndarray,
-        done:       bool,
-        log_prob:   torch.Tensor,
+        done: bool,
+        log_prob: torch.Tensor,
+        candidate_features: np.ndarray,
     ) -> Dict[str, float]:
         """
         单步 Actor–Critic 更新。
@@ -102,12 +109,13 @@ class ActorCriticAgent:
             L_actor  = −log π(a|s) · δ.detach() − α·H(π)
 
         Args:
-            state:      当前状态
-            action:     执行的动作
-            reward:     即时奖励
-            next_state: 下一状态
-            done:       是否终止
-            log_prob:   select_action 返回的 log_prob
+            state:              当前状态
+            action:             执行的动作（候选论文索引）
+            reward:             即时奖励
+            next_state:         下一状态
+            done:               是否终止
+            log_prob:           select_action 返回的 log_prob
+            candidate_features: 候选论文特征矩阵 (N, paper_feature_dim)
 
         Returns:
             losses: 包含 actor_loss / critic_loss / td_error 的字典
@@ -132,11 +140,11 @@ class ActorCriticAgent:
         self.critic_optimizer.step()
 
         # ── Actor 更新：最大化 log π(a|s) · δ + 熵正则 ──────────
-        # 重新计算当前策略的 log_prob 和熵（保留计算图）
-        probs    = self.actor(s)
-        dist     = Categorical(probs)
+        feat_t = torch.FloatTensor(candidate_features).to(self.device)
+        probs = self.actor.score_candidates(s, feat_t)
+        dist = Categorical(probs)
         log_prob_new = dist.log_prob(torch.tensor(action).to(self.device))
-        entropy  = dist.entropy()
+        entropy = dist.entropy()
 
         actor_loss = -(log_prob_new * td_error.detach()
                        + self.config.entropy_coeff * entropy)
@@ -159,31 +167,31 @@ class ActorCriticAgent:
     def recommend_top_k(
         self,
         state: np.ndarray,
+        candidate_features: np.ndarray,
         k: Optional[int] = None,
-        mask: Optional[np.ndarray] = None,
     ) -> Tuple[List[int], List[float]]:
         """
-        返回 Top-K 推荐结果（推理接口，可对接 REST API）。
+        返回 Top-K 推荐结果（推理接口）。
 
         Args:
-            state: 当前用户状态
-            k:     推荐数量，默认使用 config.top_k
-            mask:  已推荐内容的掩码（可选），shape (action_num,)
+            state:              当前用户状态 (state_dim,)
+            candidate_features: 候选论文特征矩阵 (N, paper_feature_dim)
+            k:                  推荐数量，默认使用 config.top_k
 
         Returns:
-            indices: Top-K 动作索引列表
+            indices: Top-K 候选索引列表
             probs:   对应概率列表
         """
         k = k or self.config.top_k
+        k = min(k, len(candidate_features))
         self.actor.eval()
         state_t = torch.FloatTensor(state).to(self.device)
-        mask_t = (
-            torch.BoolTensor(mask).to(self.device) if mask is not None else None
-        )
+        feat_t = torch.FloatTensor(candidate_features).to(self.device)
         with torch.no_grad():
-            indices, probs = self.actor.top_k_actions(state_t, k, mask_t)
+            probs = self.actor.score_candidates(state_t, feat_t)
+            top_k_probs, top_k_indices = torch.topk(probs, k)
         self.actor.train()
-        return indices.cpu().tolist(), probs.cpu().tolist()
+        return top_k_indices.cpu().tolist(), top_k_probs.cpu().tolist()
 
     # ── 模型持久化 ────────────────────────────────────────────────
 

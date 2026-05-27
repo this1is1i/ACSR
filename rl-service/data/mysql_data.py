@@ -128,6 +128,17 @@ class MySQLDataSource:
 
     # ── 全局统计 ──────────────────────────────────────────────────
 
+    def get_all_user_ids(self) -> List[int]:
+        """获取所有有行为记录的用户 ID（用于训练时采样）。"""
+        sql = """
+            SELECT DISTINCT user_id FROM behavior_log
+            UNION
+            SELECT DISTINCT user_id FROM user_interest_history
+        """
+        with self.conn.cursor() as cursor:
+            cursor.execute(sql)
+            return [int(row["user_id"]) for row in cursor.fetchall()]
+
     def get_global_keyword_freq(self) -> Dict[str, int]:
         """获取全局关键词频率分布（用于新用户冷启动）。"""
         sql = """

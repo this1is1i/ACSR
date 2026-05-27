@@ -1,5 +1,5 @@
 # recommender/ranker.py
-# 强化学习排序模块 —— 使用 Actor-Critic Agent 对候选集进行打分排序
+# 强化学习排序模块 —— 使用 Actor-Critic Agent 对候选集进行逐论文打分排序
 
 from __future__ import annotations
 import numpy as np
@@ -21,6 +21,9 @@ class RankedItem:
 class RLRanker:
     """
     基于 Actor-Critic 的候选集排序器。
+
+    Actor 逐论文打分：对每篇候选论文，拼接 [user_state | paper_features]，
+    输出单篇 logit，softmax 后得到每篇论文的概率。
 
     综合分 = Actor 策略分 * 0.5 + 语义相似度 * 0.3 + KG 拓扑分 * 0.2
 
@@ -60,28 +63,47 @@ class RLRanker:
         # 用 base_state_dim 部分计算语义相似度
         base_state = user_state[:self.config.base_state_dim]
 
+        N = len(candidates)
+
+        # ── 构建候选论文特征矩阵 ──────────────────────────────────
+        paper_dim = self.config.paper_feature_dim
+        candidate_features = np.zeros((N, paper_dim), dtype=np.float32)
+        for i, item in enumerate(candidates):
+            if item.topic_vector is not None:
+                candidate_features[i] = item.topic_vector[:paper_dim]
+
+        # ── 余弦相似度向量化（一次矩阵点积替代逐论文循环）────────
+        topic_matrix = np.array([
+            item.topic_vector if item.topic_vector is not None
+            else np.zeros(self.config.base_state_dim, dtype=np.float32)
+            for item in candidates
+        ])
+        cos_sims = np.clip(np.dot(topic_matrix, base_state), 0.0, None)  # (N,)
+
+        # ── KG 用户向量只算一次（之前循环内重复计算）──────────────
+        user_kg = None
+        if self.kg_embedder is not None and user_history:
+            user_kg = self.kg_embedder.get_user_kg_embedding(user_history)
+
         with torch.no_grad():
             state_t = torch.FloatTensor(user_state).to(self.device)
+            feat_t = torch.FloatTensor(candidate_features).to(self.device)
+
+            # Actor 逐论文打分 → (N,) 概率分布
+            actor_probs = self.agent.actor.score_candidates(state_t, feat_t)
 
             for i, item in enumerate(candidates):
-                # 语义相似度
-                if item.topic_vector is not None:
-                    cos_sim = float(np.dot(base_state, item.topic_vector))
-                    cos_sim = max(0.0, cos_sim)
-                else:
-                    cos_sim = 0.0
+                # 语义相似度（已向量化）
+                cos_sim = float(cos_sims[i])
 
-                # Actor 策略分 — 按候选位置映射到 action 槽位（避免 hash 碰撞）
-                probs = self.agent.actor(state_t)
-                action_idx = min(i * self.config.action_num // max(len(candidates), 1), self.config.action_num - 1)
-                actor_score = float(probs[action_idx].item())
+                # Actor 策略分 — 该论文的独立概率
+                actor_score = float(actor_probs[i].item())
 
                 # KG 拓扑分
                 kg_score = 0.0
-                if self.kg_embedder is not None and user_history:
+                if user_kg is not None:
                     paper_emb = self.kg_embedder.get_paper_embedding(item.kg_node_id)
                     if paper_emb is not None:
-                        user_kg = self.kg_embedder.get_user_kg_embedding(user_history)
                         kg_score = float(np.clip(np.dot(user_kg, paper_emb), 0.0, 1.0))
 
                 # 综合分
