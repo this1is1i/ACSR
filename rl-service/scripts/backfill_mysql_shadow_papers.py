@@ -31,7 +31,8 @@ def build_paper_fetch_query() -> str:
                p.venue AS venue,
                p.year AS year,
                coalesce(p.citation_count, 0) AS citation_count,
-               p['embedding'] AS embedding
+               p['embedding'] AS embedding,
+               p.embedding_raw AS embedding_raw
     """
 
 
@@ -57,8 +58,8 @@ def main() -> None:
             records = session.run(build_paper_fetch_query()).data()
 
         sql = """
-            INSERT INTO paper (aminer_id, title, abstract, keywords, authors, venue, year, citation_count, embedding)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO paper (aminer_id, title, abstract, keywords, authors, venue, year, citation_count, embedding, embedding_raw)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
                 title = VALUES(title),
                 abstract = VALUES(abstract),
@@ -67,7 +68,8 @@ def main() -> None:
                 venue = VALUES(venue),
                 year = VALUES(year),
                 citation_count = VALUES(citation_count),
-                embedding = VALUES(embedding)
+                embedding = VALUES(embedding),
+                embedding_raw = VALUES(embedding_raw)
         """
 
         with mysql.cursor() as cursor:
@@ -84,6 +86,7 @@ def main() -> None:
                         row.get("year"),
                         row.get("citation_count") or 0,
                         row.get("embedding"),
+                        row.get("embedding_raw"),
                     )
                     for row in batch
                     if row.get("aminer_id")

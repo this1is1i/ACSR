@@ -3739,3 +3739,320 @@ Critic 更新估值：缩小 V(S_t) 与实际 G_t 的差距
 | 探索 vs 利用 | ε-greedy / Softmax 温度 | `agent.py` 的 `select_action()` 中 `deterministic` 参数控制 |
 
 Sutton & Barto 说"几乎所有强化学习问题都可以形式化为 MDP"——这个系统就是这句话的一个具体实例。
+
+## Q14: 论文向量去随机化改造方案（2026-05-27）
+
+### 背景与问题
+
+当前推荐链路中，论文特征向量通过确定性哈希随机向量生成：
+
+```python
+# candidate_generator.py:185-189 — 当前实现
+seed = hash(f"{paper_id}:{text}") % (2**31)
+vec = rng.standard_normal(64)  # 独立同分布随机向量
+```
+
+任意两篇论文的向量在高维空间中期望余弦相似度为 0。无论内容多相似或多不相关，期望值相同。这导致：
+1. **候选召回**（相似度检索）实际等价于随机采样
+2. **排序余弦相似度分量**（权重 0.3/0.4）是纯噪声
+3. **Actor 网络输入**的 paper_features(32-dim) 来自随机向量，论文侧无法学到有意义的模式
+
+同时，`KGEmbedder._extract_structural_features()` 已实现 10 维结构特征提取，每个维度都来自真实的图拓扑 / 数据库字段查询：
+
+```
+[0] cite_in_degree      ← Neo4j CITE 反向边计数（或 MySQL citation_count 字段）
+[1] cite_out_degree     ← Neo4j CITE 正向边计数（无 KG 时取 0）
+[2] keyword_count       ← Neo4j HAS_KEYWORD 边数（或 MySQL keywords JSON 数组长度）
+[3] keyword_reach       ← 关键词关联论文总数（无 KG 时取 0）
+[4] author_count        ← AUTHOR_OF 反向边数（或 MySQL authors JSON 数组长度）
+[5] author_productivity ← 作者平均产出（无 KG 时取 0）
+[6] venue_popularity    ← PUBLISH_IN 关联论文数（或 MySQL venue 字段频次排名）
+[7] co_author_density   ← 合著网络密度（无 KG 时取 0）
+[8] topo_depth          ← BFS 引用链深度 ≤5（无 KG 时取 0）
+[9] recency             ← (year - 2010) / 15.0（MySQL year 字段直接归一化）
+```
+
+但该特征仅参与 KG 拓扑分（权重 0.2），未进入推荐主线。MySQL Paper 表的 `embedding` 字段（TEXT 类型）已存在，用于 MySQL↔Neo4j 同步，但**推荐链路完全不读取此字段**。
+
+### 改造目标
+
+1. **所有论文侧输入向量均来自预存数据**：推理时不执行任何哈希随机生成。向量在离线脚本中从数据库字段计算，写入 `paper.embedding`，推理时直接读取
+2. **10 维结构特征进入 Actor 和余弦相似度**：Actor 的 paper_features(32-dim) 和排序的余弦相似度分量 100% 来源于真实数据——有 KG 的论文从图拓扑提取，无 KG 的论文从 MySQL 字段提取（缺失维度填 0）
+3. **项目不再有论文侧的随机哈希输入**：消除 `hash(paper_id + text) → rng.standard_normal()` 这条路径
+
+核心原则：**预计算 + 持久化存储 + 推理时读取**。与运行时随机生成有本质区别——即使数据是模拟的，论文间的关系由真实指标差异决定，而非独立同分布采样。
+
+### 改造前后数据流对比
+
+```
+改造前（论文侧 = 随机噪声）:
+  CandidateGenerator._build_vector(paper_id, text)
+    → hash(text) → rng.standard_normal(64)  ← 每轮推理时生成，独立同分布
+    → topic_vector = 随机值
+        → paper_features = topic_vector[:32]  ← 随机值进入 Actor
+        → cos_sim = dot(topic_vector, state)   ← 随机值进入余弦相似度(0.3/0.4权重)
+
+改造后（论文侧 = 预存真实特征）:
+  [离线一次性] generate_paper_embeddings.py
+    → 遍历 paper 表，对每篇论文:
+      raw_10d = _extract_structural_features(paper_id)  ← KG 拓扑 / MySQL 字段
+      → Z-score 全库标准化
+      → project(10×32 固定矩阵)  ← 矩阵初始化一次后不变，非训练参数，非每轮随机
+      → L2_norm → vec_32d
+      → UPDATE paper SET embedding = JSON_ARRAY([v0..v31])
+      → UPDATE paper SET embedding_raw = JSON_ARRAY([f0..f9])  ← 10维原始值，可解释性
+        同步写入 Neo4j Paper 节点属性
+
+  [推理时] 每次 /recommend 请求
+    → topic_vector = parse_paper_embedding(paper.embedding)  ← 数据库读取，不生成
+        → paper_features = topic_vector[:32]  ← 真实结构特征进入 Actor
+        → cos_sim = dot(topic_vector, state)   ← 真实结构特征进入余弦相似度(0.3/0.4)
+    → kg_score = dot(user_kg, paper_kg)        ← KG拓扑分(0.2，不变)
+```
+
+### 变更方案
+
+#### Phase 1: 数据库层改动
+
+##### 1.1 Paper 表新增列
+
+```sql
+-- MySQL paper 表新增（若不存在则 ALTER TABLE ADD COLUMN）
+embedding     TEXT  -- JSON 数组, 32 维向量。Actor paper_features 和余弦相似度直接读取
+embedding_raw TEXT  -- JSON 数组, 10 维原始指标值。用于可解释性（如调试时查看每维实际含义）
+```
+
+`embedding` 列的每个值来自 10 维结构指标的投影结果，100% 可追溯到数据库字段。`embedding_raw` 存储未经投影的原始值，便于后续分析为什么某篇论文得分高/低。
+
+##### 1.2 新增嵌入生成脚本 `rl-service/scripts/generate_paper_embeddings.py`
+
+离线执行一次，为全库论文填充上述两列。核心逻辑：
+
+```
+1. 连接 MySQL，读取全部 paper 行
+2. 尝试加载 Neo4j KG，创建 KGEmbedder
+3. 收集全库统计量（均值、标准差，用于 Z-score 归一化）
+4. 初始化投影矩阵 P(10×32)，使用固定种子 42（确保可复现，非训练参数）
+5. 对每篇论文:
+   a. 若有 KG 节点:
+      raw_10d = KGEmbedder._extract_structural_features(paper_id)
+        10 维全来自图拓扑查询（被引数、关键词连通度、合著密度等）
+   b. 若无 KG 节点:
+      raw_10d = KGEmbedder.extract_features_from_metadata(paper 的 MySQL 行)
+        可获取的维度从 MySQL 字段填充（citation_count, year, keywords长度, authors长度）
+        无法获取的维度填 0.0（cite_out, keyword_reach, author_productivity 等需要图结构的）
+   c. raw_10d → Z-score(全库均值/std) → dot(P) → L2_normalize → vec_32d
+   d. UPDATE paper SET embedding = JSON_ARRAY([v0..v31]), embedding_raw = JSON_ARRAY([f0..f9])
+6. 若 Neo4j 可用，同步更新 Paper 节点的 embedding 和 embedding_raw 属性
+```
+
+投影矩阵 P(10×32) 的作用：将 10 维原始特征映射到 Actor/余弦相似度所需的 32 维空间。P 用 `np.random.default_rng(42).standard_normal((10,32)) / sqrt(10)` 初始化一次并保存到文件，后续所有调用加载同一个 P——它不是训练参数，不会在训练中更新，只是固定投影。
+
+##### 1.3 修改种子数据 SQL
+
+`seed_test_data.sql` 中 paper 表的 INSERT 增加 `embedding` 和 `embedding_raw` 列。值由脚本在 seed 环境运行时生成。
+
+#### Phase 2: Python 推荐服务层改动
+
+##### 2.1 `recommender/candidate_generator.py` — 核心改动
+
+**修改 `_build_pool_from_papers()` (L168-183)**
+
+```python
+# 修改前
+topic_vector = self._build_vector(paper.paper_id, paper.text_for_embedding())
+
+# 修改后: 直接从 SourcePaper.embedding 属性读取预存向量
+topic_vector = self._load_paper_embedding(paper)
+```
+
+**新增 `_load_paper_embedding()` 方法**
+
+```python
+def _load_paper_embedding(self, paper) -> np.ndarray:
+    """从 paper 对象加载预存向量。
+    
+    优先级:
+      1. paper.embedding 属性（Neo4j 节点 → SourcePaper → 此处）
+      2. KGEmbedder 实时计算（KG 中存在的论文，无预存时回退）
+      3. 元数据近似特征（MySQL 字段，无 KG 时回退）
+    
+    永远不会回退到随机哈希——最差情况也基于数据库字段。
+    """
+    # 优先级 1: 预存向量（主流路径）
+    if hasattr(paper, 'embedding') and paper.embedding:
+        vec = self._parse_embedding_json(paper.embedding)
+        if vec is not None:
+            # embedding 存的是 32 维，pad 到 state_dim=64
+            return self._pad_to_state_dim(vec).astype(np.float32)
+    
+    # 优先级 2: KGEmbedder 实时计算（与离线脚本同逻辑）
+    if self._kg_embedder is not None:
+        raw_10d = self._kg_embedder._extract_structural_features(paper.paper_id)
+        if raw_10d is not None:
+            return self._project_and_norm(raw_10d)
+    
+    # 优先级 3: 元数据近似特征（最差回退，但仍是真实字段）
+    return self._build_from_metadata(
+        citation_count=getattr(paper, 'citation_count', 0),
+        year=getattr(paper, 'year', 2024),
+        keywords=getattr(paper, 'keywords', []),
+        authors=getattr(paper, 'authors', [])
+    )
+```
+
+**修改 `_build_mock_pool()` (L142-166)**
+
+mock 论文池的 topic_vector 基于模拟的 metadata（预设的 citation_count, year, keywords 等）通过优先级 3 路径生成，确保 mock 论文也具有基于其元数据的合理区分度。
+
+**类初始化增加可选参数**
+
+```python
+def __init__(self, ..., kg_embedder=None):
+    ...
+    self._kg_embedder = kg_embedder
+```
+
+##### 2.2 `features/feature_builder.py` — 修改 build_item_vector()
+
+```python
+# 修改前: build_item_vector() 使用纯文本哈希 → rng.standard_normal()
+text = " ".join([str(item_meta.get("item_id", "unknown")), ...])
+seed = hash(text) % (2**31)
+...
+
+# 修改后: 优先读取预存向量，回退到元数据近似
+def build_item_vector(self, item_meta: Dict[str, Any]) -> np.ndarray:
+    # 优先使用预存向量
+    embedding_str = item_meta.get("embedding")
+    if embedding_str:
+        vec = self._parse_stored_embedding(embedding_str)
+        if vec is not None:
+            return self._pad_to_state_dim(vec)
+    
+    # 回退: 基于 item_meta 中的真实字段构建近似向量
+    return self._build_item_from_metadata(item_meta)
+```
+
+##### 2.3 `knowledge_graph/kg_embedder.py` — 增加无 KG 回退
+
+```python
+@staticmethod
+def extract_features_from_metadata(paper_row: dict, global_stats: dict) -> np.ndarray:
+    """对无 KG 节点的论文，从 MySQL 行数据提取近似的 10 维结构特征。
+    
+    可获取的维度用 MySQL 字段填，不可获取的填 0.0 并标记缺失来源。
+    """
+    max_cite = max(global_stats.get("max_citation", 1), 1)
+    max_kw   = max(global_stats.get("max_keywords", 1), 1)
+    
+    return np.array([
+        paper_row.get("citation_count", 0) / max_cite,    # [0] 被引数
+        0.0,                                                # [1] cite_out (需KG)
+        len(paper_row.get("keywords", [])) / max_kw,       # [2] 关键词数量
+        0.0,                                                # [3] keyword_reach (需KG)
+        len(paper_row.get("authors", [])),                 # [4] 作者数量
+        0.0,                                                # [5] author_productivity (需KG)
+        0.0,                                                # [6] venue_popularity (需KG)
+        0.0,                                                # [7] co_author_density (需KG)
+        0.0,                                                # [8] topo_depth (需KG)
+        (paper_row.get("year", 2020) - 2010) / 15.0,       # [9] recency
+    ], dtype=np.float32)
+```
+
+##### 2.4 `services/recommendation_service.py` — 数据传递
+
+**修改 `_extract_papers_from_kg()` (L344-377)**
+
+从 Neo4j Paper 节点属性中提取 `embedding`，写入 SourcePaper 对象：
+
+```python
+papers.append(SourcePaper(
+    paper_id=...,
+    ...
+    embedding=node.properties.get("embedding"),      # 32 维 JSON 数组
+    embedding_raw=node.properties.get("embedding_raw"),  # 10 维原始值
+))
+```
+
+**修改 `__init__()` 中 CandidateGenerator 的创建 (L98-101)**
+
+传入 `kg_embedder` 以支持回退路径：
+
+```python
+self.candidate_gen = CandidateGenerator.from_papers(
+    self._paper_catalog,
+    state_dim=config.base_state_dim,
+    kg_embedder=self._kg_embedder
+) if self._paper_catalog else CandidateGenerator(
+    state_dim=config.base_state_dim,
+    kg_embedder=self._kg_embedder
+)
+```
+
+##### 2.5 `config.py` — 配置项
+
+```python
+# 论文向量配置
+use_stored_embeddings: bool = True  # 是否优先从 paper.embedding 读取预存向量
+embedding_seed: int = 42            # 投影矩阵的初始化种子
+```
+
+#### Phase 3: 种子数据
+
+`seed_test_data.sql` 中 paper 表 INSERT 增加 `embedding` (32 维 JSON) 和 `embedding_raw` (10 维 JSON) 列。
+
+#### Phase 4: 验证清单
+
+- [ ] `generate_paper_embeddings.py` 为所有 paper 行填充 embedding + embedding_raw
+- [ ] 高被引论文的 embedding_raw[0] 值显著高于低被引论文
+- [ ] 同被引量级 + 同年份段的论文在向量空间中距离相近
+- [ ] 跨领域（如一篇 NLP 高引 vs 一篇 CV 冷门）的余弦相似度明显低于同特征论文
+- [ ] `POST /recommend` 返回正常，结构不变
+- [ ] Actor 输入维度 128 = 96 + 32 不变
+- [ ] 推理路径完全不经过 `rng.standard_normal()`（搜索确认无残留调用）
+- [ ] Neo4j Paper 节点 embedding / embedding_raw 与 MySQL 同步
+- [ ] 无 KG 环境回退到元数据近似特征正常
+
+### 不改动的部分
+
+| 模块 | 原因 |
+|------|------|
+| Actor 网络结构 (`actor.py`) | 输入维度不变 (96+32=128)，只改变 paper_features 内容 |
+| Critic 网络 (`critic.py`) | 只接受 state，不受影响 |
+| RLRanker 排序公式 (`ranker.py`) | 权重分配 0.5/0.3/0.2 不变 |
+| 候选集召回策略 | hybrid/similarity/popular 策略不变 |
+| 推荐解释生成 | 不变 |
+| REST API 接口 | 输入输出格式不变 |
+| 前端代码 | 完全不变 |
+| 用户侧特征构建 (`FeatureBuilder._hash_tag`) | 保留——同标签同向量，是确定性特征编码，非随机噪声 |
+
+### 改造影响范围汇总
+
+| 文件 | 改动类型 | 说明 |
+|------|----------|------|
+| `rl-service/scripts/generate_paper_embeddings.py` | **新增** | 离线脚本：10维结构特征 → 投影32维 → 写入 MySQL + Neo4j |
+| `rl-service/recommender/candidate_generator.py` | 修改 | `_build_pool_from_papers` 改为读取 paper.embedding；`_build_mock_pool` 基于元数据 |
+| `rl-service/features/feature_builder.py` | 修改 | `build_item_vector` 改为读取预存向量/元数据回退 |
+| `rl-service/knowledge_graph/kg_embedder.py` | 修改 | 新增 `extract_features_from_metadata()` 无 KG 回退 |
+| `rl-service/services/recommendation_service.py` | 修改 | 传递 embedding + kg_embedder |
+| `rl-service/config.py` | 修改 | 新增 `use_stored_embeddings` / `embedding_seed` |
+| `backend/src/main/resources/seed_test_data.sql` | 修改 | paper 表增加 embedding + embedding_raw 列 |
+
+### 预期效果
+
+改造后 Actor 对两篇论文的输入差异将由真实数据差异驱动：
+
+```
+改造前（随机哈希，无区分度）:
+Paper A (高引经典, cite=95000): [-0.03, 0.12, -0.45, ..., 0.67]
+Paper B (冷门新作, cite=3):     [ 0.67, -0.21, 0.03, ..., -0.15]
+→ 两篇论文向量距离 ≈ 两篇不相关随机向量距离
+
+改造后（结构特征投影，有区分度）:
+Paper A (高引经典, cite=95000): [0.82, 0.15, -0.33, ..., 0.41]
+Paper B (冷门新作, cite=3):     [0.05, -0.61, 0.72, ..., -0.18]
+→ 真实指标差异（被引量 95000 vs 3）拉开向量距离
+→ Actor 可学到"高被引论文更可能被接受"等模式
+→ 余弦相似度在高被引论文之间、同年份段论文之间自然偏高
+```

@@ -84,9 +84,17 @@ class FeatureBuilder:
         """
         构建科研内容（论文）的特征向量（base_state_dim 维）。
 
-        使用论文标题和关键词的确定性哈希编码，保证相同内容的论文得到相同向量。
+        优先使用预存向量（item_meta["embedding"]），回退到确定性哈希编码。
         KG 信息通过 state 中的 kg_vector 段传入 Actor/Critic。
         """
+        # 优先使用预存向量
+        embedding_val = item_meta.get("embedding")
+        if embedding_val:
+            vec = self._parse_stored_embedding(embedding_val)
+            if vec is not None:
+                return self._pad_to_base_dim(vec)
+
+        # 回退：确定性哈希编码（item_id + title + keywords）
         text_parts = [str(item_meta.get("item_id", "unknown"))]
 
         title = item_meta.get("title", "")
@@ -316,6 +324,32 @@ class FeatureBuilder:
         return self.kg_embedder.get_user_kg_embedding(history)
 
     # ── 辅助方法 ──────────────────────────────────────────────────
+
+    @staticmethod
+    def _parse_stored_embedding(embedding) -> Optional[np.ndarray]:
+        """解析 embedding 字段：JSON 字符串 / Python 列表 / 已为 np.ndarray。"""
+        if embedding is None:
+            return None
+        if isinstance(embedding, np.ndarray):
+            return embedding.astype(np.float32)
+        if isinstance(embedding, list):
+            return np.array(embedding, dtype=np.float32)
+        if isinstance(embedding, str):
+            try:
+                parsed = json.loads(embedding)
+                if isinstance(parsed, list):
+                    return np.array(parsed, dtype=np.float32)
+            except (json.JSONDecodeError, TypeError):
+                pass
+        return None
+
+    def _pad_to_base_dim(self, vec: np.ndarray) -> np.ndarray:
+        """将向量 pad 到 base_state_dim 维（后补零）。"""
+        if len(vec) >= self.base_state_dim:
+            return vec[:self.base_state_dim].astype(np.float32)
+        padded = np.zeros(self.base_state_dim, dtype=np.float32)
+        padded[:len(vec)] = vec
+        return padded
 
     @staticmethod
     def _hash_tag(tag: str, dim: int) -> np.ndarray:

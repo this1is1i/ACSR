@@ -58,6 +58,14 @@ class KGEmbedder:
         """获取单篇论文的 KG embedding。"""
         return self._embeddings.get(paper_id)
 
+    def get_projection_matrix(self) -> np.ndarray:
+        """返回投影矩阵 P (RAW_FEATURE_DIM × embed_dim)，供离线脚本和运行时回退使用。"""
+        return self._projection.copy()
+
+    def get_feature_stats(self):
+        """返回 Z-score 归一化参数 (mean, std)，各为 (RAW_FEATURE_DIM,) 向量。"""
+        return self._feature_mean.copy(), self._feature_std.copy()
+
     def get_user_kg_embedding(self, history_paper_ids: List[str]) -> np.ndarray:
         """
         计算用户的 KG embedding（基于历史论文平均池化）。
@@ -89,11 +97,11 @@ class KGEmbedder:
 
         # Z-score 标准化
         all_feats = np.array(list(raw_features.values()))
-        mean = all_feats.mean(axis=0)
-        std = all_feats.std(axis=0) + 1e-8
+        self._feature_mean = all_feats.mean(axis=0).astype(np.float32)
+        self._feature_std = all_feats.std(axis=0).astype(np.float32) + 1e-8
 
         for nid, raw in raw_features.items():
-            normalized = (raw - mean) / std
+            normalized = (raw - self._feature_mean) / self._feature_std
             projected = normalized @ self._projection
             # L2 归一化
             norm = np.linalg.norm(projected) + 1e-8
@@ -186,6 +194,52 @@ class KGEmbedder:
                     max_d = max(max_d, next_d)
                     queue.append((edge.dst_id, next_d))
         return float(max_d)
+
+
+    @staticmethod
+    def extract_features_from_metadata(paper_row: dict, global_stats: dict) -> np.ndarray:
+        """对无 KG 节点的论文，从 MySQL 行数据提取近似的 10 维结构特征。
+
+        Args:
+            paper_row: MySQL paper 行数据，至少包含 citation_count, year, keywords, authors 字段
+            global_stats: 全库统计量 {"max_citation": int, "max_keywords": int}
+
+        Returns:
+            (10,) float32 向量，KG 相关维度填 0.0
+        """
+        max_cite = max(global_stats.get("max_citation", 1), 1)
+        max_kw = max(global_stats.get("max_keywords", 1), 1)
+
+        keywords = paper_row.get("keywords") or paper_row.get("keywords_list") or []
+        if isinstance(keywords, str):
+            try:
+                import json
+                keywords = json.loads(keywords)
+            except (json.JSONDecodeError, TypeError):
+                keywords = [keywords] if keywords else []
+        kw_len = len(keywords) if isinstance(keywords, list) else 0
+
+        authors = paper_row.get("authors") or []
+        if isinstance(authors, str):
+            try:
+                import json
+                authors = json.loads(authors)
+            except (json.JSONDecodeError, TypeError):
+                authors = [authors] if authors else []
+        author_len = len(authors) if isinstance(authors, list) else 0
+
+        return np.array([
+            paper_row.get("citation_count", 0) / max_cite,    # [0] cite_in
+            0.0,                                                # [1] cite_out (需KG)
+            kw_len / max_kw,                                    # [2] keyword_count
+            0.0,                                                # [3] keyword_reach (需KG)
+            float(author_len),                                  # [4] author_count
+            0.0,                                                # [5] author_productivity (需KG)
+            0.0,                                                # [6] venue_popularity (需KG)
+            0.0,                                                # [7] co_author_density (需KG)
+            0.0,                                                # [8] topo_depth (需KG)
+            (paper_row.get("year", 2020) - 2010) / 15.0,       # [9] recency
+        ], dtype=np.float32)
 
 
 def create_kg_embedder(config) -> "tuple[Optional[KGEmbedder], Optional[Any]]":

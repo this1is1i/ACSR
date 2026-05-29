@@ -541,4 +541,59 @@ Actor 网络架构重构（位置打分→逐论文打分）、训练接入真�
 - 新增 `memory/rl-actor-refactor-20260527.md`：Actor 架构变更 + 训练数据源变更 + 关键配置
 
 ### Git 提交
+`2a38d76` feat: Actor pairwise scoring, real data training, PaperCard UI fixes, log reduction
+
+---
+
+## 2026-05-29
+
+### 核心目标
+论文向量去随机化（Q14）+ 注册关键词选择器（Q15）+ 数据同步链路修复。
+
+### Q14: 论文向量去随机化
+
+**问题：** 推荐链路中所有论文向量通过 `hash(paper_id+text) → rng.standard_normal(64)` 生成，任意两篇论文在高维空间中期望余弦相似度为 0，Actor 的 paper_features 和余弦相似度分量均为噪声。
+
+**方案：** 论文向量改为从真实结构特征投影计算 —— 10 维原始特征（被引数/关键词数/作者数/年份等）→ Z-score → 投影矩阵 P(10×32) → L2-norm → 32 维向量。离线预计算写入 `paper.embedding`，推理时直接读取。
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 新增 | `rl-service/scripts/generate_paper_embeddings.py` | 离线脚本：读取 MySQL paper + Neo4j KG → 10维结构特征 → Z-score → P(10×32)投影 → 写入 MySQL + Neo4j |
+| 重写 | `rl-service/recommender/candidate_generator.py` | 新增 `_load_paper_embedding()` 三级优先级；`_build_from_metadata()` 元数据回退；投影矩阵加载；`_build_vector` 降级紧急回退 |
+| 修改 | `rl-service/features/feature_builder.py` | `build_item_vector` 优先读取 `item_meta["embedding"]` |
+| 修改 | `rl-service/knowledge_graph/kg_embedder.py` | 新增 `extract_features_from_metadata()`；暴露投影矩阵和统计量 |
+| 修改 | `rl-service/services/recommendation_service.py` | 从 Neo4j 读取 embedding/embedding_raw；传递 kg_embedder；保存投影矩阵 |
+| 修改 | `rl-service/dataset/aminer_loader.py` | Paper 新增 `embedding_raw` 字段 |
+| 修改 | `rl-service/config.py` | 新增 `use_stored_embeddings` / `embedding_seed` |
+| 修改 | `backend/src/main/resources/research_db.sql` | paper 表新增 `embedding_raw TEXT` 列 |
+
+### Q15: 注册关键词选择器
+
+**问题：** 注册时研究方向为自由文本输入，用户自填关键词与系统论文实际关键词不匹配，冷启动推荐质量差。
+
+**方案：** 查询 Neo4j Keyword 节点（46 个，来自真实论文数据），展示 6 个热门标签 + `···` 弹窗浏览全部，点击选中自动拼接。
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 新增 | `backend/.../dto/KeywordDto.java` | `{label, frequency}` record |
+| 重写 | `backend/.../controller/KnowledgeController.java` | 新增 `GET /api/knowledge/keywords` |
+| 修改 | `backend/.../config/SecurityConfig.java` | `/api/knowledge/keywords` 加入白名单 |
+| 修改 | `frontend/src/views/Login.vue` | 研究方向文本输入→标签选择器（6热词+ElDialog+搜索） |
+| 修改 | `frontend/src/views/EditProfile.vue` | 同上；加载时回填已有研究方向为选中态 |
+
+### 数据同步脚本修复
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `rl-service/scripts/migrate_to_neo4j.py` | +embedding_raw 列；删除已废弃 kg_entity/kg_relation 引用 + LegacyEntity 导入（~50行） |
+| 修改 | `rl-service/scripts/backfill_mysql_shadow_papers.py` | +embedding_raw 列 |
+| 修改 | `rl-service/knowledge_graph/graph_storage.py` | 默认路径从相对 `"data/kg"` 改为基于 `__file__` |
+| 删除 | `rl-service/data/embeddings/` `processed/` `research.db` | 旧版死文件清理 |
+
+### 数据现状
+- MySQL: 1005 篇论文，embedding/embedding_raw 覆盖率 100%
+- Neo4j: 1121 节点 + 9796 关系，所有 Paper 含 embedding/embedding_raw
+- 本地备份: `data/kg/knowledge_graph.{json,pkl}` (4.2M)，含完整嵌入
+
+### Git 提交
 `<pending>`

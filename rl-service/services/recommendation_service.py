@@ -96,9 +96,12 @@ class RecommendationService:
             mysql_source=self._mysql,
         )
         self.candidate_gen = (
-            CandidateGenerator.from_papers(self._paper_catalog, state_dim=config.base_state_dim)
+            CandidateGenerator.from_papers(
+                self._paper_catalog, state_dim=config.base_state_dim,
+                kg_embedder=self._kg_embedder,
+            )
             if self._paper_catalog else
-            CandidateGenerator(state_dim=config.base_state_dim)
+            CandidateGenerator(state_dim=config.base_state_dim, kg_embedder=self._kg_embedder)
         )
 
         self._load_agent()
@@ -298,7 +301,29 @@ class RecommendationService:
         # 将 KG 设置为 GraphQuery 可用的属性
         self.kg = kg
         self._graph_query = GraphQuery(kg)
+
+        # 保存投影矩阵，供离线脚本和 CandidateGenerator 回退使用
+        self._save_projection_artifacts(config)
+
         logger.info(f"KG 初始化完成: {kg.stats}, paper_catalog={len(self._paper_catalog)}")
+
+    def _save_projection_artifacts(self, config: Config) -> None:
+        """保存投影矩阵和归一化参数到 checkpoints/projection.npz。"""
+        if self._kg_embedder is None:
+            return
+        try:
+            artifacts_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "checkpoints", "projection.npz",
+            )
+            os.makedirs(os.path.dirname(artifacts_path), exist_ok=True)
+            if not os.path.exists(artifacts_path):
+                P = self._kg_embedder.get_projection_matrix()
+                mean, std = self._kg_embedder.get_feature_stats()
+                np.savez(artifacts_path, P=P, mean=mean, std=std)
+                logger.info(f"投影矩阵已保存: {artifacts_path}")
+        except Exception as e:
+            logger.warning(f"保存投影矩阵失败: {e}")
 
     def _load_kg_from_neo4j(self, config: Config) -> Optional[Any]:
         """从 Neo4j 加载知识图谱。"""
@@ -363,6 +388,11 @@ class RecommendationService:
             year = _safe_int(props.get("year"), 0)
             citation_count = _safe_int(props.get("citation_count"), 0)
 
+            # 从 Neo4j 节点读取预存向量（embedding 在 reserved 集，存在 node.embedding）
+            embedding_val = node.embedding or props.get("embedding")
+            paper_embedding = _parse_json_prop(embedding_val)
+            paper_embedding_raw = _parse_json_prop(props.get("embedding_raw"))
+
             papers.append(SourcePaper(
                 paper_id=props.get("aminer_id") or node.node_id,
                 title=props.get("title") or node.label,
@@ -373,6 +403,8 @@ class RecommendationService:
                 year=year,
                 citation_count=citation_count,
                 references=[],
+                embedding=paper_embedding,
+                embedding_raw=paper_embedding_raw,
             ))
         return papers
 
@@ -405,3 +437,19 @@ def _safe_int(value, default: int = 0) -> int:
         return int(value)
     except (TypeError, ValueError):
         return default
+
+
+def _parse_json_prop(value) -> Optional[list]:
+    """解析 Neo4j 节点属性中的 JSON 字符串或 list。"""
+    if value is None:
+        return None
+    if isinstance(value, list):
+        return value
+    if isinstance(value, str):
+        try:
+            import json
+            parsed = json.loads(value)
+            return parsed if isinstance(parsed, list) else None
+        except (json.JSONDecodeError, TypeError):
+            pass
+    return None

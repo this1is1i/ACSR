@@ -39,7 +39,8 @@ class Paper:
     citation_count: int = 0
     references: List[str] = field(default_factory=list)  # 被引 paper_id 列表
     # 预留 embedding 接口
-    embedding: Optional[List[float]] = None
+    embedding: Optional[List[float]] = None       # 32 维投影向量（离线脚本写入，推理时读取）
+    embedding_raw: Optional[List[float]] = None   # 10 维原始结构特征（可解释性）
 
     def text_for_embedding(self) -> str:
         """拼接用于 embedding 的文本。"""

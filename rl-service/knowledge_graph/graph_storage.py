@@ -24,7 +24,9 @@ class GraphStorage:
       - Neo4j（预留，生产环境图数据库）
     """
 
-    def __init__(self, storage_dir: str = "data/kg"):
+    def __init__(self, storage_dir: str = None):
+        if storage_dir is None:
+            storage_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "kg")
         self.storage_dir = storage_dir
         os.makedirs(storage_dir, exist_ok=True)
         self.json_path   = os.path.join(storage_dir, "knowledge_graph.json")

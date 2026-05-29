@@ -25,6 +25,7 @@ class MergedPaper:
     year: int = 0
     citation_count: int = 0
     embedding: Optional[str] = None
+    embedding_raw: Optional[str] = None
     mysql_id: Optional[int] = None
 
 
@@ -44,7 +45,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--clear", action="store_true")
     parser.add_argument("--skip-mysql", action="store_true")
     parser.add_argument("--skip-aminer", action="store_true")
-    parser.add_argument("--skip-legacy-kg", action="store_true")
     parser.add_argument("--batch-size", type=int, default=500)
     return parser.parse_args()
 
@@ -83,7 +83,7 @@ def load_mysql_papers(args) -> Dict[str, MergedPaper]:
     with mysql_connection(args) as conn:
         with conn.cursor() as cursor:
             cursor.execute("""
-                SELECT id, aminer_id, title, abstract, keywords, authors, venue, year, citation_count, embedding
+                SELECT id, aminer_id, title, abstract, keywords, authors, venue, year, citation_count, embedding, embedding_raw
                 FROM paper
                 WHERE deleted = 0 AND aminer_id IS NOT NULL
             """)
@@ -98,6 +98,7 @@ def load_mysql_papers(args) -> Dict[str, MergedPaper]:
                     year=int(row.get("year") or 0),
                     citation_count=int(row.get("citation_count") or 0),
                     embedding=row.get("embedding"),
+                    embedding_raw=row.get("embedding_raw"),
                     mysql_id=int(row["id"]) if row.get("id") is not None else None,
                 )
     return papers
@@ -148,19 +149,6 @@ def merge_aminer_data(args, papers: Dict[str, MergedPaper]) -> Tuple[Dict[str, M
     return papers, authors_map, citations
 
 
-def load_legacy_kg(args):
-    if args.skip_legacy_kg or args.skip_mysql:
-        return [], []
-
-    with mysql_connection(args) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT id, name, type, external_id, properties FROM kg_entity")
-            entities = cursor.fetchall()
-            cursor.execute("SELECT source_id, target_id, relation_type, weight FROM kg_relation")
-            relations = cursor.fetchall()
-    return entities, relations
-
-
 def chunked(rows: List[dict], size: int) -> Iterable[List[dict]]:
     for index in range(0, len(rows), size):
         yield rows[index: index + size]
@@ -182,7 +170,7 @@ def run_schema(session) -> None:
         session.run(statement)
 
 
-def import_to_neo4j(args, papers: Dict[str, MergedPaper], authors_map: Dict[str, Author], citations: List[Citation], legacy_entities, legacy_relations) -> None:
+def import_to_neo4j(args, papers: Dict[str, MergedPaper], authors_map: Dict[str, Author], citations: List[Citation]) -> None:
     from neo4j import GraphDatabase
 
     driver = GraphDatabase.driver(args.neo4j_uri, auth=(args.neo4j_user, args.neo4j_password))
@@ -213,6 +201,7 @@ def import_to_neo4j(args, papers: Dict[str, MergedPaper], authors_map: Dict[str,
                     "year": paper.year,
                     "citation_count": paper.citation_count,
                     "embedding": paper.embedding,
+                    "embedding_raw": paper.embedding_raw,
                     "mysql_id": paper.mysql_id,
                 })
 
@@ -261,6 +250,7 @@ def import_to_neo4j(args, papers: Dict[str, MergedPaper], authors_map: Dict[str,
                         p.year = row.year,
                         p.citation_count = row.citation_count,
                         p.embedding = row.embedding,
+                        p.embedding_raw = row.embedding_raw,
                         p.mysql_id = row.mysql_id,
                         p.label = row.title,
                         p.node_type = "paper"
@@ -342,46 +332,6 @@ def import_to_neo4j(args, papers: Dict[str, MergedPaper], authors_map: Dict[str,
                     MERGE (right)-[:CO_AUTHOR {relation: "co_author"}]->(left)
                 """, rows=rows)
 
-            if legacy_entities:
-                for rows in chunked([
-                    {
-                        "node_id": f"legacy_entity_{entity['id']}",
-                        "legacy_id": entity["id"],
-                        "name": entity["name"],
-                        "type": entity["type"],
-                        "external_id": entity.get("external_id"),
-                        "properties_json": entity.get("properties"),
-                    }
-                    for entity in legacy_entities
-                ], args.batch_size):
-                    session.run("""
-                        UNWIND $rows AS row
-                        MERGE (n:GraphNode:LegacyEntity {node_id: row.node_id})
-                        SET n.legacy_id = row.legacy_id,
-                            n.name = row.name,
-                            n.entity_type = row.type,
-                            n.external_id = row.external_id,
-                            n.properties_json = row.properties_json,
-                            n.label = row.name,
-                            n.node_type = "legacy_entity"
-                    """, rows=rows)
-
-                for rows in chunked([
-                    {
-                        "source": f"legacy_entity_{relation['source_id']}",
-                        "target": f"legacy_entity_{relation['target_id']}",
-                        "relation_type": relation["relation_type"],
-                        "weight": relation.get("weight") or 1.0,
-                    }
-                    for relation in legacy_relations
-                ], args.batch_size):
-                    session.run("""
-                        UNWIND $rows AS row
-                        MATCH (src:LegacyEntity {node_id: row.source})
-                        MATCH (dst:LegacyEntity {node_id: row.target})
-                        MERGE (src)-[r:LEGACY_RELATION {relation: row.relation_type, dst_id: row.target}]->(dst)
-                        SET r.weight = row.weight
-                    """, rows=rows)
     finally:
         driver.close()
 
@@ -411,8 +361,7 @@ def main() -> None:
     if not args.skip_mysql:
         papers.update(load_mysql_papers(args))
     papers, authors_map, citations = merge_aminer_data(args, papers)
-    legacy_entities, legacy_relations = load_legacy_kg(args)
-    import_to_neo4j(args, papers, authors_map, citations, legacy_entities, legacy_relations)
+    import_to_neo4j(args, papers, authors_map, citations)
     print_summary(args)
 
 

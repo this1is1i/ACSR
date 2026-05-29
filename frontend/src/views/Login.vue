@@ -92,14 +92,40 @@
           </div>
 
           <div v-if="isRegister" class="form-group">
-            <label>研究方向（选填）</label>
-            <div class="input-wrapper">
+            <label>研究方向（选填，点击选择）</label>
+            <div v-if="keywordsLoading" class="tags-loading">加载关键词中...</div>
+            <div v-else-if="keywords.length > 0" class="tags-container">
+              <button
+                v-for="kw in hotKeywords" :key="kw.label"
+                type="button" class="tag-pill"
+                :class="{ selected: selectedKeywords.includes(kw.label) }"
+                @click="toggleKeyword(kw.label)"
+              >{{ kw.label }}</button>
+              <button type="button" class="tag-pill tag-more" @click="dialogVisible = true">···</button>
+            </div>
+            <div v-else class="tags-fallback">
               <input type="text" v-model="form.researchInterests"
                 placeholder="机器学习, 深度学习, 自然语言处理"
                 @focus="onFieldFocus" @blur="onFieldBlur" @input="onFieldInput" />
             </div>
-            <p class="interest-hint">用逗号分隔多个研究方向，用于初始化个性化推荐</p>
+            <p class="interest-hint">点击标签选择研究方向，用于初始化个性化推荐</p>
           </div>
+
+          <!-- 关键词选择弹窗 -->
+          <el-dialog v-model="dialogVisible" title="选择研究方向" width="560px" :z-index="3000">
+            <div class="dialog-search">
+              <input v-model="keywordSearch" placeholder="搜索关键词..." class="search-input" />
+            </div>
+            <div class="dialog-tags">
+              <button
+                v-for="kw in filteredKeywords" :key="kw.label"
+                type="button" class="tag-pill dialog-pill"
+                :class="{ selected: selectedKeywords.includes(kw.label) }"
+                @click="toggleKeyword(kw.label)"
+              >{{ kw.label }} <span class="freq">{{ kw.frequency }}</span></button>
+            </div>
+            <div v-if="filteredKeywords.length === 0" class="dialog-empty">无匹配关键词</div>
+          </el-dialog>
 
           <div class="error-msg" v-if="errorMsg">{{ errorMsg }}</div>
 
@@ -126,11 +152,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { login, register } from '@/api/user'
 import { useUserStore } from '@/store/userStore'
+import request from '@/utils/request'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -143,6 +170,45 @@ const errorMsg = ref('')
 const errors = reactive({ username: false, password: false })
 
 const form = reactive({ username: '', password: '', researchInterests: '' })
+
+// ── Keyword selector state ──────────────────────────────────────
+const keywords = ref([])
+const keywordsLoading = ref(false)
+const selectedKeywords = ref([])
+const dialogVisible = ref(false)
+const keywordSearch = ref('')
+
+const hotKeywords = computed(() => keywords.value.slice(0, 6))
+const filteredKeywords = computed(() => {
+  if (!keywordSearch.value) return keywords.value
+  const q = keywordSearch.value.toLowerCase()
+  return keywords.value.filter(k => k.label.toLowerCase().includes(q))
+})
+
+function toggleKeyword(label) {
+  const idx = selectedKeywords.value.indexOf(label)
+  if (idx >= 0) {
+    selectedKeywords.value = selectedKeywords.value.filter(k => k !== label)
+  } else {
+    selectedKeywords.value = [...selectedKeywords.value, label]
+  }
+  form.researchInterests = selectedKeywords.value.join(', ')
+}
+
+async function fetchKeywords() {
+  if (keywords.value.length > 0) return
+  keywordsLoading.value = true
+  try {
+    const res = await request.get('/knowledge/keywords')
+    keywords.value = res || []
+  } catch {
+    keywords.value = []
+  } finally {
+    keywordsLoading.value = false
+  }
+}
+
+watch(isRegister, (val) => { if (val) fetchKeywords() })
 
 // ── Animation state ────────────────────────────────────────────
 let mouseX = 0, mouseY = 0, isTyping = false, isLookingAtEachOther = false
@@ -545,6 +611,39 @@ onBeforeUnmount(() => {
 .guest-link { text-align:center; margin-top:16px }
 .guest-link a { color:#6366f1; font-size:13px; text-decoration:none; padding:8px 24px; border:1px solid rgba(99,102,241,0.3); border-radius:20px; transition:all 0.2s }
 .guest-link a:hover { background:rgba(99,102,241,0.1); border-color:#6366f1 }
+
+/* ── Keyword Tags ────────────────────────────────────────────── */
+.tags-loading { font-size:13px; color:#999; padding:8px 0 }
+.tags-container { display:flex; flex-wrap:wrap; gap:8px }
+.tag-pill {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:6px 14px; border-radius:20px; border:1.5px solid #d0d0d0;
+  background:#f8f8f8; color:#555; font-size:13px; font-family:inherit;
+  cursor:pointer; transition:all 0.2s; user-select:none; white-space:nowrap;
+}
+.tag-pill:hover { border-color:#5b21b6; color:#5b21b6; background:#f5f0ff }
+.tag-pill.selected {
+  border-color:#5b21b6; background:#5b21b6; color:#fff;
+}
+.tag-pill .freq { font-size:10px; opacity:0.5; margin-left:2px }
+.tag-more {
+  font-weight:700; letter-spacing:1px; min-width:36px; justify-content:center;
+}
+.dialog-search { margin-bottom:16px }
+.search-input {
+  width:100%; height:40px; padding:0 14px; border:1.5px solid #e0e0e0;
+  border-radius:20px; font-size:14px; font-family:inherit; outline:none;
+}
+.search-input:focus { border-color:#5b21b6 }
+.dialog-tags { display:flex; flex-wrap:wrap; gap:8px; max-height:360px; overflow-y:auto }
+.dialog-pill { font-size:13px }
+.dialog-empty { text-align:center; color:#999; padding:32px 0; font-size:14px }
+.tags-fallback input {
+  width:100%; height:48px; border:none; border-bottom:1.5px solid #e0e0e0;
+  padding:0; font-size:15px; font-family:inherit; color:#1a1a2e;
+  background:transparent; outline:none;
+}
+.tags-fallback input:focus { border-bottom-color:#5b21b6 }
 
 @media (max-width:900px) {
   #login-page { grid-template-columns:1fr }

@@ -32,7 +32,7 @@ class Config:
     gamma: float = 0.99          # 折扣因子
     actor_lr: float = 1e-3
     critic_lr: float = 1e-3
-    max_episodes: int = 500
+    max_episodes: int = 300
     max_steps: int = 50          # 每轮最大交互步数
     entropy_coeff: float = 0.01  # 熵正则化系数（防止策略过早收敛）
 
@@ -52,6 +52,10 @@ class Config:
     mysql_user: str = field(default_factory=lambda: os.getenv("MYSQL_USER", "root"))
     mysql_password: str = field(default_factory=lambda: os.getenv("MYSQL_PASSWORD", "qwer1234"))
     mysql_db: str = field(default_factory=lambda: os.getenv("MYSQL_DB", "research_db"))
+
+    # ── 论文向量 ──────────────────────────────────────────────────
+    use_stored_embeddings: bool = True  # 优先从 paper.embedding 读取预存向量
+    embedding_seed: int = 42            # 投影矩阵的初始化种子
 
     # ── 持久化 ────────────────────────────────────────────────────
     model_save_path: str = "checkpoints/ac_model.pth"
