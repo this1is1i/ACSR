@@ -125,32 +125,55 @@
       </section>
 
       <section
-        class="path-insight-rail__card path-insight-rail__card--route"
-        data-testid="path-insight-card-route"
+        class="path-insight-rail__card path-insight-rail__card--topics"
+        data-testid="path-insight-card-topics"
       >
         <div class="path-insight-rail__section-head">
           <div>
-            <p class="path-insight-rail__section-eyebrow">Route Checkpoints</p>
-            <h3>路径检查点</h3>
+            <p class="path-insight-rail__section-eyebrow">Topic Switcher</p>
+            <h3>切换目标专题</h3>
           </div>
         </div>
 
-        <ol class="path-insight-rail__route">
-          <li v-for="step in summary.steps.slice(0, 4)" :key="step.id" class="path-insight-rail__route-item">
-            <span class="path-insight-rail__index">{{ step.index }}</span>
-            <div>
-              <strong>{{ step.name }}</strong>
-              <small>{{ formatMastery(step.mastery) }}</small>
-            </div>
-          </li>
-        </ol>
+        <template v-if="keywordsLoading">
+          <el-skeleton :rows="4" animated />
+        </template>
+
+        <template v-else-if="keywords.length === 0">
+          <p class="path-insight-rail__empty">暂无可用专题，系统将使用默认学习路径。</p>
+        </template>
+
+        <template v-else>
+          <input
+            v-model="filterQuery"
+            class="path-insight-rail__topic-search"
+            type="text"
+            placeholder="搜索专题关键词..."
+          />
+          <div class="path-insight-rail__topic-chips">
+            <button
+              v-for="kw in filteredKeywords"
+              :key="kw.label"
+              class="path-insight-rail__topic-chip"
+              :class="{ 'path-insight-rail__topic-chip--active': currentTargetTopic === kw.label }"
+              :disabled="loading"
+              @click="emit('select-topic', kw.label)"
+            >
+              <span class="path-insight-rail__topic-label">{{ kw.label }}</span>
+              <span class="path-insight-rail__topic-freq">{{ kw.frequency }}</span>
+            </button>
+            <p v-if="filteredKeywords.length === 0" class="path-insight-rail__empty">
+              未找到匹配的专题
+            </p>
+          </div>
+        </template>
       </section>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { formatMastery, getPathStepMeta } from '@/utils/path'
 
@@ -165,10 +188,32 @@ function goToPaper(id) {
   }
 }
 
+const filterQuery = ref('')
+
+const filteredKeywords = computed(() => {
+  if (!filterQuery.value.trim()) return props.keywords
+  const q = filterQuery.value.trim().toLowerCase()
+  return props.keywords.filter(kw => kw.label.toLowerCase().includes(q))
+})
+
+const emit = defineEmits(['select-topic'])
+
 const props = defineProps({
   loading: {
     type: Boolean,
     default: false,
+  },
+  keywords: {
+    type: Array,
+    default: () => [],
+  },
+  keywordsLoading: {
+    type: Boolean,
+    default: false,
+  },
+  currentTargetTopic: {
+    type: String,
+    default: '',
   },
   summary: {
     type: Object,
@@ -243,7 +288,7 @@ function recommendationMeta(paper) {
 }
 
 .path-insight-rail__card--focus,
-.path-insight-rail__card--route {
+.path-insight-rail__card--topics {
   grid-column: span 5;
 }
 
@@ -385,6 +430,102 @@ function recommendationMeta(paper) {
   border-color: var(--color-border-strong);
 }
 
+/* ── Topic switcher card ───────────────────────────────────── */
+
+.path-insight-rail__topic-search {
+  width: 100%;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-hover);
+  color: var(--color-text-primary);
+  font-size: 0.82rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease;
+  margin-bottom: var(--space-3);
+  box-sizing: border-box;
+}
+
+.path-insight-rail__topic-search:focus {
+  border-color: rgba(124, 140, 255, 0.5);
+}
+
+.path-insight-rail__topic-search::placeholder {
+  color: var(--color-text-muted);
+}
+
+.path-insight-rail__topic-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  max-height: 200px;
+  overflow-y: auto;
+  align-content: flex-start;
+  padding-right: 2px;
+}
+
+.path-insight-rail__topic-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(124, 140, 255, 0.22);
+  background: rgba(124, 140, 255, 0.08);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.path-insight-rail__topic-chip:hover:not(:disabled) {
+  background: rgba(124, 140, 255, 0.2);
+  border-color: rgba(124, 140, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.path-insight-rail__topic-chip--active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3));
+  border-color: rgba(99, 102, 241, 0.6);
+  color: #e2e8f0;
+}
+
+.path-insight-rail__topic-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.path-insight-rail__topic-label {
+  font-weight: 500;
+}
+
+.path-insight-rail__topic-freq {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--color-text-muted);
+}
+
+.path-insight-rail__topic-chips::-webkit-scrollbar {
+  width: 4px;
+}
+
+.path-insight-rail__topic-chips::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.25);
+}
+
+.path-insight-rail__empty {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-4) 0;
+  width: 100%;
+}
+
 .path-insight-rail__route-item {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -411,7 +552,7 @@ function recommendationMeta(paper) {
   .path-insight-rail__card--spotlight,
   .path-insight-rail__card--focus,
   .path-insight-rail__card--resources,
-  .path-insight-rail__card--route {
+  .path-insight-rail__card--topics {
     grid-column: span 12;
   }
 

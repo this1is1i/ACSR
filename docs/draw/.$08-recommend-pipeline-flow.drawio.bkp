@@ -1,0 +1,106 @@
+<mxfile host="app.diagrams.net" modified="2026-05-16T00:00:00.000Z" agent="Claude" version="24.0.0" type="device">
+  <diagram id="d1" name="08-recommend-pipeline-flow.drawio">
+    <mxGraphModel dx="720" dy="1250" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="720" pageHeight="1250" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="start" parent="1" vertex="1" value="请求: GET /api/recommend?k=10" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=11;">
+          <mxGeometry as="geometry" x="200" y="20" width="320" height="40" />
+        </mxCell>
+        <mxCell id="s1" parent="1" vertex="1" value="FeatureBuilder.get_user_features(user_id)&#10;→ 构建 UserFeatures (兴趣+历史+KG)" style="shape=rectangle;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=11;">
+          <mxGeometry as="geometry" x="140" y="90" width="440" height="48" />
+        </mxCell>
+        <mxCell id="s1b" parent="1" vertex="1" value="MySQL可用?" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=10;">
+          <mxGeometry as="geometry" x="250" y="160" width="220" height="50" />
+        </mxCell>
+        <mxCell id="s1c" parent="1" vertex="1" value="使用随机向量回退&#10;(确定性哈希种子)" style="shape=rectangle;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=10;rounded=1;">
+          <mxGeometry as="geometry" x="40" y="160" width="170" height="50" />
+        </mxCell>
+        <mxCell id="s1d" parent="1" vertex="1" value="build_state() → 拼接96维向量 → L2归一化" style="shape=rectangle;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=11;">
+          <mxGeometry as="geometry" x="200" y="240" width="400" height="42" />
+        </mxCell>
+        <mxCell id="s2" parent="1" vertex="1" value="CandidateGenerator.generate()&#10;参数: user_embedding, history, strategy&#10;limit=min(action_num*2, 50)" style="shape=rectangle;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=11;">
+          <mxGeometry as="geometry" x="130" y="310" width="460" height="54" />
+        </mxCell>
+        <mxCell id="s3" parent="1" vertex="1" value="RLRanker.recommend_top_k(state, candidates, k)&#10;→ 按综合得分排序取Top-K" style="shape=rectangle;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=11;">
+          <mxGeometry as="geometry" x="140" y="390" width="440" height="48" />
+        </mxCell>
+        <mxCell id="s4" parent="1" vertex="1" value="graph_query 可用&#10;且 user 有历史交互?" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=10;">
+          <mxGeometry as="geometry" x="170" y="465" width="380" height="55" />
+        </mxCell>
+        <mxCell id="s4a" parent="1" vertex="1" value="GraphQuery.explain_recommendation()&#10;基于KG生成理由列表(≤4条)" style="shape=rectangle;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=10;rounded=1;">
+          <mxGeometry as="geometry" x="140" y="545" width="440" height="48" />
+        </mxCell>
+        <mxCell id="s4b" parent="1" vertex="1" value="使用模板文本回退&#10;&quot;基于您的科研兴趣推荐&quot;" style="shape=rectangle;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=10;rounded=1;">
+          <mxGeometry as="geometry" x="140" y="545" width="440" height="48" />
+        </mxCell>
+        <mxCell id="s4c" parent="1" vertex="1" value="confidence = min(0.99, 0.5 + 0.12·len(reasons))" style="shape=rectangle;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=11;">
+          <mxGeometry as="geometry" x="170" y="620" width="380" height="42" />
+        </mxCell>
+        <mxCell id="s5" parent="1" vertex="1" value="组装 RecommendResponse&#10;填充论文元数据、评分、排名、解释" style="shape=rectangle;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=11;">
+          <mxGeometry as="geometry" x="130" y="690" width="460" height="48" />
+        </mxCell>
+        <mxCell id="fallback" parent="1" vertex="1" value="Java端降级:&#10;PythonRecClient返回null?&#10;→ 本地查询热门论文" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=10;">
+          <mxGeometry as="geometry" x="170" y="765" width="380" height="55" />
+        </mxCell>
+        <mxCell id="fallback_y" parent="1" vertex="1" value="PaperMapper 按 citation_count&#10;降序取Top-K返回" style="shape=rectangle;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=10;rounded=1;">
+          <mxGeometry as="geometry" x="140" y="845" width="440" height="48" />
+        </mxCell>
+        <mxCell id="end" parent="1" vertex="1" value="返回 RecommendResponse" style="shape=ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=11;">
+          <mxGeometry as="geometry" x="200" y="920" width="320" height="40" />
+        </mxCell>
+        <mxCell id="e0" parent="1" edge="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="start" target="s1">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e1" parent="1" edge="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s1" target="s1b">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e2" parent="1" edge="1" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s1b" target="s1c">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e3" parent="1" edge="1" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s1b" target="s1d">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e4" parent="1" edge="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s1c" target="s1d">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e5" parent="1" edge="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s1d" target="s2">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e6" parent="1" edge="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s2" target="s3">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e7" parent="1" edge="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s3" target="s4">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e8" parent="1" edge="1" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s4" target="s4a">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e9" parent="1" edge="1" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s4" target="s4b">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e10" parent="1" edge="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s4a" target="s4c">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e11" parent="1" edge="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s4b" target="s4c">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e12" parent="1" edge="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s4c" target="s5">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e13" parent="1" edge="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="s5" target="fallback">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e14" parent="1" edge="1" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="fallback" target="fallback_y">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e15" parent="1" edge="1" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="fallback" target="end">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e16" parent="1" edge="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=10;" source="fallback_y" target="end">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

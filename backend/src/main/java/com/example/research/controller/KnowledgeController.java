@@ -42,7 +42,8 @@ public class KnowledgeController {
         List<KeywordDto> keywords = new ArrayList<>();
         try (Session session = driver.session(SessionConfig.forDatabase(database))) {
             var result = session.run(
-                "MATCH (k:Keyword) RETURN k.label AS label, k.frequency AS freq ORDER BY freq DESC");
+                "MATCH (k:Keyword)<-[:HAS_KEYWORD]-(p:Paper) " +
+                "RETURN k.label AS label, count(p) AS freq ORDER BY freq DESC");
             while (result.hasNext()) {
                 var record = result.next();
                 String label = record.get("label").asString();

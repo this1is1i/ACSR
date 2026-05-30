@@ -23,7 +23,7 @@ flowchart TB
 ```
 
 **数据存储分工：**
-- **MySQL**（12 张表）：用户、论文元数据、行为日志、社区帖子/评论/点赞、私信/联系人、兴趣历史、RL 特征缓存
+- **MySQL**（13 张表）：用户、论文元数据、行为日志、社区帖子/评论/点赞、私信/联系人、兴趣历史、RL 特征缓存、作者认领
 - **Neo4j**：Paper 节点 + 5 类关系（HAS_KEYWORD, AUTHOR_OF, CITE, PUBLISH_IN, CO_AUTHOR），知识图谱嵌入从图结构实时计算
 
 **核心数据流（推荐链路）：**
@@ -296,28 +296,35 @@ def generate(self, user_id, user_embedding, history, limit, strategy):
 
 ```python
 class RLRanker:
-    """综合分 = Actor策略分×0.5 + 语义相似度×0.3 + KG拓扑分×0.2"""
-    # 无 KG 时退化为：Actor×0.6 + 语义×0.4
+    """综合分 = Actor策略分×0.5 + 余弦相似度×0.3 + KG拓扑分×0.2"""
+    # 无 KG 时退化为：Actor×0.6 + 余弦相似度×0.4
 
-    def rank(self, user_state, candidates, k):
+    def recommend_top_k(self, user_state, candidates, k):
         with torch.no_grad():
-            state_t = torch.FloatTensor(user_state).to(self.device)
-            for item in candidates:
-                # 1. 语义相似度：用户状态与论文向量的余弦相似度
-                cos_sim = np.dot(base_state, item.topic_vector)
+            N = len(candidates)
+            base_state = user_state[:self.config.base_state_dim]          # (64,)
 
-                # 2. Actor 策略分：神经网络输出该候选的概率
-                probs = self.agent.actor(state_t)
-                action_idx = hash(item.item_id) % self.config.action_num
-                actor_score = probs[action_idx].item()
+            # 1. 余弦相似度 — 向量化矩阵运算（非逐项循环）
+            topic_matrix = np.stack([c.item.topic_vector for c in candidates])  # (N, 64)
+            cos_sims = np.clip(np.dot(topic_matrix, base_state), 0.0, None)     # (N,)
 
-                # 3. KG 拓扑分：用户KG向量与论文KG向量的相似度
-                paper_emb = self.kg_embedder.get_paper_embedding(item.kg_node_id)
-                user_kg = self.kg_embedder.get_user_kg_embedding(user_history)
-                kg_score = np.dot(user_kg, paper_emb)
+            # 2. KG 用户向量 — 循环外只算一次
+            user_kg = self.kg_embedder.get_user_kg_embedding(user_history)       # (32,)
+
+            # 3. Actor 逐论文打分 — 单次 GPU 前向传播
+            state_t = torch.FloatTensor(user_state).to(self.device)              # (96,)
+            feat_t  = torch.FloatTensor(candidate_features).to(self.device)      # (N, 32)
+            actor_probs = self.agent.actor.score_candidates(state_t, feat_t)     # (N,) softmax分布
+
+            for i, item in enumerate(candidates):
+                actor_score = actor_probs[i].item()          # 该论文的独立概率
+
+                # KG 拓扑分 — 论文KG嵌入与用户KG嵌入的点积
+                paper_kg = self.kg_embedder.get_paper_embedding(item.kg_node_id)
+                kg_score = np.clip(np.dot(user_kg, paper_kg), 0.0, 1.0) if paper_kg is not None else 0.0
 
                 # 融合
-                final_score = 0.5*actor_score + 0.3*cos_sim + 0.2*kg_score
+                final_score = 0.5*actor_score + 0.3*cos_sims[i] + 0.2*kg_score
 ```
 
 #### 4.4 ActorCriticAgent — 强化学习核心
@@ -352,11 +359,16 @@ class ActorCriticAgent:
 ```python
 @dataclass
 class Config:
-    base_state_dim: int = 64       # 基础状态维度
-    action_num: int = 20           # 离散动作空间大小
-    top_k: int = 5                 # Top-K 推荐数量
+    base_state_dim: int = 64       # 基础状态维度（interest[:32] + history[:32]）
+    paper_feature_dim: int = 32    # 论文特征维度（Actor pairwise 输入，10维结构特征投影）
+    action_num: int = 50           # 最大候选数量（训练/推理动态调整）
+    top_k: int = 10                # Top-K 推荐默认值（请求参数 k 可覆盖）
     kg_embedding_dim: int = 32     # KG 嵌入维度
     use_kg: bool = True            # 启用 KG 特征
+
+    # 论文向量配置
+    use_stored_embeddings: bool = True  # 优先从 paper.embedding 读取预存向量
+    embedding_seed: int = 42            # 投影矩阵种子（固定，非训练参数）
 
     # 网络结构
     actor_hidden: int = 128
@@ -1089,8 +1101,8 @@ Step1: FeatureBuilder → state (96维)
 Step2: CandidateGenerator → candidates (max 50篇)
 Step3: RLRanker.recommend_top_k(state, candidates, k) → Top-K 结果
          ↑
-         └── 内部调用 agent.actor(state) 获取策略分
-             融合公式: 0.5×Actor策略分 + 0.3×语义相似度 + 0.2×KG拓扑分
+         └── 内部调用 agent.actor.score_candidates(state, candidate_features) 获取策略分
+             融合公式: 0.5×Actor策略分 + 0.3×余弦相似度 + 0.2×KG拓扑分
 Step4: GraphQuery.explain_recommendation() → 生成解释文本
 ```
 
@@ -1124,21 +1136,29 @@ Step4: GraphQuery.explain_recommendation() → 生成解释文本
 
 **文件**: `models/actor.py`, `models/critic.py`, `agent.py`
 
-#### 3.1 Actor（策略网络）π(a|s; θ)
+#### 3.1 Actor（策略网络）π(a|s; θ) — 逐论文 pairwise scoring
+
+Actor 采用 pairwise 打分架构：不输出固定维度的概率分布，而是对每篇候选论文独立生成一个标量 logit，softmax 后得到该候选在当前上下文中的被选择概率。
 
 ```
-输入: state ∈ R^96 (或64, 无KG时)
-  ↓
-Linear(96→128) → ReLU → LayerNorm → Dropout(0.1)
-  ↓
-Linear(128→128) → ReLU → LayerNorm → Dropout(0.1)
-  ↓
-Linear(128→20) → Softmax
-  ↓
-输出: probs ∈ Δ^20  (20个候选动作上的概率分布)
+forward(state, paper_features):
+  输入: [state(96) | paper_features(32)] ∈ R^128
+    ↓
+  Linear(128→128) → ReLU → LayerNorm → Dropout(0.1)
+    ↓
+  Linear(128→128) → ReLU → LayerNorm → Dropout(0.1)
+    ↓
+  Linear(128→1)
+    ↓
+  输出: 1 个标量 logit
+
+score_candidates(state, candidate_features):
+  将 state 扩展到 (N, 96)，与 candidate_features (N, 32) 拼接
+  → (N, 128) 一次 GPU 前向传播
+  → N 个 logit → Softmax → N 维概率分布
 ```
 
-20 个输出神经元对应 `action_num=20`，即将候选集固定在 20 个槽位上。推理时 RLRanker 对每篇候选论文做 `hash(paper_id) % 20` 映射到某个槽位，取该槽位的概率作为 Actor 策略分。
+每篇论文用自己的结构特征（被引量、关键词数、年份等 10 维投影的 32 维向量）与用户状态交互，产生独立评分。候选数量 N 动态变化（≤ `action_num=50`），无哈希分桶——高被引经典与冷门新作的差异通过特征向量驱动 Actor 输出不同 logit。
 
 权重初始化使用正交初始化（`gain=0.01`），让初始策略接近均匀分布，训练初期充分探索。
 
@@ -1156,7 +1176,7 @@ Linear(128→1)
 输出: V(s) ∈ R  (标量，估计当前状态的长期价值)
 ```
 
-两个网络结构几乎相同，唯一的区别在输出层：Actor 输出 20 维概率分布，Critic 输出 1 维标量。
+两个网络隐藏层结构相同，但输入与输出维度不同：Actor 输入拼接后的 `[state | paper_features]`（128 维），输出每篇论文的 logit；Critic 仅输入 state（96 维），输出一个标量 V(s)。Actor 通过 `score_candidates()` 与候选特征交互；Critic 则仅以用户状态为条件。
 
 ---
 
@@ -1169,7 +1189,7 @@ Agent 的核心只做一件事：**通过环境交互获得反馈，同时改进
 #### 4.1 单步更新流程
 
 ```
-输入: (state, action, reward, next_state, done, log_prob)
+输入: (state, action, reward, next_state, done, log_prob, candidate_features)
 
 ① Critic 评估:
    v_s  = Critic(state)           → 当前状态价值
@@ -1208,7 +1228,7 @@ entropy = dist.entropy()        # H(π) = -Σ p_i log p_i
 actor_loss = -(log π(a|s) × δ + β × entropy)
 ```
 
-策略分布越均匀（每个动作概率接近 1/20），熵越大。`actor_loss = -( ... + β×entropy)`，负号意味着**最大化熵被纳入损失函数**——如果策略过早集中在少数几个动作上，熵下降会导致 loss 上升，梯度会把它拉回来。β=0.01 控制探索强度：太小则过早收敛，太大则策略始终随机。
+策略分布越均匀（每个候选概率接近 1/N，N 为当前候选集大小），熵越大。`actor_loss = -( ... + β×entropy)`，负号意味着**最大化熵被纳入损失函数**——如果策略过早集中在少数几个动作上，熵下降会导致 loss 上升，梯度会把它拉回来。β=0.01 控制探索强度：太小则过早收敛，太大则策略始终随机。
 
 对于科研推荐场景，这很重要——它防止系统永远只推"强化学习"论文给 RL 用户，而会偶尔尝试推荐邻近领域的论文（如图神经网络、元学习），给用户发现新方向的机会。
 
@@ -1225,7 +1245,7 @@ for episode in 1..500:
     state, _ = env.reset()              # 随机生成模拟用户 + 候选集
     
     for step in 1..50:
-        action, log_prob = agent.select_action(state)    # ① 策略决策
+        action, log_prob = agent.select_action(state, candidate_features)    # ① 策略决策
         next_state, reward, done, _ = env.step(action)   # ② 环境反馈
         losses = agent.update(state, action, reward, next_state, done, log_prob)
         state = next_state
@@ -1266,7 +1286,7 @@ self._ranker = RLRanker(self._agent, config, ...)
 
 # 每次推荐请求时
 ranked_items = self._ranker.recommend_top_k(user_state, candidates, k=10)
-    # 内部: self.agent.actor(state) → 20维概率分布 → 取 hash(paper_id)%20 的概率
+    # 内部: self.agent.actor.score_candidates(state, candidate_features) → N维概率分布 → 逐论文独立打分
     # 融合: final = 0.5×actor_score + 0.3×cos_sim + 0.2×kg_score
 ```
 
@@ -1308,8 +1328,8 @@ flowchart LR
     end
     subgraph INFER["推理阶段 (在线)"]
         direction TB
-        I1["agent.actor(state)"]
-        I2["→ 20维概率分布"]
+        I1["agent.actor.score_candidates(state, candidate_features)"]
+        I2["→ N维概率分布（逐论文打分）"]
         I3["→ 0.5权重融入融合排序"]
         I1 --> I2 --> I3
     end
@@ -1353,7 +1373,7 @@ flowchart LR
         SHARED --> C_A3C
     end
     subgraph IND["本项目 (独立网络)"]
-        A_IND["Actor<br/>96→128→20<br/>独立权重"]
+        A_IND["Actor<br/>128→128→128→1<br/>独立权重"]
         C_IND["Critic<br/>96→128→1<br/>独立权重"]
     end
 ```
@@ -2131,9 +2151,9 @@ function onNodeClick(node) {
 
 ## Q10: 数据库各表作用与主外键 + 作者认领功能的数据库调整方案（2026-05-19）
 
-### 一、当前 12 张表全览
+### 一、当前 13 张表全览
 
-#### 核心业务表（9 张）
+#### 核心业务表（10 张）
 
 | 表名 | 主键 | 外键 | 作用 |
 |------|------|------|------|
@@ -2159,6 +2179,7 @@ function onNodeClick(node) {
 |------|------|------|------|
 | **user_feature_snapshot** | `id` (bigint, AUTO) | — (user_id无FK约束) | RL特征缓存：(user_id,feature_type)唯一约束，feature_type∈{interest,history,kg}，feature_vector(JSON)、6h TTL |
 | **rl_training_log** | `id` (bigint, AUTO) | — (user_id无FK约束) | 训练日志：episode、user_id、state、action、reward、cumulative_reward、loss、model_version |
+| **paper_author_claim** | `id` (bigint, AUTO) | `paper_id` → paper.id, `user_id` → user.id | 作者认领记录：author_name、match_method、confidence、status(PENDING/CONFIRMED/DENIED) |
 
 #### ER 关系总图
 
@@ -2177,6 +2198,8 @@ erDiagram
     paper ||--o{ behavior_log : "被交互"
     paper ||--o{ favourite : "被收藏"
     paper ||--o{ post : "被关联"
+    paper ||--o{ paper_author_claim : "被认领"
+    user ||--o{ paper_author_claim : "认领论文"
     post ||--o{ comment : "被评论"
     post ||--o{ post_like : "被点赞"
     comment ||--o{ comment : "嵌套回复(parent_id)"
@@ -2184,7 +2207,7 @@ erDiagram
 
 ---
 
-### 二、作者认领功能：数据库调整方案
+### 二、作者认领功能（已于 2026-05-24 实现）
 
 #### 2.1 需求分析
 
@@ -2324,18 +2347,16 @@ flowchart TB
         config["config.py<br/>全局配置 @dataclass"]
         reward["utils/reward.py<br/>奖励函数"]
         logger["utils/logger.py<br/>训练日志"]
-        text_utils["utils/text_utils.py<br/>文本清洗/分词"]
         actor_m["models/actor.py<br/>策略网络 π(a|s)"]
         critic_m["models/critic.py<br/>价值网络 V(s)"]
         aminer["dataset/aminer_loader.py<br/>AMiner 数据加载"]
         mysql_data["data/mysql_data.py<br/>MySQL 数据访问层"]
         mock_data["data/mock_data.py<br/>训练用模拟数据"]
-        importer["dataset/data_importer.py<br/>CSV/SQLite 导入"]
     end
 
     subgraph L1["Layer 1: KG 构建层"]
         kg_builder["knowledge_graph/kg_builder.py<br/>KG 构建器 + 图数据结构"]
-        embeddings["embeddings/embedding_builder.py<br/>论文嵌入构建"]
+        kg_embedder_m["knowledge_graph/kg_embedder.py<br/>图结构嵌入（10维→投影→32维）"]
     end
 
     subgraph L2["Layer 2: KG 查询层"]
@@ -2525,12 +2546,14 @@ RECOMMEND(user_id, k, history, strategy):
         weights = []
         FOR EACH paper IN papers:
             pid = paper.id
-            // 优先使用 KG 嵌入
-            IF kg_embedder ≠ NULL AND paper.aminer_id ≠ NULL THEN
+            // 优先使用预存向量（paper.embedding 字段，10维结构特征投影的32维向量）
+            IF paper.embedding ≠ NULL THEN
+                vecs.append(PAD(paper.embedding, 64))
+            ELSE IF kg_embedder ≠ NULL AND paper.aminer_id ≠ NULL THEN
                 emb = kg_embedder.get_paper_embedding(paper.aminer_id)
                 vecs.append(PAD(emb, 64))
             ELSE
-                vecs.append(PAPER_ATTR_HASH(paper))       // 关键词+标题哈希
+                vecs.append(METADATA_FEATURES(paper))     // MySQL字段回退
             END IF
             // 行为权重 + 阅读时长奖励 (每60秒+0.5, 上限+2.0)
             w = paper_weights[pid]
@@ -2599,28 +2622,27 @@ RECOMMEND(user_id, k, history, strategy):
     
     agent.actor.eval()                          // 切换推理模式, no_grad
     
-    base_state = state[:64]                     // 前64维用于语义相似度
-    state_t    = TENSOR(state)
+    base_state = state[:64]                     // 前64维用于余弦相似度
+    state_t    = TENSOR(state)                   // (96,)
     scored     = []
     
-    FOR EACH item IN candidates:
+    // 3.1 余弦相似度 — 向量化矩阵乘法（非逐项循环）
+    topic_matrix = STACK([item.topic_vector FOR item IN candidates])   // (N, 64)
+    cos_sims     = CLAMP(DOT(topic_matrix, base_state), 0.0, +∞)      // (N,)
+
+    // 3.2 KG 用户向量 — 循环外只算一次
+    user_kg = kg_embedder.get_user_kg_embedding(user_history)           // (32,)
+
+    // 3.3 Actor 逐论文打分 — 单次 GPU 前向传播
+    feat_t      = TENSOR(candidate_features)                            // (N, 32)
+    actor_probs = agent.actor.score_candidates(state_t, feat_t)         // (N,) softmax分布
+    
+    FOR i, item IN ENUMERATE(candidates):
+        actor_score = actor_probs[i]                                   // 该论文的独立概率
         
-        // 3.1 语义相似度
-        IF item.topic_vector ≠ NULL THEN
-            cos_sim = CLAMP(DOT(base_state, item.topic_vector), 0.0, 1.0)
-        ELSE
-            cos_sim = 0.0
-        END IF
-        
-        // 3.2 Actor 策略分
-        probs       = agent.actor.forward(state_t)    // → (20,) 概率分布
-        action_idx  = HASH(item.item_id) % 20          // 映射到动作槽位
-        actor_score = probs[action_idx]
-        
-        // 3.3 KG 拓扑分
+        // KG 拓扑分
         IF kg_embedder ≠ NULL AND user_history 不为空 THEN
             paper_emb = kg_embedder.get_paper_embedding(item.kg_node_id)
-            user_kg   = kg_embedder.get_user_kg_embedding(user_history)
             kg_score  = CLAMP(DOT(user_kg, paper_emb), 0.0, 1.0)
         ELSE
             kg_score  = 0.0
@@ -2712,7 +2734,7 @@ flowchart TD
         F9["逐个标签 HASH_TO_VEC(dim=64)<br/>按权重加权平均 → L2归一化"]
         F10["查 behavior_log<br/>获取用户所有行为记录"]
         F11["按论文聚合<br/>action权重: click=0.5/read=1.0/favorite=2.0<br/>时长奖励: +0.5/60s, max+2.0"]
-        F12["查论文详情 (批量)<br/>优先 KG embedding<br/>回退 PAPER_ATTR_HASH"]
+        F12["查论文详情 (批量)<br/>优先 paper.embedding 预存向量<br/>回退 KGEmbedder / 元数据"]
         F13["np.weighted_average(vecs, weights)<br/>→ L2归一化"]
         F14["写入缓存<br/>mysql.cache_feature()"]
         F15["生成随机向量<br/>(训练环境回退)"]
@@ -2767,7 +2789,7 @@ flowchart TD
         R1["agent.actor.eval()<br/>base_state = state[:64]"]
         R2["FOR EACH item IN candidates:"]
         R3["① cos_sim = dot(base_state, item.topic_vector)"]
-        R4["② probs = actor(state_t)<br/>   action_idx = hash(item_id) % 20<br/>   actor_score = probs[action_idx]"]
+        R4["② actor_probs = actor.score_candidates(state_t, feat_t)<br/>   actor_score = actor_probs[i]（逐论文独立打分）"]
         R5{"kg_embedder<br/>≠ NULL?"}
         R6["③ kg_score = dot(user_kg, paper_emb)"]
         R7["final = 0.5×actor + 0.3×cos + 0.2×kg"]
@@ -2890,7 +2912,7 @@ flowchart TD
 对每篇候选论文，计算三个分：
 
 1. **语义分**：用户状态向量的前 64 维与论文的 topic_vector 做点积——衡量"内容像不像"。
-2. **策略分**：把用户状态向量喂给训练好的 Actor 网络，输出一个 20 维的概率分布，用论文 ID 的哈希值映射到某个槽位取对应概率——衡量"根据历史经验，用户会不会喜欢这类论文"。
+2. **策略分**：把用户状态向量和候选论文特征向量拼接后喂给训练好的 Actor 网络（`score_candidates()`），输出 N 个独立 logit 经 softmax 得到 N 维概率分布——每篇论文用自己的结构特征与用户状态交互得分，衡量"根据历史经验，用户会不会喜欢这篇具体论文"。
 3. **图谱分**（可选）：用户 KG 向量与论文 KG 向量做点积——衡量"在学术网络中，这篇论文离用户近不近"。
 
 最终分数 = **0.5 × 策略分 + 0.3 × 语义分 + 0.2 × 图谱分**（无 KG 时退化为 0.6/0.4）。按融合分降序取前 K 篇。
@@ -3174,7 +3196,7 @@ flowchart TD
 - [MINOR] `user_id` 参数接受但从未使用
 
 #### ranker.py
-- `RLRanker.rank`: [BUG] `hash(item.item_id) % action_num` 将 500+ 论文映射到 20 个 action 槽位，碰撞率 ~95%，Actor 策略分数几乎随机。
+- `RLRanker.rank`: [已修复 — 2026-05-27] 旧版 `hash(item.item_id) % action_num` 将 500+ 论文映射到固定槽位，碰撞率 ~95%。已重构为逐论文 pairwise scoring（`score_candidates(state, candidate_features)`），每篇论文基于自身结构特征独立打分。
 
 ### 3.5 强化学习环境（env/rec_env.py）
 
@@ -3216,11 +3238,11 @@ flowchart TD
 #### propagation.py
 - 全部 OK：IP 扩散式掌握度传播 + 颜色/辉光映射。
 
-### 3.9 完全死代码的模块
+### 3.9 已删除的模块（2026-05-08 ~ 2026-05-27 期间清理）
 
-- `utils/text_utils.py`: [DEAD] clean_text/tokenize 均未被任何模块导入。
-- `dataset/data_importer.py`: [DEAD] DataImporter 从未被导入或实例化。
-- `embeddings/embedding_builder.py`: [DEAD] EmbeddingBuilder（128 维升级状态）从未被集成。
+- `utils/text_utils.py`: [已删除] 功能迁移至 `knowledge_graph/kg_embedder.py`。
+- `dataset/data_importer.py`: [已删除] 被 `services/recommendation_service.py` 覆盖。
+- `embeddings/embedding_builder.py`: [已删除] 嵌入生成由 `knowledge_graph/kg_embedder.py` 和 `scripts/generate_paper_embeddings.py` 替代。
 
 ### 3.10 Python 小结
 
@@ -3254,7 +3276,7 @@ flowchart TD
 
 - 后端：BrowseHistory 实体、KgRelation 全套、KnowledgeServiceImpl.getGraph/materyToColor
 - 前端：HelloWorld.vue、KnowledgeGraph3D.vue、AppShell.vue、design-tokens.css
-- Python：text_utils.py、data_importer.py、embedding_builder.py 全模块 + 散落 dead 方法
+- Python：散落 dead 方法（text_utils.py/data_importer.py/embedding_builder.py 已于 2026-05 删除）
 
 ---
 
@@ -3264,15 +3286,7 @@ flowchart TD
 
 ### 根因
 
-`RLRanker.rank()` 方法对候选集中的每个论文计算综合评分，其中 Actor 策略分通过以下方式获取：
-
-```python
-# 修复前
-action_idx = hash(item.item_id) % self.config.action_num
-actor_score = float(probs[action_idx].item())
-```
-
-`action_num` 默认值为 20，即 Actor 网络输出 20 个 action 的概率分布。但候选论文池通常有 500+ 篇（来自 `CandidateGenerator` 的 mock pool 或 Neo4j 论文池）。
+`RLRanker.recommend_top_k()` 方法（原 `rank()`）对候选集中的每篇论文计算综合评分。当前采用逐论文 pairwise scoring 架构，Actor 通过 `score_candidates(state_t, feat_t)` 对 N 篇候选一次前向传播产出 N 个独立 logit，经 softmax 得到 N 维概率分布——每篇论文的业务特征（被引量、关键词数、年份等投影向量）直接驱动 Actor 策略分。这已取代旧版的固定 20 维动作空间 + 哈希分桶方案。
 
 `hash(item_id) % 20` 将 500+ 个不同论文 ID 映射到仅 20 个槽位。根据鸽巢原理，每个槽位平均承载 25+ 篇论文，碰撞率约 95%。这意味着：
 
@@ -3665,7 +3679,7 @@ S_t = [I_t[:32], H_t[:32], G_t[:32]]
 A = {a_1, a_2, ..., a_20}  其中 a_i = "选择候选池中第 i 篇论文推荐"
 ```
 
-每个 action 对应候选生成器产出的 20 篇候选论文中的一篇（`recommendation_service.py` 设置 `limit=action_num=20`）。
+每个 action 对应候选生成器产出的 N 篇候选论文中的一篇（`recommendation_service.py` 设置 `limit=min(action_num, 50)`，默认 N=50）。Actor 通过 `score_candidates()` 对全部 N 篇候选论文逐论文独立打分，非固定槽位映射。
 
 Actor 网络（`actor.py`）输出 20 个概率值 π(a_i | S_t)，代表"当前用户状态下，推第 i 篇论文的概率"。
 
@@ -3730,7 +3744,7 @@ Critic 更新估值：缩小 V(S_t) 与实际 G_t 的差距
 
 | 概念 | Sutton & Barto 定义 | 本系统实现 |
 |------|-------------------|-----------|
-| 策略 π(a\|s) | 从状态到动作概率分布的映射 | Actor 网络（3 层 MLP，Softmax 输出 20 维） |
+| 策略 π(a\|s) | 从状态到动作概率分布的映射 | Actor 网络（3 层 MLP，pairwise scoring：128→128→128→1，score_candidates 对 N 篇候选 softmax 输出 N 维） |
 | 价值函数 V(s) | 状态 s 下的期望回报 | Critic 网络（3 层 MLP，标量输出） |
 | TD 误差 | δ_t = R_{t+1} + γ V(S_{t+1}) - V(S_t) | `agent.py` 的 `update()` 方法 |
 | Actor 更新 | 沿 ∇ln π(a\|s,θ) · δ 方向更新 | `agent.py` 的 `actor_optimizer.step()` |
@@ -3740,7 +3754,7 @@ Critic 更新估值：缩小 V(S_t) 与实际 G_t 的差距
 
 Sutton & Barto 说"几乎所有强化学习问题都可以形式化为 MDP"——这个系统就是这句话的一个具体实例。
 
-## Q14: 论文向量去随机化改造方案（2026-05-27）
+## Q14: 论文向量去随机化改造方案（2026-05-27） — 已于 2026-05-29 实施 (commit ab296f8)
 
 ### 背景与问题
 

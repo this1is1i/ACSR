@@ -1,0 +1,62 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36" version="27.0.9">
+  <diagram id="d1" name="03-backend-package.drawio">
+    <mxGraphModel dx="969" dy="619" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="860" pageHeight="370" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ctrl" value="controller&lt;div&gt;REST控制器&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="315" y="100" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="svc" value="service&lt;div&gt;业务逻辑&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="230" y="200" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="repo" value="repository&lt;div&gt;数据访问&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="95" y="310" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="entity" value="entity&lt;div&gt;实体与DTO&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="40" y="210" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="config" value="config&lt;div&gt;spring配置&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="95" y="100" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="client" value="client&lt;div&gt;Python对接&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="270" y="310" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="util" value="util&lt;div&gt;JWT/Result&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="480" y="160" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="graphSvc" value="graph&lt;div&gt;Neo4j服务&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="450" y="310" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;fontSize=14;entryX=0.497;entryY=0.229;entryDx=0;entryDy=0;entryPerimeter=0;fontStyle=0" parent="1" source="ctrl" target="svc" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="305" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;fontSize=14;exitX=0.25;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.504;entryY=0.222;entryDx=0;entryDy=0;entryPerimeter=0;fontStyle=0" parent="1" source="svc" target="repo" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;fontSize=14;exitX=0.75;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.518;entryY=0.24;entryDx=0;entryDy=0;entryPerimeter=0;fontStyle=0" parent="1" source="svc" target="client" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="343" y="340" as="targetPoint" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;fontSize=14;exitX=0;exitY=0;exitDx=150;exitDy=32;exitPerimeter=0;entryX=0.502;entryY=0.24;entryDx=0;entryDy=0;entryPerimeter=0;fontStyle=0" parent="1" source="svc" target="graphSvc" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;fontSize=14;exitX=0;exitY=0;exitDx=0;exitDy=32;exitPerimeter=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;fontStyle=0" parent="1" source="repo" target="entity" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;fontSize=14;entryX=0.502;entryY=0.238;entryDx=0;entryDy=0;entryPerimeter=0;fontStyle=0" parent="1" source="ctrl" target="util" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;fontSize=14;entryX=0;entryY=0;entryDx=0;entryDy=32;entryPerimeter=0;exitX=0;exitY=0;exitDx=140;exitDy=32;exitPerimeter=0;fontStyle=0" parent="1" source="config" target="ctrl" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

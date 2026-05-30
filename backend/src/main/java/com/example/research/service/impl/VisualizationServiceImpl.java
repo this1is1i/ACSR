@@ -27,18 +27,20 @@ public class VisualizationServiceImpl implements VisualizationService {
     private final PaperMapper paperMapper;
 
     @Override
-    public Map<String, Object> getVisualizationData(Long userId) {
-        return Map.of("knowledge", buildKnowledgeGraph(userId));
+    public Map<String, Object> getVisualizationData(Long userId, String targetTopic) {
+        return Map.of("knowledge", buildKnowledgeGraph(userId, targetTopic));
     }
 
-    private Map<String, Object> buildKnowledgeGraph(Long userId) {
-        // Determine target topic from user's top interest tag
-        List<UserInterestHistory> interests = interestHistoryMapper.selectList(
-                new LambdaQueryWrapper<UserInterestHistory>()
-                        .eq(UserInterestHistory::getUserId, userId)
-                        .orderByDesc(UserInterestHistory::getWeight));
-        String targetTopic = interests.isEmpty() ? "reinforcement learning"
-                : interests.get(0).getInterestTag();
+    private Map<String, Object> buildKnowledgeGraph(Long userId, String targetTopic) {
+        // Use caller-provided target topic if given; otherwise auto-derive from user interest
+        if (targetTopic == null || targetTopic.isBlank()) {
+            List<UserInterestHistory> interests = interestHistoryMapper.selectList(
+                    new LambdaQueryWrapper<UserInterestHistory>()
+                            .eq(UserInterestHistory::getUserId, userId)
+                            .orderByDesc(UserInterestHistory::getWeight));
+            targetTopic = interests.isEmpty() ? "reinforcement learning"
+                    : interests.get(0).getInterestTag();
+        }
 
         // Gather user's history paper AMiner IDs
         List<BehaviorLog> behaviors = behaviorLogMapper.selectList(
@@ -78,8 +80,9 @@ public class VisualizationServiceImpl implements VisualizationService {
             node.put("year", pn.getYear());
             node.put("color", pn.getColor() != null ? pn.getColor() : "#3B82F6");
             node.put("glowIntensity", pn.getGlowIntensity());
-            String group = pn.getMastery() >= 0.7 ? "foundation"
-                    : pn.getMastery() >= 0.4 ? "intermediate" : "target";
+            int depth = pn.getDepth();
+            String group = depth == 0 ? "foundation"
+                    : depth <= 2 ? "intermediate" : "target";
             node.put("group", group);
             pathNodes.add(node);
         }

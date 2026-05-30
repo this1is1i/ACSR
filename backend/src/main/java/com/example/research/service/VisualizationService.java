@@ -5,7 +5,9 @@ import java.util.Map;
 public interface VisualizationService {
     /**
      * Get aggregated visualization data for a user.
-     * @return Map with keys: stats, interest, field, heatmap, tags, behaviors, knowledge
+     * @param userId    authenticated user ID
+     * @param targetTopic optional target topic override; when blank, auto-derived from user interest
+     * @return Map with keys: knowledge
      */
-    Map<String, Object> getVisualizationData(Long userId);
+    Map<String, Object> getVisualizationData(Long userId, String targetTopic);
 }

@@ -1,0 +1,111 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36" version="27.0.9">
+  <diagram id="d1" name="04-python-package.drawio">
+    <mxGraphModel dx="808" dy="516" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="430" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="api_p" value="api&lt;div&gt;FastAPI端点&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;" parent="1" vertex="1">
+          <mxGeometry x="100" y="30" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="V7czm6nN4T_U8CMO1Wrs-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="services" target="lp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="V7czm6nN4T_U8CMO1Wrs-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=0;exitDy=32;exitPerimeter=0;" edge="1" parent="1" source="services" target="kg">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="20" y="132" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="V7czm6nN4T_U8CMO1Wrs-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="services" target="features">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="150" />
+              <mxPoint x="170" y="175" />
+              <mxPoint x="600" y="175" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="services" value="services&lt;div&gt;推荐编排&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;" parent="1" vertex="1">
+          <mxGeometry x="100" y="100" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="features" value="features&lt;div&gt;特征构建&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;" parent="1" vertex="1">
+          <mxGeometry x="530" y="200" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="V7czm6nN4T_U8CMO1Wrs-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="rec" target="models">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rec" value="recommender&lt;div&gt;候选与排序&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;" parent="1" vertex="1">
+          <mxGeometry x="30" y="200" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="kg" value="knowledge_graph&lt;div&gt;KG嵌入查询&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;" parent="1" vertex="1">
+          <mxGeometry x="10" y="310" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="lp" value="learning_path&lt;div&gt;学习路径&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;" parent="1" vertex="1">
+          <mxGeometry x="190" y="200" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="data" value="data&lt;div&gt;数据访问&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;" parent="1" vertex="1">
+          <mxGeometry x="530" y="310" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="models" value="models&lt;div&gt;Actor-Critic&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;" parent="1" vertex="1">
+          <mxGeometry x="190" y="310" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;edgeStyle=orthogonalEdgeStyle;" parent="1" source="api_p" target="services" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;edgeStyle=orthogonalEdgeStyle;" parent="1" source="services" target="features" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;edgeStyle=orthogonalEdgeStyle;" parent="1" source="services" target="rec" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;edgeStyle=orthogonalEdgeStyle;" parent="1" source="services" target="kg" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;edgeStyle=orthogonalEdgeStyle;" parent="1" source="services" target="lp" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;edgeStyle=orthogonalEdgeStyle;" parent="1" source="features" target="data" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;edgeStyle=orthogonalEdgeStyle;" parent="1" source="env" target="models" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;edgeStyle=orthogonalEdgeStyle;" parent="1" source="rec" target="kg" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;edgeStyle=orthogonalEdgeStyle;" parent="1" source="env" target="models" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="V7czm6nN4T_U8CMO1Wrs-1" value="" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="rec" target="env">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="170" y="229" as="sourcePoint" />
+            <mxPoint x="660" y="261" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="V7czm6nN4T_U8CMO1Wrs-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="env" target="models">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="env" value="env&lt;div&gt;RL训练环境&lt;/div&gt;" style="shape=folder;fontStyle=0;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fontSize=15;" parent="1" vertex="1">
+          <mxGeometry x="360" y="200" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="V7czm6nN4T_U8CMO1Wrs-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="features" target="data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="V7czm6nN4T_U8CMO1Wrs-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="api_p" target="services">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="V7czm6nN4T_U8CMO1Wrs-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" target="rec">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="170" y="150" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="V7czm6nN4T_U8CMO1Wrs-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="services" target="env">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="450" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

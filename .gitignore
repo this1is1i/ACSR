@@ -19,5 +19,8 @@ backend/target/
 rl-service/logs/
 rl-service/checkpoints/
 
-# docs
-/docs/
+# docs — keep only essential project documentation
+/docs/*
+!/docs/EarlyChange.md
+!/docs/QA.md
+!/docs/draw/

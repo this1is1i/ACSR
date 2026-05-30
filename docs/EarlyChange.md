@@ -596,4 +596,38 @@ Actor 网络架构重构（位置打分→逐论文打分）、训练接入真�
 - 本地备份: `data/kg/knowledge_graph.{json,pkl}` (4.2M)，含完整嵌入
 
 ### Git 提交
+`ab296f8` feat: paper embedding de-randomization (Q14), keyword tag selector (Q15), sync scripts fix, README rewrite
+
+---
+
+## 2026-05-30
+
+### 核心目标
+学习路径交互增强、知识图谱页主题切换、QA 文档过期修正。
+
+### 学习路径 Bug 修正
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `backend/.../VisualizationServiceImpl.java` | group 标签：mastery→depth（depth=0 基础能力，1-2 进阶主题，3 目标专题） |
+| 修改 | `rl-service/learning_path/path_builder.py` | 覆盖率公式修正：分子从全部 known_keywords 改为与 related_kws 的交集 |
+| 修改 | `backend/.../KnowledgeController.java` | 关键词频率：读不存在属性→运行时 count(p) HAS_KEYWORD 关系 |
+
+### 知识图谱页 — 切换目标专题
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `backend/.../VisualizationController.java` | `GET /api/visualization/data` 新增可选 `targetTopic` 参数 |
+| 修改 | `backend/.../VisualizationService.java` | 接口签名增加 `targetTopic` |
+| 修改 | `backend/.../VisualizationServiceImpl.java` | targetTopic 透明降级 |
+| 新增 | `frontend/src/api/knowledge.js` | `getKeywords()` |
+| 修改 | `frontend/src/api/visualization.js` | 增加可选 targetTopic 参数 |
+| 修改 | `frontend/src/views/KnowledgeGraph.vue` | 关键词获取 + `onSelectTargetTopic` |
+| 重写 | `frontend/.../PathInsightRail.vue` | "路径检查点"→"切换目标专题"（搜索框+滚动+过滤） |
+
+### QA 文档过期修正
+Q2/Q5/Q5追问/Q10 中 Actor 架构、排序伪代码、Config 默认值、模块图、表数量等全面更新至当前代码状态。
+
+### 文档清理
+移除 docs/ 下除 draw/、EarlyChange.md、QA.md 以外的文件，更新 .gitignore。
+
+### Git 提交
 `<pending>`

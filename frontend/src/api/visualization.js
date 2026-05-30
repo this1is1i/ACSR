@@ -1,11 +1,15 @@
 import request from '@/utils/request'
 import { getRecommendations } from './recommend'
 
-export const getVisualizationData = () => request.get('/visualization/data')
+export const getVisualizationData = (targetTopic) => {
+  const params = {}
+  if (targetTopic) params.targetTopic = targetTopic
+  return request.get('/visualization/data', { params })
+}
 
-export async function getPathSurfaceData(recommendationCount = 4) {
+export async function getPathSurfaceData(recommendationCount = 4, targetTopic) {
   const [visualizationResult, recommendationResult] = await Promise.allSettled([
-    getVisualizationData(),
+    getVisualizationData(targetTopic),
     getRecommendations(recommendationCount),
   ])
 

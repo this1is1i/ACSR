@@ -9,6 +9,10 @@
           :summary="pathSummary"
           :recommendations="recommendations"
           :active-node="insightNode"
+          :keywords="availableKeywords"
+          :keywords-loading="keywordsLoading"
+          :current-target-topic="currentTargetTopic"
+          @select-topic="onSelectTargetTopic"
         />
 
         <div class="viz-surface-layout__main">
@@ -85,6 +89,7 @@ import Sidebar from '@/components/Sidebar.vue'
 import PathInsightRail from '@/components/path/PathInsightRail.vue'
 import * as THREE from 'three'
 import { getPathSurfaceData } from '@/api/visualization'
+import { getKeywords } from '@/api/knowledge'
 import { buildLearningPathSummary } from '@/utils/path'
 
 // knowledge graph refs
@@ -104,6 +109,11 @@ const progressPercent = ref(0)
 const visualizationData = ref({})
 const recommendations = ref([])
 const surfaceLoading = ref(false)
+
+// ── Target topic switching ──────────────────────────────────────
+const currentTargetTopic = ref('')
+const availableKeywords = ref([])
+const keywordsLoading = ref(false)
 
 const pathSummary = computed(() => buildLearningPathSummary(visualizationData.value))
 const insightNode = computed(() => {
@@ -399,8 +409,52 @@ watch(playbackSpeed, () => {
   }
 })
 
+async function onSelectTargetTopic(topic) {
+  if (surfaceLoading.value) return
+  currentTargetTopic.value = topic
+
+  stopRoute()
+  if (Graph3D) {
+    Graph3D._destructor && Graph3D._destructor()
+    Graph3D = null
+  }
+  kgData = null
+  selectedNode.value = null
+  currentStep.value = 0
+
+  surfaceLoading.value = true
+  try {
+    const surface = await getPathSurfaceData(4, topic)
+    const data = surface.visualization || {}
+    visualizationData.value = data
+    recommendations.value = surface.recommendations || []
+
+    if (data.knowledge) {
+      await initKnowledgeGraph(data.knowledge)
+    }
+  } catch (e) {
+    console.debug('Failed to reload learning path for topic', topic, e)
+  } finally {
+    surfaceLoading.value = false
+  }
+}
+
 onMounted(async () => {
   document.addEventListener('fullscreenchange', onFullscreenChange)
+
+  // Fetch keywords for topic selector
+  keywordsLoading.value = true
+  try {
+    const kwResult = await getKeywords()
+    availableKeywords.value = (kwResult?.data || [])
+      .sort((a, b) => b.frequency - a.frequency)
+      .slice(0, 20)
+  } catch {
+    availableKeywords.value = []
+  } finally {
+    keywordsLoading.value = false
+  }
+
   surfaceLoading.value = true
   try {
     const surface = await getPathSurfaceData()

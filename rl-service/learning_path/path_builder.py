@@ -106,8 +106,9 @@ class PathBuilder:
         paper_count = sum(1 for n in path_nodes if n.node_type == "paper")
         estimated_hours = paper_count * 2.0
 
-        # 6. 计算领域覆盖率
-        coverage = min(len(known_keywords) / max(len(related_kws) + 1, 1), 1.0)
+        # 6. 计算领域覆盖率：用户已掌握的目标领域关键词占比
+        related_known = sum(1 for kw in related_kws if kw in known_keywords)
+        coverage = related_known / max(len(related_kws), 1)
 
         path = LearningPath(
             user_id=user_id,

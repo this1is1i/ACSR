@@ -1,0 +1,108 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36" version="27.0.9">
+  <diagram id="d1" name="06-backend-community-class.drawio">
+    <mxGraphModel dx="461" dy="295" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="980" pageHeight="750" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cc" value="CommunityController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="50" y="40" width="290" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="cc-line" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#333333;" parent="cc" vertex="1">
+          <mxGeometry y="26" width="290" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="cc-m" value="+listPosts(filter): Result&amp;lt;List&amp;lt;PostItem&amp;gt;&amp;gt;&#xa;+createPost(PostCreateRequest): Result&amp;lt;PostItem&amp;gt;&#xa;+getComments(postId): Result&amp;lt;List&amp;lt;CommentItem&amp;gt;&amp;gt;&#xa;+toggleLike(postId): Result&amp;lt;Map&amp;gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;portConstraint=eastwest;whiteSpace=wrap;" parent="cc" vertex="1">
+          <mxGeometry y="40" width="290" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="pmc" value="PrivateMessageController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="360" y="40" width="290" height="126" as="geometry" />
+        </mxCell>
+        <mxCell id="pmc-line" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#333333;" parent="pmc" vertex="1">
+          <mxGeometry y="26" width="290" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="pmc-m" value="+getConversations(): List&amp;lt;ConversationItem&amp;gt;&#xa;+getChatHistory(contactId): List&amp;lt;PrivateMessage&amp;gt;&#xa;+sendMessage(receiverId, content): PrivateMessage&#xa;+getRecommendedCollaborators(): List" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;portConstraint=eastwest;whiteSpace=wrap;" parent="pmc" vertex="1">
+          <mxGeometry y="40" width="290" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="uc" value="UserController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="680" y="40" width="260" height="156" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-line" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#333333;" parent="uc" vertex="1">
+          <mxGeometry y="26" width="260" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-m" value="+register(RegisterRequest): Result&amp;lt;LoginResponse&amp;gt;&#xa;+login(LoginRequest): Result&amp;lt;LoginResponse&amp;gt;&#xa;+getProfile(): Result&amp;lt;UserProfile&amp;gt;&#xa;+updateProfile(UpdateRequest): Result&amp;lt;void&amp;gt;&#xa;+searchUsers(q, limit): Result&amp;lt;List&amp;gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;portConstraint=eastwest;whiteSpace=wrap;" parent="uc" vertex="1">
+          <mxGeometry y="40" width="260" height="116" as="geometry" />
+        </mxCell>
+        <mxCell id="csi" value="CommunityServiceImpl" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="50" y="224" width="290" height="196" as="geometry">
+            <mxRectangle x="40" y="440" width="160" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="csi-a" value="-postMapper: PostMapper&#xa;-commentMapper: CommentMapper&#xa;-postLikeMapper: PostLikeMapper&#xa;-userMapper: UserMapper&#xa;-paperService: PaperService" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;portConstraint=eastwest;whiteSpace=wrap;" parent="csi" vertex="1">
+          <mxGeometry y="26" width="290" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="csi-line2" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#333333;" parent="csi" vertex="1">
+          <mxGeometry y="116" width="290" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="csi-m" value="+listPosts(filter, userId): List&amp;lt;PostItem&amp;gt;&#xa;+createPost(userId, req): PostItem&#xa;+createComment(userId, postId, req): CommentItem&#xa;+toggleLike(userId, postId): boolean" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;portConstraint=eastwest;whiteSpace=wrap;" parent="csi" vertex="1">
+          <mxGeometry y="124" width="290" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="pmsi" value="PrivateMessageServiceImpl" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="360" y="224" width="290" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="pmsi-a" value="-messageMapper: PrivateMessageMapper&#xa;-contactMapper: UserContactMapper&#xa;-userMapper: UserMapper" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;portConstraint=eastwest;whiteSpace=wrap;" parent="pmsi" vertex="1">
+          <mxGeometry y="26" width="290" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="pmsi-line2" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#333333;" parent="pmsi" vertex="1">
+          <mxGeometry y="80" width="290" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="pmsi-m" value="+sendMessage(senderId, receiverId, content)&#xa;+getMessagesWithUser(userId, contactId): List&#xa;+getConversations(userId): List&#xa;+getRecommendedCollaborators(userId): List" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;portConstraint=eastwest;whiteSpace=wrap;" parent="pmsi" vertex="1">
+          <mxGeometry y="88" width="290" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="us" value="&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&#xa;UserService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="680" y="340" width="260" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="us-line" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#333333;" parent="us" vertex="1">
+          <mxGeometry y="40" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="us-m" value="+register(req): LoginResponse&#xa;+login(req): LoginResponse&#xa;+getProfile(userId): UserProfile&#xa;+updateProfile(userId, req): void&#xa;+searchUsers(q, limit): List" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;portConstraint=eastwest;whiteSpace=wrap;" parent="us" vertex="1">
+          <mxGeometry y="60" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="plm" value="PostLikeMapper" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="50" y="480" width="290" height="112" as="geometry" />
+        </mxCell>
+        <mxCell id="plm-line" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#333333;" parent="plm" vertex="1">
+          <mxGeometry y="26" width="290" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="plm-m" value="+insertLike(userId, postId): int&#xa;+deleteLike(userId, postId): int&#xa;+existsLike(userId, postId): int&#xa;+findLikedPostIds(userId): List" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;portConstraint=eastwest;whiteSpace=wrap;" parent="plm" vertex="1">
+          <mxGeometry y="40" width="290" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="um" value="UserMapper" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="360" y="480" width="290" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="um-line" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#333333;" parent="um" vertex="1">
+          <mxGeometry y="26" width="290" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="um-m" value="+findByUsername(name): User&#xa;+searchUsers(q, limit): List" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;portConstraint=eastwest;whiteSpace=wrap;" parent="um" vertex="1">
+          <mxGeometry y="40" width="290" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=11;endArrow=block;endFill=0;" parent="1" source="cc" target="csi" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=11;endArrow=block;endFill=0;" parent="1" source="pmc" target="pmsi" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=11;endArrow=block;endFill=0;" parent="1" source="uc" target="us" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=11;endArrow=block;endFill=0;" parent="1" source="csi" target="plm" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333;fontSize=11;endArrow=block;endFill=0;" parent="1" source="pmsi" target="um" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ykjVKmSxrLqE8JursWD_-1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;curved=0;dashed=1;" edge="1" parent="1" source="us-m" target="um-m">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
