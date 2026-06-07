@@ -34,7 +34,7 @@ public class MessageWebSocketController {
         }
         Long senderId = jwtUtil.getUserIdFromToken(token);
 
-        Long receiverId = Long.valueOf((String) messageData.get("receiverId"));
+        Long receiverId = Long.valueOf(String.valueOf(messageData.get("receiverId")));
         String content = (String) messageData.get("content");
 
         // 保存消息到数据库
@@ -59,7 +59,7 @@ public class MessageWebSocketController {
         }
         Long userId = jwtUtil.getUserIdFromToken(token);
 
-        Long messageId = Long.valueOf((String) data.get("messageId"));
+        Long messageId = Long.valueOf(String.valueOf(data.get("messageId")));
 
         // 标记消息为已读
         privateMessageService.markAsRead(messageId, userId);
