@@ -2,6 +2,7 @@
 
 .worktrees/
 .claude/
+!.claude/rules/
 backend/uploads/
 
 # Frontend build and test artifacts
