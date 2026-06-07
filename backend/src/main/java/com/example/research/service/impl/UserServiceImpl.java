@@ -1,11 +1,13 @@
 package com.example.research.service.impl;
 
 import com.example.research.dto.UserDto;
+import com.example.research.entity.Favourite;
 import com.example.research.entity.Paper;
 import com.example.research.entity.UserInterestHistory;
 import com.example.research.enums.UserRole;
 import com.example.research.entity.User;
 import com.example.research.repository.BehaviorLogMapper;
+import com.example.research.repository.FavouriteMapper;
 import com.example.research.repository.UserInterestHistoryMapper;
 import com.example.research.repository.UserMapper;
 import com.example.research.service.UserService;
@@ -33,6 +35,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final BehaviorLogMapper behaviorLogMapper;
+    private final FavouriteMapper favouriteMapper;
     private final UserInterestHistoryMapper userInterestHistoryMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -148,7 +151,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Paper> getFavoritePapers(Long userId) {
-        return behaviorLogMapper.findFavoritesByUserId(userId);
+        return favouriteMapper.findFavoritePapersByUserId(userId);
     }
 
     @Override

@@ -1,13 +1,17 @@
 package com.example.research.controller;
 
 import com.example.research.dto.RecommendDto;
+import com.example.research.entity.Favourite;
+import com.example.research.repository.FavouriteMapper;
 import com.example.research.service.RecommendService;
 import com.example.research.util.Result;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +31,7 @@ import java.util.Map;
 public class BehaviorController {
 
     private final RecommendService recommendService;
+    private final FavouriteMapper favouriteMapper;
 
     /**
      * 记录点击行为
@@ -47,6 +52,7 @@ public class BehaviorController {
 
     /**
      * 记录收藏行为
+     * 同时写入 behaviour_log（RL 训练）和 favourite 表（收藏展示）
      */
     @PostMapping("/favorite")
     public Result<Void> favorite(
@@ -54,8 +60,19 @@ public class BehaviorController {
             Authentication auth) {
 
         Long userId = (Long) auth.getPrincipal();
+        // 写入行为日志（供 RL 训练特征构建）
         recommendService.logBehavior(userId, request.getPaperId(),
                 "favorite", null, request.getSource());
+        // 写入收藏表（供个人主页收藏展示，唯一约束防止重复）
+        try {
+            Favourite fav = new Favourite();
+            fav.setUserId(userId);
+            fav.setPaperId(request.getPaperId());
+            fav.setCreateTime(LocalDateTime.now());
+            favouriteMapper.insert(fav);
+        } catch (DuplicateKeyException e) {
+            log.debug("重复收藏: userId={}, paperId={}", userId, request.getPaperId());
+        }
         return Result.success();
     }
 
