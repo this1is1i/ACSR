@@ -2,7 +2,7 @@
 
 基于知识图谱与强化学习的科研成果推荐系统。三端协作：**Vue 3 前端**提供交互与可视化，**Spring Boot 后端**负责鉴权与业务集成，**Python FastAPI 服务**驱动 Actor-Critic 推荐引擎与知识图谱计算。
 
-> 本科毕业设计项目，论文约 2.6 万字，架构图 16 张。详细设计文档见 `docs/QA.md`，每日变更记录见 `docs/EarlyChange.md`。
+> 本科毕业设计项目，论文约 2.6 万字，架构图 16 张。详细技术问答见 `docs/QA_2026-05-16_2026-06-02_v1.md` 和 `docs/QA_2026-06-02_2026-06-05_v2.md`，每日变更记录见 `docs/EarlyChange.md` 和 `docs/EarlyChange2.md`。
 
 ## 目录
 
@@ -58,7 +58,7 @@ ACScientificRecommendation/
 │   │   │   ├── EditProfile.vue      # 资料编辑（关键词标签选择器）
 │   │   │   ├── Login.vue            # 登录/注册（含关键词选择器）
 │   │   │   ├── RealtimeChat.vue     # 实时私信（WebSocket+推荐合作者）
-│   │   │   └── AdminConsole.vue     # 管理后台（帖子审核/用户管理/论文导入）
+│   │   │   └── AdminConsole.vue     # 管理后台（帖子审核/用户管理/论文导入/模型训练）
 │   │   ├── components/              # 可复用组件
 │   │   │   ├── Sidebar.vue          # 全局侧边导航
 │   │   │   ├── PaperCard.vue        # 论文卡片
@@ -114,11 +114,14 @@ ACScientificRecommendation/
 │   └── train.py                     # 训练入口
 │
 ├── docs/
-│   ├── QA.md                        # 详细技术问答（Q10-Q15）
-│   ├── EarlyChange.md               # 每日变更记录
-│   └── draw/                        # 16 张 draw.io 架构图
+│   ├── QA_2026-05-16_2026-06-02_v1.md  # 技术问答 v1 (Q0–Q16)
+│   ├── QA_2026-06-02_2026-06-05_v2.md  # 技术问答 v2 (Q17–Q37)
+│   ├── EarlyChange.md                   # 每日变更记录 (至 2026-05-30)
+│   ├── EarlyChange2.md                  # 每日变更记录 (2026-06-07)
+│   └── draw/                            # 16 张 draw.io 架构图
 │
-├── memory/                          # Claude Code 持久记忆
+├── memory/                              # Claude Code 持久记忆
+├── .claude/rules/                       # 项目级 Claude Code 规则（QA 追踪等）
 ├── CLAUDE.md                        # Claude Code 项目指引
 └── .mcp.json                        # MCP 服务器配置
 ```
@@ -146,6 +149,7 @@ ACScientificRecommendation/
                                               │    Actor: [state|paper_features]→logit→概率
                                               │    Cosine: dot(state, topic_vector)
                                               │    KG: dot(user_kg, paper_kg)
+                                              │    质量门控 → min-max归一化
                                               │    综合: 0.5a+0.3c+0.2k → Top-10
                                               │                  │
                                               │ 4. 解释生成      │
@@ -186,11 +190,11 @@ ACScientificRecommendation/
 ### 1. 数据库初始化
 
 ```sql
--- 执行建表脚本
+-- 执行建表脚本（含 embedding_raw 列）
 mysql -u root -p < backend/src/main/resources/research_db.sql
 
--- 已有数据库需添加 embedding_raw 列
-ALTER TABLE paper ADD COLUMN embedding_raw TEXT NULL COMMENT '论文原始特征(10维JSON)';
+-- 已有数据库需追加迁移脚本
+mysql -u root -p < backend/src/main/resources/db_migration.sql
 ```
 
 ### 2. Neo4j 启动与数据迁移
@@ -240,13 +244,17 @@ python train.py
 
 | 场景 | 文件 | 修改内容 |
 |------|------|---------|
-| 调整推荐策略 | `rl-service/config.py` | `action_num`, `top_k`, `reward_weights` |
-| 修改排序公式 | `rl-service/recommender/ranker.py:109-113` | Actor/Cosine/KG 权重比例 |
+| 调整推荐策略 | `rl-service/config.py` | `action_num`, `top_k`, `reward_weights`, `min_cos_similarity` |
+| 修改排序公式 | `rl-service/recommender/ranker.py` | 质量门控阈值、归一化权重比例 |
 | 新增推荐解释逻辑 | `rl-service/knowledge_graph/graph_query.py:explain_recommendation()` | 图查询规则 |
 | 调整用户特征构建 | `rl-service/features/feature_builder.py` | 加权池化权重、向量维度 |
 | 修改论文向量生成 | `rl-service/scripts/generate_paper_embeddings.py` | 10维特征选择、投影维度 |
-| 调整 AKN 网络结构 | `rl-service/models/actor.py:__init__()` | hidden_dim、层数、dropout |
+| 调整 Actor 网络结构 | `rl-service/models/actor.py:__init__()` | hidden_dim、层数、dropout |
+| 数据库 DDL 变更 | `backend/.../resources/db_migration.sql` | FK 约束、删冗余列、字段可空 |
+| 用户认证与改密 | `backend/.../controller/UserController.java` | `PUT /api/user/password` |
 | 前端推荐卡片样式 | `frontend/src/components/PaperCard.vue` | 卡片布局、信息展示 |
+| 前端资料编辑+改密 | `frontend/src/views/EditProfile.vue` | 双卡片布局、密码修改表单 |
+| 管理员后台 | `frontend/src/views/AdminConsole.vue` | 帖子审核/用户管理/论文导入/模型训练 |
 | 后端 API 响应格式 | `backend/.../util/Result.java` | 统一返回值结构 |
 | 认证逻辑 | `backend/.../config/SecurityConfig.java` | 白名单、角色权限 |
 
@@ -286,6 +294,10 @@ python train.py
 | `actor_hidden` | 128 | Actor 隐藏层宽度 |
 | `gamma` | 0.99 | RL 折扣因子 |
 | `actor_lr` / `critic_lr` | 1e-3 | 学习率 |
+| `max_episodes` | 300 | 训练轮数（可被请求参数覆盖） |
+| `entropy_coeff` | 0.01 | 熵正则化系数 |
+| `min_cos_similarity` | 0.05 | 质量门控：余弦相似度最低阈值 |
+| `min_actor_score` | 0.001 | 质量门控：Actor 概率最低阈值 |
 | `reward_weights` | 见代码 | 6 项奖励权重 |
 
 ### 前端代理
