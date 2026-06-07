@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-root">
+  <div class="admin-root page-root">
     <Sidebar />
     <main class="main-content">
       <AdminCockpitHero
@@ -438,8 +438,6 @@ function startTrainingPoll() {
 </script>
 
 <style scoped>
-@import '@/style.css';
-
 .main-content {
   display: grid;
   gap: var(--space-6);

@@ -1,5 +1,5 @@
 <template>
-  <div class="community-root" data-testid="community-collaboration-workspace">
+  <div class="community-root page-root" data-testid="community-collaboration-workspace">
     <div class="bg-animation"></div>
     <Sidebar />
     <main class="main-content">
@@ -307,8 +307,6 @@ function formatTime(value) {
 </script>
 
 <style scoped>
-@import '@/style.css';
-
 .main-content { color: var(--text-primary); }
 .workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; }
 .workspace-main { min-width: 0; }

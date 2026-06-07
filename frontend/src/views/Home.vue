@@ -1,5 +1,5 @@
 <template>
-  <div class="home-root">
+  <div class="home-root page-root">
     <div class="bg-animation"></div>
     <Sidebar />
     <main class="main-content">

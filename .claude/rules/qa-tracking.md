@@ -39,3 +39,7 @@
 | `frontend/src/store/`, `frontend/src/router/` | Q17 |
 | `frontend/src/views/KnowledgeGraph.vue` | Q9, Q28 |
 | `frontend/src/views/Login.vue` | Q1, Q37 |
+| `frontend/src/styles/tokens.css` | Q41 |
+| `frontend/src/styles/layout-system.css` | Q41 |
+| `frontend/src/style.css` | Q41 |
+| `frontend/src/main.js` | Q41 |

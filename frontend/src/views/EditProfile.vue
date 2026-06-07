@@ -1,5 +1,5 @@
 <template>
-  <div class="edit-root">
+  <div class="edit-root page-root">
     <Sidebar />
     <main class="main-content">
       <!-- 基本信息卡片 -->

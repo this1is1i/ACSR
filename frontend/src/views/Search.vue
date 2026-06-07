@@ -1,5 +1,5 @@
 <template>
-  <div class="search-root">
+  <div class="search-root page-root">
     <div class="bg-animation"></div>
     <Sidebar />
 

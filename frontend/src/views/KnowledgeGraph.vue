@@ -1,5 +1,5 @@
 <template>
-  <div class="viz-root">
+  <div class="viz-root page-root">
     <div class="bg-animation"></div>
     <Sidebar />
     <main class="main-content">

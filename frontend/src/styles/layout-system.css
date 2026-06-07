@@ -42,14 +42,8 @@
 	gap: var(--space-3);
 }
 
-.home-root,
-.search-root,
-.community-root,
-.profile-root,
-.chat-root,
-.viz-root,
-.edit-root,
-.admin-root {
+/* ── 页面根容器（所有需要侧边栏的页面共用） ──────────────── */
+.page-root {
 	position: relative;
 	min-height: 100vh;
 	background:
@@ -60,14 +54,7 @@
 	color: var(--color-text-primary);
 }
 
-.home-root>main.main-content,
-.search-root>main.main-content,
-.community-root>main.main-content,
-.profile-root>main.main-content,
-.chat-root>main.main-content,
-.viz-root>main.main-content,
-.edit-root>main.main-content,
-.admin-root>main.main-content {
+.page-root > main.main-content {
 	position: relative;
 	z-index: 1;
 	min-height: 100vh;
@@ -76,14 +63,8 @@
 	padding: var(--space-7) clamp(1.25rem, 2.5vw, 2.5rem) var(--space-8);
 }
 
-.home-root main .header,
-.search-root main .header,
-.community-root main .header,
-.profile-root main .header,
-.chat-root main .header,
-.viz-root main .header,
-.edit-root main .header,
-.admin-root main .header {
+/* 页面内嵌 header 统一样式（Backward compat: 旧页面可能直接写 .header 而非用 PageHeader 组件） */
+.page-root main .header {
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-start;
@@ -99,61 +80,27 @@
 	backdrop-filter: blur(18px);
 }
 
-.home-root main .header h1,
-.home-root main .header h2,
-.search-root main .header h1,
-.search-root main .header h2,
-.community-root main .header h1,
-.community-root main .header h2,
-.profile-root main .header h1,
-.profile-root main .header h2,
-.chat-root main .header h1,
-.chat-root main .header h2,
-.viz-root main .header h1,
-.viz-root main .header h2,
-.edit-root main .header h1,
-.edit-root main .header h2,
-.admin-root main .header h1,
-.admin-root main .header h2 {
+.page-root main .header h1,
+.page-root main .header h2 {
 	margin: 0;
 	color: var(--color-text-primary);
 }
 
-.home-root main .header p,
-.search-root main .header p,
-.community-root main .header p,
-.profile-root main .header p,
-.chat-root main .header p,
-.viz-root main .header p,
-.edit-root main .header p,
-.admin-root main .header p {
+.page-root main .header p {
 	margin: var(--space-2) 0 0;
 	color: var(--color-text-secondary);
 }
-@media (max-width: 980px) {
 
-	.home-root>main.main-content,
-	.search-root>main.main-content,
-	.community-root>main.main-content,
-	.profile-root>main.main-content,
-	.chat-root>main.main-content,
-	.viz-root>main.main-content,
-	.edit-root>main.main-content,
-	.admin-root>main.main-content {
+/* ── 响应式：980px 以下侧边栏隐藏，内容全宽 ──────────────── */
+@media (max-width: 980px) {
+	.page-root > main.main-content {
 		margin-left: 0;
 		width: 100%;
 		padding: var(--space-4) var(--space-4) var(--space-6);
 	}
 
 	.page-header,
-	.home-root main .header,
-	.search-root main .header,
-	.community-root main .header,
-	.profile-root main .header,
-	.chat-root main .header,
-	.viz-root main .header,
-	.edit-root main .header,
-	.admin-root main .header {
+	.page-root main .header {
 		padding: var(--space-5);
 		flex-direction: column;
 	}

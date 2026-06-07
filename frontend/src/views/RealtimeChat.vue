@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-root" data-testid="chat-collaboration-workspace">
+  <div class="chat-root page-root" data-testid="chat-collaboration-workspace">
     <Sidebar />
     <main class="main-content">
       <header class="workspace-header card glass">
