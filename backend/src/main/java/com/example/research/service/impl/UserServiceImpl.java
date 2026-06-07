@@ -46,7 +46,11 @@ public class UserServiceImpl implements UserService {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
-        user.setRole(UserRole.STUDENT.name());
+        // 用户选择身份：学生或研究者；非法值时回退为 STUDENT
+        String rawRole = request.getRole();
+        UserRole chosenRole = (rawRole != null && Set.of("STUDENT", "RESEARCHER").contains(rawRole.toUpperCase()))
+                ? UserRole.valueOf(rawRole.toUpperCase()) : UserRole.STUDENT;
+        user.setRole(chosenRole.name());
 
         // research_interests 不再写入 user 表，统一由 user_interest_history 管理
         userMapper.insert(user);

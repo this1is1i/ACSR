@@ -18,6 +18,7 @@ public class UserDto {
         private String password;
         private String email;
         private String researchInterests;
+        private String role = "STUDENT";  // STUDENT | RESEARCHER，默认学生
     }
 
     @Data

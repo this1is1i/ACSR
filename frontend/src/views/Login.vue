@@ -101,6 +101,30 @@
           </div>
 
           <div v-if="isRegister" class="form-group">
+            <label>身份选择</label>
+            <div class="role-selector">
+              <button type="button" class="role-option"
+                :class="{ active: form.role === 'STUDENT' }"
+                @click="form.role = 'STUDENT'">
+                <span class="role-icon">🎓</span>
+                <div class="role-text">
+                  <span class="role-label">学生</span>
+                  <span class="role-desc">浏览论文、跟踪研究方向</span>
+                </div>
+              </button>
+              <button type="button" class="role-option"
+                :class="{ active: form.role === 'RESEARCHER' }"
+                @click="form.role = 'RESEARCHER'">
+                <span class="role-icon">🔬</span>
+                <div class="role-text">
+                  <span class="role-label">研究者</span>
+                  <span class="role-desc">发布成果、获得合作者推荐</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div v-if="isRegister" class="form-group">
             <label>研究方向（选填，点击选择）</label>
             <div v-if="keywordsLoading" class="tags-loading">加载关键词中...</div>
             <div v-else class="tags-container">
@@ -172,7 +196,7 @@ const isPwdFocused = ref(false)
 const submitting = ref(false)
 const errorMsg = ref('')
 const errors = reactive({ username: false, password: false, confirmPassword: false })
-const form = reactive({ username: '', password: '', confirmPassword: '', researchInterests: '' })
+const form = reactive({ username: '', password: '', confirmPassword: '', researchInterests: '', role: 'STUDENT' })
 
 // ── Common CS research keywords (fallback when Neo4j unavailable) ─
 const FALLBACK_KEYWORDS = [
@@ -502,6 +526,7 @@ async function handleSubmit() {
       const regRes = await register({
         username: form.username.trim(),
         password: form.password,
+        role: form.role,
         researchInterests: (form.researchInterests || '').trim()
       })
       userStore.setAuth(regRes.data)
@@ -641,6 +666,57 @@ onBeforeUnmount(() => {
 .guest-link { text-align:center; margin-top:16px }
 .guest-link a { color:#6366f1; font-size:13px; text-decoration:none; padding:8px 24px; border:1px solid rgba(99,102,241,0.3); border-radius:20px; transition:all 0.2s }
 .guest-link a:hover { background:rgba(99,102,241,0.1); border-color:#6366f1 }
+
+/* ── Role Selector ───────────────────────────────────────────── */
+.role-selector {
+  display: flex;
+  gap: 10px;
+}
+.role-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 2px solid #e5e0e8;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  text-align: left;
+}
+.role-option:hover {
+  border-color: #a78bfa;
+  background: #f5f0ff;
+}
+.role-option.active {
+  border-color: #5b21b6;
+  background: linear-gradient(135deg, #f5f0ff, #ede4ff);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+.role-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.role-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.role-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+.role-option.active .role-label {
+  color: #5b21b6;
+}
+.role-desc {
+  font-size: 12px;
+  color: #999;
+}
 
 /* ── Keyword Tags ────────────────────────────────────────────── */
 .tags-loading { font-size:13px; color:#999; padding:8px 0 }
