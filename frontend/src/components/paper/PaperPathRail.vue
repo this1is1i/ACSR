@@ -39,15 +39,6 @@
       </div>
     </section>
 
-    <section class="paper-path-rail__section">
-      <h3>下一步阅读</h3>
-      <ol class="paper-path-rail__steps">
-        <li v-for="step in pathContext.nextSteps" :key="step.title" class="paper-path-rail__step">
-          <strong>{{ step.title }}</strong>
-          <span>{{ step.detail }}</span>
-        </li>
-      </ol>
-    </section>
   </aside>
 </template>
 
@@ -118,27 +109,6 @@ const emit = defineEmits(['back', 'download'])
 .paper-path-rail__chip--accent {
   border-color: rgba(55, 213, 255, 0.22);
   background: rgba(55, 213, 255, 0.12);
-}
-
-.paper-path-rail__steps {
-  display: grid;
-  gap: var(--space-3);
-  margin: 0;
-  padding-left: 1.2rem;
-}
-
-.paper-path-rail__step {
-  display: grid;
-  gap: var(--space-1);
-}
-
-.paper-path-rail__step strong {
-  color: var(--color-text-primary);
-}
-
-.paper-path-rail__step span {
-  color: var(--color-text-secondary);
-  line-height: 1.6;
 }
 
 .back-btn,
