@@ -13,8 +13,6 @@ public class Post {
     private Long paperId;
     private String title;
     private String content;
-    private Integer likeCount;
-    private Integer replyCount;
     private Integer status;
     private String reviewComment;
     private Long reviewedBy;

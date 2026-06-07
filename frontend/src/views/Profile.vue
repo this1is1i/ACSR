@@ -27,7 +27,6 @@
 
           <div class="profile-actions">
             <button class="profile-btn btn primary" @click="router.push('/profile/edit')">编辑资料</button>
-            <button class="profile-btn btn secondary" @click="shareProfile">分享主页</button>
           </div>
         </div>
       </div>
@@ -404,14 +403,6 @@ function formatRelativeTime(timestamp) {
   const days = Math.floor(hours / 24)
   if (days < 7) return `${days}天前`
   return new Date(timestamp).toLocaleDateString()
-}
-
-function shareProfile() {
-  if (navigator.share) {
-    navigator.share({ title: profile.value.username + ' 的研究主页', url: window.location.href }).catch(() => {})
-  } else {
-    ElMessage.info('复制链接分享给好友')
-  }
 }
 
 function manageInterests() {

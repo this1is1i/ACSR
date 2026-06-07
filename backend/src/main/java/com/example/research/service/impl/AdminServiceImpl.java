@@ -11,9 +11,12 @@ import com.example.research.enums.PostStatus;
 import com.example.research.enums.UserRole;
 import com.example.research.graph.GraphPaper;
 import com.example.research.graph.GraphPaperService;
+import com.example.research.repository.CommentMapper;
 import com.example.research.repository.PaperAuthorClaimMapper;
 import com.example.research.repository.PaperMapper;
+import com.example.research.repository.PostLikeMapper;
 import com.example.research.repository.PostMapper;
+import com.example.research.repository.UserInterestHistoryMapper;
 import com.example.research.repository.UserMapper;
 import com.example.research.service.AdminService;
 import com.example.research.service.PrivateMessageService;
@@ -42,6 +45,9 @@ public class AdminServiceImpl implements AdminService {
     private final ObjectMapper objectMapper;
     private final PrivateMessageService privateMessageService;
     private final PaperAuthorClaimMapper paperAuthorClaimMapper;
+    private final UserInterestHistoryMapper userInterestHistoryMapper;
+    private final PostLikeMapper postLikeMapper;
+    private final CommentMapper commentMapper;
 
     @Override
     public List<CommunityDto.PostItem> listPosts(String status) {
@@ -51,10 +57,15 @@ public class AdminServiceImpl implements AdminService {
         }
         wrapper.orderByAsc(Post::getStatus).orderByDesc(Post::getCreateTime);
 
+        List<Post> posts = postMapper.selectList(wrapper);
+        List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+        Map<Long, Integer> likeCounts = toCountMap(postLikeMapper.batchCountLikes(postIds));
+        Map<Long, Integer> replyCounts = toCountMap(commentMapper.batchCountReplies(postIds));
+
         Map<Long, User> userCache = new LinkedHashMap<>();
         Map<Long, Paper> paperCache = new LinkedHashMap<>();
-        return postMapper.selectList(wrapper).stream()
-                .map(post -> toPostItem(post, userCache, paperCache))
+        return posts.stream()
+                .map(post -> toPostItem(post, userCache, paperCache, likeCounts, replyCounts))
                 .collect(Collectors.toList());
     }
 
@@ -73,13 +84,26 @@ public class AdminServiceImpl implements AdminService {
         post.setReviewedTime(LocalDateTime.now());
         postMapper.updateById(post);
 
-        return toPostItem(postMapper.selectById(postId), new LinkedHashMap<>(), new LinkedHashMap<>());
+        return toPostItem(postMapper.selectById(postId), new LinkedHashMap<>(), new LinkedHashMap<>(), Map.of(), Map.of());
     }
 
     @Override
     public List<UserDto.AdminUserItem> listUsers() {
-        return userMapper.selectList(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime)).stream()
-                .map(this::toAdminUser)
+        List<User> users = userMapper.selectList(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime));
+        // 批量查询兴趣标签
+        List<Long> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+        Map<Long, String> interestMap = new LinkedHashMap<>();
+        if (!userIds.isEmpty()) {
+            Map<Long, List<String>> grouped = new LinkedHashMap<>();
+            for (Map<String, Object> row : userInterestHistoryMapper.findTagsByUserIds(userIds)) {
+                Long uid = ((Number) row.get("user_id")).longValue();
+                grouped.computeIfAbsent(uid, k -> new ArrayList<>()).add((String) row.get("interest_tag"));
+            }
+            grouped.forEach((uid, tags) -> interestMap.put(uid, String.join(", ", tags)));
+        }
+        final Map<Long, String> finalInterestMap = interestMap;
+        return users.stream()
+                .map(u -> toAdminUser(u, finalInterestMap))
                 .collect(Collectors.toList());
     }
 
@@ -98,7 +122,11 @@ public class AdminServiceImpl implements AdminService {
 
         user.setRole(targetRole.name());
         userMapper.updateById(user);
-        return toAdminUser(userMapper.selectById(userId));
+        User updatedUser = userMapper.selectById(userId);
+        Map<Long, String> interestMap = new LinkedHashMap<>();
+        interestMap.put(updatedUser.getId(),
+                String.join(", ", userInterestHistoryMapper.findTagsByUserId(updatedUser.getId())));
+        return toAdminUser(updatedUser, interestMap);
     }
 
     @Override
@@ -226,20 +254,32 @@ public class AdminServiceImpl implements AdminService {
                "如果这是您的论文，请在\"我的论文\"页面确认；如果不是，请忽略此消息。";
     }
 
+    private static Map<Long, Integer> toCountMap(List<Map<String, Object>> rows) {
+        if (rows == null || rows.isEmpty()) return Map.of();
+        Map<Long, Integer> map = new LinkedHashMap<>();
+        for (Map<String, Object> row : rows) {
+            Long postId = ((Number) row.get("post_id")).longValue();
+            Integer cnt = ((Number) row.get("cnt")).intValue();
+            map.put(postId, cnt);
+        }
+        return map;
+    }
+
     private double computeFuzzyConfidence(String authorName, String username) {
         double ratio = (double) Math.min(authorName.length(), username.length())
                      / Math.max(authorName.length(), username.length());
         return Math.max(0.5, Math.min(0.9, ratio));
     }
 
-    private CommunityDto.PostItem toPostItem(Post post, Map<Long, User> userCache, Map<Long, Paper> paperCache) {
+    private CommunityDto.PostItem toPostItem(Post post, Map<Long, User> userCache, Map<Long, Paper> paperCache,
+                                              Map<Long, Integer> likeCounts, Map<Long, Integer> replyCounts) {
         CommunityDto.PostItem item = new CommunityDto.PostItem();
         item.setId(post.getId());
         item.setPaperId(post.getPaperId());
         item.setTitle(post.getTitle());
         item.setContent(post.getContent());
-        item.setLikeCount(post.getLikeCount() == null ? 0 : post.getLikeCount());
-        item.setReplyCount(post.getReplyCount() == null ? 0 : post.getReplyCount());
+        item.setLikeCount(likeCounts.getOrDefault(post.getId(), 0));
+        item.setReplyCount(replyCounts.getOrDefault(post.getId(), 0));
         item.setReviewComment(post.getReviewComment());
         item.setCreateTime(post.getCreateTime());
         item.applyStatus(PostStatus.fromCode(post.getStatus()));
@@ -274,7 +314,7 @@ public class AdminServiceImpl implements AdminService {
         return item;
     }
 
-    private UserDto.AdminUserItem toAdminUser(User user) {
+    private UserDto.AdminUserItem toAdminUser(User user, Map<Long, String> interestMap) {
         UserRole role = UserRole.from(user.getRole());
         UserDto.AdminUserItem item = new UserDto.AdminUserItem();
         item.setId(user.getId());
@@ -284,7 +324,7 @@ public class AdminServiceImpl implements AdminService {
         item.setRoleLabel(role.getLabel());
         item.setAvatar(user.getAvatar());
         item.setBio(user.getBio());
-        item.setResearchInterests(user.getResearchInterests());
+        item.setResearchInterests(interestMap.getOrDefault(user.getId(), ""));
         item.setCreateTime(user.getCreateTime());
         return item;
     }

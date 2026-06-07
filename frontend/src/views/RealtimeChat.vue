@@ -54,8 +54,6 @@
           </div>
         </section>
       </div>
-
-      <div class="ws-status">连接: <span :class="{ online: connected }">{{ connected ? '已连接' : '未连接' }}</span></div>
     </main>
   </div>
 </template>
@@ -515,14 +513,6 @@ onBeforeUnmount(() => { if (stompClient && stompClient.deactivate) stompClient.d
   padding: 10px 16px;
   border-radius: 10px;
 }
-
-.ws-status {
-  margin-top: 12px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-}
-
-.ws-status .online { color: #10b981; }
 
 .empty {
   padding: 40px;

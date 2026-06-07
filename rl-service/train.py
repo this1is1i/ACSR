@@ -224,6 +224,8 @@ def train(
     )
 
     best_reward = float("-inf")
+    final_avg_loss = 0.0
+    total_episodes_run = 0
     stop_reason = None
 
     # ── 主训练循环 ────────────────────────────────────────────────
@@ -279,7 +281,9 @@ def train(
 
         # ── Episode 统计 ──────────────────────────────────────────
         agent.episode_count += 1
+        total_episodes_run = episode
         avg_actor_loss = total_actor_loss / episode_steps
+        final_avg_loss = avg_actor_loss
         avg_td_error   = total_td_error   / episode_steps
 
         metrics = {
@@ -301,13 +305,39 @@ def train(
             _demo_recommendation(agent, env, train_logger, config)
 
     # ── 训练结束 ──────────────────────────────────────────────────
+    final_best = best_reward if best_reward > float("-inf") else 0.0
+    model_ver = f"v{agent.train_step // 1000}.{agent.episode_count // 100}"
     try:
         if stop_reason:
             agent.save_model()
             train_logger.logger.info(f"训练已优雅停止：{stop_reason}")
         train_logger.save_history()
-        train_logger.logger.info(f"训练完成！最优 Episode Reward: {best_reward:.3f}")
-        return agent
+        train_logger.logger.info(f"训练完成！最优 Episode Reward: {final_best:.3f}")
+
+        # 写入一条训练摘要到 rl_training_log
+        try:
+            from data.mysql_data import MySQLDataSource
+            mysql_src = MySQLDataSource(config)
+            mysql_src.insert_training_log(
+                episode=total_episodes_run,
+                reward=final_best,
+                loss=final_avg_loss,
+                model_version=model_ver,
+            )
+            train_logger.logger.info(
+                f"训练记录已写入 rl_training_log: episodes={total_episodes_run}, "
+                f"reward={final_best:.4f}, loss={final_avg_loss:.4f}"
+            )
+            mysql_src.close()
+        except Exception as e:
+            train_logger.logger.warning(f"写入 rl_training_log 失败: {e}")
+
+        return agent, {
+            "total_episodes": total_episodes_run,
+            "best_reward": final_best,
+            "final_avg_loss": final_avg_loss,
+            "model_version": model_ver,
+        }
     finally:
         train_logger.close()
 
@@ -343,7 +373,7 @@ if __name__ == "__main__":
     controller = GracefulStopController()
     previous_handlers = controller.install_signal_handlers()
     try:
-        trained_agent = train(default_config, stop_controller=controller)
+        trained_agent, _ = train(default_config, stop_controller=controller)
     finally:
         controller.restore_signal_handlers(previous_handlers)
 

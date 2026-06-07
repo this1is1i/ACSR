@@ -57,7 +57,7 @@
 
             <el-tab-pane label="论文导入" name="papers">
               <div class="import-card">
-                <p class="import-tip">输入 JSON 数组，字段支持：<code>aminerId</code>、<code>title</code>、<code>abstract</code>、<code>authors</code>、<code>keywords</code>、<code>venue</code>、<code>year</code>、<code>citationCount</code>。</p>
+                <p class="import-tip">输入 JSON 数组。<code>authors</code> 和 <code>keywords</code> 支持 JSON 数组或逗号分隔字符串。</p>
                 <textarea v-model="paperImportText" class="json-editor" rows="16" />
                 <div class="toolbar">
                   <el-button type="primary" :loading="importingPapers" @click="submitPaperImport">导入论文</el-button>
@@ -87,6 +87,22 @@
                 </el-table>
               </div>
             </el-tab-pane>
+
+            <el-tab-pane label="模型训练" name="training">
+              <div class="training-card">
+                <p class="import-tip">触发 Python 侧 Actor-Critic 模型训练。训练在后台异步执行，完成后自动热重载模型权重并写入训练日志。</p>
+                <div class="toolbar" style="justify-content: flex-start; gap: 16px; align-items: flex-end;">
+                  <div>
+                    <label style="display:block;font-size:13px;color:var(--text-secondary);margin-bottom:6px;">训练轮数（留空使用默认 300 轮）</label>
+                    <el-input-number v-model="trainingEpisodes" :min="1" :max="2000" placeholder="300" style="width: 200px" />
+                  </div>
+                  <el-button type="primary" :loading="trainingLoading" :disabled="trainingPolling" @click="doTriggerTraining">
+                    {{ trainingPolling ? '训练中...' : '实时训练' }}
+                  </el-button>
+                </div>
+                <div v-if="trainingStatusText" class="training-status">{{ trainingStatusText }}</div>
+              </div>
+            </el-tab-pane>
           </el-tabs>
         </section>
       </div>
@@ -101,6 +117,15 @@
           <div class="post-preview__content">{{ previewPost.content }}</div>
         </div>
       </el-dialog>
+
+      <el-dialog v-model="trainingResultVisible" title="训练完成" width="480px">
+        <div v-if="trainingResult" class="training-result">
+          <div class="result-row"><span class="result-label">最优奖励 (Best Reward)</span> <strong>{{ trainingResult.best_reward?.toFixed(4) }}</strong></div>
+          <div class="result-row"><span class="result-label">训练轮数</span> <strong>{{ trainingResult.last_episode }}</strong></div>
+          <div class="result-row"><span class="result-label">模型版本</span> <strong>{{ trainingResult.model_version }}</strong></div>
+          <div class="result-row"><span class="result-label">训练耗时</span> <strong>{{ trainingDuration }}</strong></div>
+        </div>
+      </el-dialog>
     </main>
   </div>
 </template>
@@ -113,6 +138,7 @@ import AdminCockpitHero from '@/components/admin/AdminCockpitHero.vue'
 import AdminKpiGrid from '@/components/admin/AdminKpiGrid.vue'
 import { getAdminPosts, importAdminPapers, updateAdminPostStatus } from '@/api/admin'
 import { getAdminUsers, updateUserRole } from '@/api/user'
+import { triggerTraining, getModelInfo } from '@/api/recommend'
 
 const activeTab = ref('posts')
 const postStatusFilter = ref('')
@@ -128,13 +154,22 @@ const postPreviewVisible = ref(false)
 const previewPost = ref(null)
 const lastSyncedAt = ref(null)
 const lastImportSummary = ref(null)
+const trainingEpisodes = ref(null)
+const trainingLoading = ref(false)
+const trainingPolling = ref(false)
+const trainingStatusText = ref('')
+const trainingResultVisible = ref(false)
+const trainingResult = ref(null)
+const trainingDuration = ref('')
+let trainingPollTimer = null
+let trainingStartTime = null
 const paperImportText = ref(`[
   {
     "aminerId": "aminer_999",
     "title": "A Survey of Graph Neural Networks for Recommendation",
     "abstract": "Graph Neural Networks have emerged as a powerful paradigm...",
-    "authors": "Zhang San, Li Si",
-    "keywords": "Graph Neural Networks, Recommender Systems",
+    "authors": ["Zhang San", "Li Si"],
+    "keywords": ["Graph Neural Networks", "Recommender Systems"],
     "venue": "WWW 2025",
     "year": 2025,
     "citationCount": 42
@@ -325,6 +360,19 @@ async function submitPaperImport() {
     return
   }
 
+  // Normalize: convert comma-separated string fields to arrays
+  if (Array.isArray(parsed)) {
+    parsed = parsed.map(p => ({
+      ...p,
+      authors: typeof p.authors === 'string'
+        ? p.authors.split(',').map(s => s.trim()).filter(Boolean)
+        : (p.authors || []),
+      keywords: typeof p.keywords === 'string'
+        ? p.keywords.split(',').map(s => s.trim()).filter(Boolean)
+        : (p.keywords || [])
+    }))
+  }
+
   importingPapers.value = true
   try {
     const res = await importAdminPapers({ papers: parsed })
@@ -342,6 +390,50 @@ async function saveUserRole(user) {
   await updateUserRole(user.id, { role: roleDrafts.value[user.id] })
   ElMessage.success('用户角色已更新')
   await loadUsers()
+}
+
+async function doTriggerTraining() {
+  trainingLoading.value = true
+  try {
+    const res = await triggerTraining(trainingEpisodes.value || undefined)
+    if (res.code === 0 || res.data) {
+      ElMessage.success('训练已在后台启动')
+      trainingStartTime = Date.now()
+      startTrainingPoll()
+    } else {
+      ElMessage.error(res.message || '触发训练失败')
+    }
+  } catch (e) {
+    ElMessage.error('触发训练失败，请检查 Python 推荐服务是否运行')
+  } finally {
+    trainingLoading.value = false
+  }
+}
+
+function startTrainingPoll() {
+  trainingPolling.value = true
+  trainingStatusText.value = '模型训练中，请稍候...'
+  trainingPollTimer = setInterval(async () => {
+    try {
+      const res = await getModelInfo()
+      const info = res.data || res
+      if (info && !info.is_training) {
+        clearInterval(trainingPollTimer)
+        trainingPollTimer = null
+        trainingPolling.value = false
+        trainingStatusText.value = ''
+        const elapsed = Math.round((Date.now() - trainingStartTime) / 1000)
+        const mins = Math.floor(elapsed / 60)
+        const secs = elapsed % 60
+        trainingDuration.value = `${mins}分${secs}秒`
+        trainingResult.value = info
+        trainingResultVisible.value = true
+        ElMessage.success('模型训练完成，权重已热重载')
+      }
+    } catch {
+      // 静默重试
+    }
+  }, 2000)
 }
 </script>
 
@@ -514,5 +606,34 @@ async function saveUserRole(user) {
   .toolbar > * {
     width: 100%;
   }
+}
+
+.training-card {
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--design-border);
+}
+.training-status {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(99,102,241,0.1);
+  color: #6366f1;
+  font-size: 13px;
+}
+.training-result .result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--design-border);
+}
+.training-result .result-row:last-child {
+  border-bottom: none;
+}
+.result-label {
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 </style>

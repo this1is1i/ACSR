@@ -75,4 +75,13 @@ public class UserDto {
         private String bio;
         private String researchInterests;
     }
+
+    @Data
+    public static class ChangePasswordRequest {
+        @NotBlank
+        private String oldPassword;
+        @NotBlank
+        @Size(min = 6, max = 100)
+        private String newPassword;
+    }
 }

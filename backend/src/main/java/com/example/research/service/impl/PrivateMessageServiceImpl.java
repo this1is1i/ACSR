@@ -9,6 +9,7 @@ import com.example.research.entity.User;
 import com.example.research.entity.UserContact;
 import com.example.research.repository.PrivateMessageMapper;
 import com.example.research.repository.UserContactMapper;
+import com.example.research.repository.UserInterestHistoryMapper;
 import com.example.research.repository.UserMapper;
 import com.example.research.service.PrivateMessageService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
     private final PrivateMessageMapper privateMessageMapper;
     private final UserContactMapper userContactMapper;
     private final UserMapper userMapper;
+    private final UserInterestHistoryMapper userInterestHistoryMapper;
 
     @Override
     public void sendMessage(Long senderId, Long receiverId, String content) {
@@ -125,7 +127,7 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
             return List.of();
         }
 
-        Set<String> myTags = parseInterests(currentUser.getResearchInterests());
+        Set<String> myTags = parseInterests(userId, userInterestHistoryMapper);
         if (myTags.isEmpty()) {
             return List.of();
         }
@@ -148,7 +150,7 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
 
         return researchers.stream()
                 .map(u -> {
-                    Set<String> theirTags = parseInterests(u.getResearchInterests());
+                    Set<String> theirTags = parseInterests(u.getId(), userInterestHistoryMapper);
                     Set<String> common = new HashSet<>(myTags);
                     common.retainAll(theirTags);
                     return new UserMatch(u, common.size(), common);
@@ -168,14 +170,9 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
                 .toList();
     }
 
-    private static Set<String> parseInterests(String interests) {
-        if (interests == null || interests.isBlank()) {
-            return Set.of();
-        }
-        return Arrays.stream(interests.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.toSet());
+    private static Set<String> parseInterests(Long userId, UserInterestHistoryMapper mapper) {
+        List<String> tags = mapper.findTagsByUserId(userId);
+        return new HashSet<>(tags);
     }
 
     private record UserMatch(User user, int overlap, Set<String> common) {}

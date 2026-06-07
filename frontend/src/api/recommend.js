@@ -20,3 +20,9 @@ export const getActivityHistory = (limit = 20) =>
 
 export const clearActivityHistory = () =>
   request.delete('/behavior/history')
+
+export const triggerTraining = (episodes) =>
+  request.post('/recommend/train', null, { params: episodes ? { episodes } : {} })
+
+export const getModelInfo = () =>
+  request.get('/recommend/model/info')

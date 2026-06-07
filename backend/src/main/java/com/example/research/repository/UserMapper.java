@@ -14,6 +14,11 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("SELECT * FROM user WHERE username = #{username} AND deleted = 0 LIMIT 1")
     User findByUsername(String username);
 
-    @Select("SELECT * FROM user WHERE deleted = 0 AND (username LIKE CONCAT('%', #{q}, '%') OR research_interests LIKE CONCAT('%', #{q}, '%')) ORDER BY username LIMIT #{limit}")
+    @Select("SELECT DISTINCT u.* FROM user u " +
+            "LEFT JOIN user_interest_history uih ON uih.user_id = u.id " +
+            "WHERE u.deleted = 0 AND (" +
+            "  u.username LIKE CONCAT('%', #{q}, '%') " +
+            "  OR uih.interest_tag LIKE CONCAT('%', #{q}, '%')" +
+            ") ORDER BY u.username LIMIT #{limit}")
     List<User> searchUsers(@Param("q") String q, @Param("limit") int limit);
 }

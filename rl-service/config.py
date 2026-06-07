@@ -57,6 +57,10 @@ class Config:
     use_stored_embeddings: bool = True  # 优先从 paper.embedding 读取预存向量
     embedding_seed: int = 42            # 投影矩阵的初始化种子
 
+    # ── 排序质量门控 ──────────────────────────────────────────────
+    min_cos_similarity: float = 0.05     # 余弦相似度最低阈值（低于此值视为不相关）
+    min_actor_score: float = 0.001       # Actor 概率最低阈值（softmax 后 50 篇均值为 0.02）
+
     # ── 持久化 ────────────────────────────────────────────────────
     model_save_path: str = "checkpoints/ac_model.pth"
     log_dir: str = "logs/"

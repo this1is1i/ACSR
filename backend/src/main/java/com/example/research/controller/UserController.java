@@ -92,6 +92,15 @@ public class UserController {
         return Result.success(Map.of("avatarUrl", url));
     }
 
+    @PutMapping("/password")
+    public Result<String> changePassword(
+            @Valid @RequestBody UserDto.ChangePasswordRequest req,
+            Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        userService.changePassword(userId, req);
+        return Result.success("密码修改成功");
+    }
+
     @GetMapping("/search")
     public Result<List<UserDto.UserProfile>> searchUsers(
             @RequestParam String q,

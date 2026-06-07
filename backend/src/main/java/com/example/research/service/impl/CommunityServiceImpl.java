@@ -57,7 +57,12 @@ public class CommunityServiceImpl implements CommunityService {
         }
 
         List<Post> posts = new ArrayList<>(mergedPosts.values());
-        posts.sort(resolveComparator(filter));
+
+        // 批量计数 like / reply
+        List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+        Map<Long, Integer> likeCounts = toCountMap(postLikeMapper.batchCountLikes(postIds));
+        Map<Long, Integer> replyCounts = toCountMap(commentMapper.batchCountReplies(postIds));
+        posts.sort(resolveComparator(filter, likeCounts, replyCounts));
 
         Set<Long> likedPostIds = currentUserId != null
                 ? new HashSet<>(postLikeMapper.findLikedPostIds(currentUserId))
@@ -66,7 +71,7 @@ public class CommunityServiceImpl implements CommunityService {
         Map<Long, User> userCache = new LinkedHashMap<>();
         Map<Long, Paper> paperCache = new LinkedHashMap<>();
         return posts.stream()
-                .map(post -> toPostItem(post, currentUserId, userCache, paperCache, likedPostIds))
+                .map(post -> toPostItem(post, currentUserId, userCache, paperCache, likedPostIds, likeCounts, replyCounts))
                 .collect(Collectors.toList());
     }
 
@@ -81,8 +86,6 @@ public class CommunityServiceImpl implements CommunityService {
         post.setPaperId(request.getPaperId());
         post.setTitle(request.getTitle());
         post.setContent(request.getContent().trim());
-        post.setLikeCount(0);
-        post.setReplyCount(0);
         post.setStatus(role.canPublishDirectly() ? PostStatus.APPROVED.getCode() : PostStatus.PENDING.getCode());
 
         if (request.getPaperId() != null) {
@@ -90,7 +93,7 @@ public class CommunityServiceImpl implements CommunityService {
         }
 
         postMapper.insert(post);
-        return toPostItem(postMapper.selectById(post.getId()), userId, new LinkedHashMap<>(), new LinkedHashMap<>(), Set.of());
+        return toPostItem(postMapper.selectById(post.getId()), userId, new LinkedHashMap<>(), new LinkedHashMap<>(), Set.of(), Map.of(), Map.of());
     }
 
     @Override
@@ -152,17 +155,13 @@ public class CommunityServiceImpl implements CommunityService {
         }
 
         commentMapper.insert(comment);
-
-        post.setReplyCount((post.getReplyCount() == null ? 0 : post.getReplyCount()) + 1);
-        postMapper.updateById(post);
-
         return toCommentItem(commentMapper.selectById(comment.getId()), new LinkedHashMap<>());
     }
 
-    private Comparator<Post> resolveComparator(String filter) {
+    private Comparator<Post> resolveComparator(String filter, Map<Long, Integer> likeCounts, Map<Long, Integer> replyCounts) {
         if ("hot".equalsIgnoreCase(filter)) {
-            return Comparator.comparing((Post post) -> post.getLikeCount() == null ? 0 : post.getLikeCount())
-                    .thenComparing(post -> post.getReplyCount() == null ? 0 : post.getReplyCount())
+            return Comparator.comparing((Post post) -> likeCounts.getOrDefault(post.getId(), 0))
+                    .thenComparing(post -> replyCounts.getOrDefault(post.getId(), 0))
                     .thenComparing(Post::getCreateTime, Comparator.nullsLast(Comparator.naturalOrder()))
                     .reversed();
         }
@@ -204,15 +203,17 @@ public class CommunityServiceImpl implements CommunityService {
             Long currentUserId,
             Map<Long, User> userCache,
             Map<Long, Paper> paperCache,
-            Set<Long> likedPostIds) {
+            Set<Long> likedPostIds,
+            Map<Long, Integer> likeCounts,
+            Map<Long, Integer> replyCounts) {
 
         CommunityDto.PostItem item = new CommunityDto.PostItem();
         item.setId(post.getId());
         item.setPaperId(post.getPaperId());
         item.setTitle(post.getTitle());
         item.setContent(post.getContent());
-        item.setLikeCount(post.getLikeCount() == null ? 0 : post.getLikeCount());
-        item.setReplyCount(post.getReplyCount() == null ? 0 : post.getReplyCount());
+        item.setLikeCount(likeCounts.getOrDefault(post.getId(), 0));
+        item.setReplyCount(replyCounts.getOrDefault(post.getId(), 0));
         item.setReviewComment(post.getReviewComment());
         item.setCreateTime(post.getCreateTime());
         item.setOwn(Objects.equals(post.getUserId(), currentUserId));
@@ -270,13 +271,16 @@ public class CommunityServiceImpl implements CommunityService {
                 .and(w -> w.like(Post::getTitle, pattern).or().like(Post::getContent, pattern))
                 .orderByDesc(Post::getCreateTime));
 
+        List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+        Map<Long, Integer> likeCounts = toCountMap(postLikeMapper.batchCountLikes(postIds));
+        Map<Long, Integer> replyCounts = toCountMap(commentMapper.batchCountReplies(postIds));
         Set<Long> likedPostIds = currentUserId != null
                 ? new HashSet<>(postLikeMapper.findLikedPostIds(currentUserId))
                 : Set.of();
         Map<Long, User> userCache = new LinkedHashMap<>();
         Map<Long, Paper> paperCache = new LinkedHashMap<>();
         return posts.stream()
-                .map(post -> toPostItem(post, currentUserId, userCache, paperCache, likedPostIds))
+                .map(post -> toPostItem(post, currentUserId, userCache, paperCache, likedPostIds, likeCounts, replyCounts))
                 .collect(Collectors.toList());
     }
 
@@ -286,11 +290,14 @@ public class CommunityServiceImpl implements CommunityService {
                 .eq(Post::getUserId, userId)
                 .orderByDesc(Post::getCreateTime));
 
+        List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+        Map<Long, Integer> likeCounts = toCountMap(postLikeMapper.batchCountLikes(postIds));
+        Map<Long, Integer> replyCounts = toCountMap(commentMapper.batchCountReplies(postIds));
         Set<Long> likedPostIds = new HashSet<>(postLikeMapper.findLikedPostIds(userId));
         Map<Long, User> userCache = new LinkedHashMap<>();
         Map<Long, Paper> paperCache = new LinkedHashMap<>();
         return posts.stream()
-                .map(post -> toPostItem(post, userId, userCache, paperCache, likedPostIds))
+                .map(post -> toPostItem(post, userId, userCache, paperCache, likedPostIds, likeCounts, replyCounts))
                 .collect(Collectors.toList());
     }
 
@@ -312,7 +319,7 @@ public class CommunityServiceImpl implements CommunityService {
             post.setPaperId(request.getPaperId());
         }
         postMapper.updateById(post);
-        return toPostItem(postMapper.selectById(postId), userId, new LinkedHashMap<>(), new LinkedHashMap<>(), Set.of());
+        return toPostItem(postMapper.selectById(postId), userId, new LinkedHashMap<>(), new LinkedHashMap<>(), Set.of(), Map.of(), Map.of());
     }
 
     @Override
@@ -329,21 +336,24 @@ public class CommunityServiceImpl implements CommunityService {
     @Transactional
     public boolean toggleLike(Long userId, Long postId) {
         int exists = postLikeMapper.existsLike(userId, postId);
-        Post post = postMapper.selectById(postId);
-        if (post == null) return false;
         if (exists > 0) {
             postLikeMapper.deleteLike(userId, postId);
-            if (post.getLikeCount() != null && post.getLikeCount() > 0) {
-                post.setLikeCount(post.getLikeCount() - 1);
-                postMapper.updateById(post);
-            }
             return false;
         } else {
             postLikeMapper.insertLike(userId, postId);
-            post.setLikeCount(post.getLikeCount() == null ? 1 : post.getLikeCount() + 1);
-            postMapper.updateById(post);
             return true;
         }
+    }
+
+    private static Map<Long, Integer> toCountMap(List<Map<String, Object>> rows) {
+        if (rows == null || rows.isEmpty()) return Map.of();
+        Map<Long, Integer> map = new LinkedHashMap<>();
+        for (Map<String, Object> row : rows) {
+            Long postId = ((Number) row.get("post_id")).longValue();
+            Integer cnt = ((Number) row.get("cnt")).intValue();
+            map.put(postId, cnt);
+        }
+        return map;
     }
 
     private CommunityDto.AuthorInfo toAuthor(User user) {

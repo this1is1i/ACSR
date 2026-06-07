@@ -92,9 +92,18 @@
           </div>
 
           <div v-if="isRegister" class="form-group">
+            <label>确认密码</label>
+            <div class="input-wrapper">
+              <input type="password" v-model="form.confirmPassword"
+                placeholder="••••••••" :class="{ error: errors.confirmPassword }"
+                @focus="onFieldFocus" @blur="onFieldBlur" @input="onFieldInput" />
+            </div>
+          </div>
+
+          <div v-if="isRegister" class="form-group">
             <label>研究方向（选填，点击选择）</label>
             <div v-if="keywordsLoading" class="tags-loading">加载关键词中...</div>
-            <div v-else-if="keywords.length > 0" class="tags-container">
+            <div v-else class="tags-container">
               <button
                 v-for="kw in hotKeywords" :key="kw.label"
                 type="button" class="tag-pill"
@@ -102,11 +111,6 @@
                 @click="toggleKeyword(kw.label)"
               >{{ kw.label }}</button>
               <button type="button" class="tag-pill tag-more" @click="dialogVisible = true">···</button>
-            </div>
-            <div v-else class="tags-fallback">
-              <input type="text" v-model="form.researchInterests"
-                placeholder="机器学习, 深度学习, 自然语言处理"
-                @focus="onFieldFocus" @blur="onFieldBlur" @input="onFieldInput" />
             </div>
             <p class="interest-hint">点击标签选择研究方向，用于初始化个性化推荐</p>
           </div>
@@ -167,9 +171,20 @@ const showPwd = ref(false)
 const isPwdFocused = ref(false)
 const submitting = ref(false)
 const errorMsg = ref('')
-const errors = reactive({ username: false, password: false })
+const errors = reactive({ username: false, password: false, confirmPassword: false })
+const form = reactive({ username: '', password: '', confirmPassword: '', researchInterests: '' })
 
-const form = reactive({ username: '', password: '', researchInterests: '' })
+// ── Common CS research keywords (fallback when Neo4j unavailable) ─
+const FALLBACK_KEYWORDS = [
+  'Machine Learning', 'Deep Learning', 'Reinforcement Learning',
+  'Natural Language Processing', 'Computer Vision', 'Graph Neural Networks',
+  'Knowledge Graph', 'Recommendation System', 'Transfer Learning',
+  'Data Mining', 'Bayesian Inference', 'Transformer',
+  'Federated Learning', 'Representation Learning', 'Neural Networks',
+  'Generative Models', 'Optimization', 'Information Retrieval',
+  'Computational Linguistics', 'Time Series', 'Causal Inference',
+  'Multi-Agent Systems', 'Meta Learning', 'Few-Shot Learning'
+]
 
 // ── Keyword selector state ──────────────────────────────────────
 const keywords = ref([])
@@ -200,12 +215,18 @@ async function fetchKeywords() {
   keywordsLoading.value = true
   try {
     const res = await request.get('/knowledge/keywords')
-    keywords.value = res || []
+    const data = Array.isArray(res) ? res : (res?.data || [])
+    if (data.length > 0) {
+      keywords.value = data
+      return
+    }
   } catch {
-    keywords.value = []
+    // Neo4j 不可用，使用硬编码关键词
   } finally {
     keywordsLoading.value = false
   }
+  // 回退：使用硬编码常用科研关键词
+  keywords.value = FALLBACK_KEYWORDS.map(k => ({ label: k, frequency: 0 }))
 }
 
 watch(isRegister, (val) => { if (val) fetchKeywords() })
@@ -235,6 +256,8 @@ function toggleMode() {
   errorMsg.value = ''
   errors.username = false
   errors.password = false
+  errors.confirmPassword = false
+  form.confirmPassword = ''
 }
 
 function togglePassword() {
@@ -452,6 +475,7 @@ async function handleSubmit() {
   errorMsg.value = ''
   errors.username = false
   errors.password = false
+  errors.confirmPassword = false
 
   if (!form.username || form.username.trim().length < 2) {
     errors.username = true
@@ -465,6 +489,12 @@ async function handleSubmit() {
     triggerLoginError()
     return
   }
+  if (isRegister.value && form.password !== form.confirmPassword) {
+    errors.confirmPassword = true
+    errorMsg.value = '两次输入的密码不一致。'
+    triggerLoginError()
+    return
+  }
 
   submitting.value = true
   try {
@@ -472,7 +502,7 @@ async function handleSubmit() {
       const regRes = await register({
         username: form.username.trim(),
         password: form.password,
-        researchInterests: form.researchInterests.trim()
+        researchInterests: (form.researchInterests || '').trim()
       })
       userStore.setAuth(regRes.data)
       ElMessage.success('注册成功！欢迎加入。')

@@ -13,4 +13,5 @@ public interface UserService {
     List<Paper> getFavoritePapers(Long userId);
     String uploadAvatar(Long userId, MultipartFile file);
     List<UserDto.UserProfile> searchUsers(String query, int limit);
+    void changePassword(Long userId, UserDto.ChangePasswordRequest req);
 }

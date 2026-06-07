@@ -22,8 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -49,19 +48,17 @@ public class UserServiceImpl implements UserService {
         user.setEmail(request.getEmail());
         user.setRole(UserRole.STUDENT.name());
 
-        if (request.getResearchInterests() != null && !request.getResearchInterests().isBlank()) {
-            user.setResearchInterests(request.getResearchInterests());
-        }
-
+        // research_interests 不再写入 user 表，统一由 user_interest_history 管理
         userMapper.insert(user);
 
         // 创建初始兴趣画像记录
         if (request.getResearchInterests() != null && !request.getResearchInterests().isBlank()) {
             String[] interests = request.getResearchInterests().split(",");
             LocalDate today = LocalDate.now();
+            Set<String> seen = new HashSet<>();
             for (String interest : interests) {
                 String trimmed = interest.trim();
-                if (!trimmed.isEmpty()) {
+                if (!trimmed.isEmpty() && seen.add(trimmed)) {
                     UserInterestHistory history = new UserInterestHistory();
                     history.setUserId(user.getId());
                     history.setInterestTag(trimmed);
@@ -108,7 +105,9 @@ public class UserServiceImpl implements UserService {
         profile.setRoleLabel(role.getLabel());
         profile.setAvatar(user.getAvatar());
         profile.setBio(user.getBio());
-        profile.setResearchInterests(user.getResearchInterests());
+        profile.setResearchInterests(
+                String.join(", ", deduplicateTags(userInterestHistoryMapper.findTagsByUserId(user.getId())))
+        );
         return profile;
     }
 
@@ -119,7 +118,27 @@ public class UserServiceImpl implements UserService {
         if (req.getEmail() != null) user.setEmail(req.getEmail());
         if (req.getAvatar() != null) user.setAvatar(req.getAvatar());
         if (req.getBio() != null) user.setBio(req.getBio());
-        if (req.getResearchInterests() != null) user.setResearchInterests(req.getResearchInterests());
+        if (req.getResearchInterests() != null) {
+            // 同步到 user_interest_history（不再写入 user.research_interests 列）
+            LocalDate today = LocalDate.now();
+            // 删除该用户之前通过 register / profile_update 来源的记录，避免重复堆积
+            userInterestHistoryMapper.deleteByUserIdAndSource(userId, "register");
+            userInterestHistoryMapper.deleteByUserIdAndSource(userId, "profile_update");
+            // 去重后插入新记录
+            Set<String> seen = new HashSet<>();
+            for (String tag : req.getResearchInterests().split(",")) {
+                String trimmed = tag.trim();
+                if (!trimmed.isEmpty() && seen.add(trimmed)) {
+                    UserInterestHistory h = new UserInterestHistory();
+                    h.setUserId(userId);
+                    h.setInterestTag(trimmed);
+                    h.setWeight(0.5);
+                    h.setSource("profile_update");
+                    h.setRecordDate(today);
+                    userInterestHistoryMapper.insert(h);
+                }
+            }
+        }
         userMapper.updateById(user);
     }
 
@@ -170,7 +189,21 @@ public class UserServiceImpl implements UserService {
         if (query == null || query.isBlank()) {
             return List.of();
         }
-        return userMapper.searchUsers(query.trim(), Math.min(limit, 20)).stream()
+        List<User> users = userMapper.searchUsers(query.trim(), Math.min(limit, 20));
+
+        // 批量查询兴趣标签，避免 N+1
+        List<Long> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+        Map<Long, String> interestMap = new HashMap<>();
+        if (!userIds.isEmpty()) {
+            Map<Long, List<String>> grouped = new HashMap<>();
+            for (Map<String, Object> row : userInterestHistoryMapper.findTagsByUserIds(userIds)) {
+                Long uid = ((Number) row.get("user_id")).longValue();
+                grouped.computeIfAbsent(uid, k -> new ArrayList<>()).add((String) row.get("interest_tag"));
+            }
+            grouped.forEach((uid, tags) -> interestMap.put(uid, String.join(", ", tags)));
+        }
+
+        return users.stream()
                 .map(u -> {
                     UserDto.UserProfile profile = new UserDto.UserProfile();
                     profile.setId(u.getId());
@@ -178,11 +211,37 @@ public class UserServiceImpl implements UserService {
                     profile.setEmail(u.getEmail());
                     profile.setAvatar(u.getAvatar());
                     profile.setBio(u.getBio());
-                    profile.setResearchInterests(u.getResearchInterests());
+                    profile.setResearchInterests(interestMap.getOrDefault(u.getId(), ""));
                     profile.setRole(u.getRole());
                     profile.setRoleLabel(UserRole.from(u.getRole()).getLabel());
                     return profile;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void changePassword(Long userId, UserDto.ChangePasswordRequest req) {
+        User user = userMapper.selectById(userId);
+        if (user == null) throw new IllegalArgumentException("用户不存在");
+        if (!passwordEncoder.matches(req.getOldPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("原密码错误");
+        }
+        user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        userMapper.updateById(user);
+    }
+
+    /**
+     * 对标签列表去重（保持顺序，首次出现保留）。
+     */
+    private static List<String> deduplicateTags(List<String> tags) {
+        if (tags == null || tags.isEmpty()) return List.of();
+        List<String> result = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        for (String tag : tags) {
+            if (tag != null && seen.add(tag.trim())) {
+                result.add(tag.trim());
+            }
+        }
+        return result;
     }
 }

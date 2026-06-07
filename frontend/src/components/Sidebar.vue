@@ -67,7 +67,7 @@ const userAvatar = computed(() => userInfo.value?.avatar || '')
 const exploreItems = computed(() => [
   ...(isLoggedIn.value ? [{ to: '/home', label: '研究中心', icon: '研' }] : []),
   { to: '/search', label: '智能搜索', icon: '搜' },
-  { to: '/knowledge-graph', label: '知识图谱', icon: '图' },
+  ...(isLoggedIn.value ? [{ to: '/knowledge-graph', label: '知识图谱', icon: '图' }] : []),
 ])
 
 const collaborationItems = computed(() => (

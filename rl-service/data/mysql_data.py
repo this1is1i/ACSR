@@ -151,3 +151,18 @@ class MySQLDataSource:
         with self.conn.cursor() as cursor:
             cursor.execute(sql)
             return {row["interest_tag"]: int(row["total_weight"]) for row in cursor.fetchall()}
+
+    def insert_training_log(
+        self, episode: int, reward: float, loss: float, model_version: str,
+        user_id: int | None = None
+    ) -> None:
+        """写入一条训练摘要记录到 rl_training_log（每次训练完成时调用一次）。
+
+        user_id 为 None 时表示系统级训练（不关联特定用户）。
+        """
+        sql = """
+            INSERT INTO rl_training_log (episode, user_id, reward, cumulative_reward, loss, model_version)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        with self.conn.cursor() as cursor:
+            cursor.execute(sql, (episode, user_id, reward, reward, loss, model_version))

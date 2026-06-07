@@ -22,5 +22,6 @@ rl-service/checkpoints/
 # docs — keep only essential project documentation
 /docs/*
 !/docs/EarlyChange.md
-!/docs/QA.md
+!/docs/EarlyChange2.md
+!/docs/QA_*.md
 !/docs/draw/

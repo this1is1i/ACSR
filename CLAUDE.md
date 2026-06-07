@@ -48,6 +48,8 @@ No dedicated lint/checkstyle is configured for any service.
 
 **PythonRecClient** exposes five endpoints: `POST /recommend`, `POST /train`, `GET /model/info`, `GET /health`, `POST /learning-path`. All calls have try/catch degradation — failures return null/false, never propagate exceptions. The learning-path endpoint returns path nodes with mastery, color, and glowIntensity for frontend 3D visualization.
 
+**Training flow**: `train.py` returns `(agent, metrics)` including `best_reward`, `total_episodes`, and `model_version`. The API server polls `_training_status` during training; frontend `AdminConsole` has a "模型训练" tab that triggers training and polls `GET /model/info` every 2s until completion, then displays the results dialog.
+
 ### Realtime chat (dual-path)
 - **REST**: `/api/message/*` for history/persistence (returns raw entities, not `Result` envelope)
 - **WebSocket**: SockJS/STOMP on `/ws-messages` for live delivery. Publish to `/app/*`, subscribe to `/user/queue/private` (direct messages) and `/topic/user-status` (presence). JWT is in STOMP message body, not HTTP `Authorization` header — `MessageWebSocketController` re-validates from the payload.
@@ -90,14 +92,14 @@ For N candidates: batch N×(128) → N logits → softmax → N probabilities
 
 **`score_candidates(state, candidate_features)`** (`actor.py:67-85`): Expands user state to (N, 96), concatenates with (N, 32) paper features, runs a single GPU forward pass, applies softmax. N=50 papers in ∼0.1ms.
 
-**Production ranking** (`recommender/ranker.py`): Three components computed for each candidate:
-1. **Actor score** — per-paper probability from `score_candidates()` (batched, one forward pass)
-2. **Cosine similarity** — vectorized matrix operation: `cos_sims = clip(topic_matrix @ base_state, 0, None)` (Numpy, single call)
-3. **KG topology score** — `user_kg` computed once outside the loop, then per-paper `dot(user_kg, paper_emb)`
+**Production ranking** (`recommender/ranker.py`): Three-step pipeline:
+1. **Raw scores** — Actor probability (batched `score_candidates()`), cosine similarity (vectorized `topic_matrix @ base_state`), KG topology score (`user_kg` computed once, then per-paper `dot(user_kg, paper_emb)`)
+2. **Quality gate** — filter out papers where ALL three scores fall below thresholds (`min_cos_similarity=0.05`, `min_actor_score=0.001`), preventing normalization from "rescuing" irrelevant papers
+3. **Min-max normalization** — normalize each score dimension to [0,1] independently, eliminating magnitude differences (Actor softmax outputs cluster around ~0.02 while cosine can reach 0.7–0.8)
 
 **Final ranking formula** (`ranker.py`):
-- With KG: `final = 0.5 * actor_score + 0.3 * cosine_similarity + 0.2 * kg_topology_score`
-- Without KG: `final = 0.6 * actor_score + 0.4 * cosine_similarity`
+- With KG: `final = 0.5 * norm(actor) + 0.3 * norm(cos_sim) + 0.2 * norm(kg_score)`
+- Without KG: `final = 0.6 * norm(actor) + 0.4 * norm(cos_sim)`
 
 The Critic (`models/critic.py`) is unchanged: input state_dim, output scalar V(s), used only during training for TD error calculation.
 
@@ -115,8 +117,11 @@ Key numbers in `rl-service/config.py`:
 | `state_dim` | 96 (=64+32) | Full actor/critic input |
 | `actor_hidden` | 128 | Actor hidden layer width |
 | `critic_hidden` | 128 | Critic hidden layer width |
-| `max_episodes` | 500 | Training episodes |
+| `max_episodes` | 300 | Training episodes (overridden by request param) |
 | `max_steps` | 50 | Steps per episode |
+| `entropy_coeff` | 0.01 | Entropy regularization |
+| `min_cos_similarity` | 0.05 | Quality gate: minimum cosine similarity |
+| `min_actor_score` | 0.001 | Quality gate: minimum Actor probability |
 
 ### Backend package conventions
 Standard Spring Boot layered architecture:
@@ -148,7 +153,7 @@ Standard Spring Boot layered architecture:
 | `/api/visualization/data` | Auth | Visualization payload for profile page; builds KG from Python /learning-path, keyword frequencies from interest_history |
 | `/api/community/posts` | Auth* | GET list (optional auth); POST create |
 | `/api/community/posts/{id}/comments` | Auth* | GET list (optional auth); POST create |
-| `/api/community/posts/{postId}/like` | Auth | POST toggle like (creates/deletes `post_like` row, adjusts `like_count`) |
+| `/api/community/posts/{postId}/like` | Auth | POST toggle like (creates/deletes `post_like` row) |
 | `/api/message/recommended-collaborators` | Auth | Researcher collaborator recommendations (shared-interest overlap, top 2, excludes contacts/self) |
 | `/api/user/search` | Auth | Search users by username or research_interests, query params `q` + `limit` |
 | `/api/user/favorites` | Auth | Papers favorited by current user (from `behavior_log`, not `favourite` table) |
@@ -164,6 +169,8 @@ Standard Spring Boot layered architecture:
 
 ### Community data model
 Posts and comments use `post` and `comment` tables. Posts have status lifecycle (0=PENDING → 1=APPROVED / 2=REJECTED) managed by admin via `/api/admin/posts/{id}/status`. Comments support nested replies via `parent_id`. The `CommunityDto` classes encode the request/response shapes; see `CommunityController` for the exact contract.
+
+**Like/reply counts are computed dynamically** via `PostLikeMapper.batchCountLikes()` and `CommentMapper.batchCountReplies()` — the `post.like_count` and `post.reply_count` columns have been removed (see `db_migration.sql`). This eliminates stale counter bugs.
 
 ### User interest tracking
 `UserInterestHistory` (table `user_interest_history`) records interest tags per user with weight, source, and date. Interests are seeded at registration from the `researchInterests` comma-separated field and feed into the recommendation pipeline. Paper reads are tracked via `behavior_log` (action=`read`) — the `browse_history` table was removed (2026-05-15) as its functionality was subsumed.
@@ -197,13 +204,13 @@ Router guards check `public` meta and `roles` meta, redirecting unauthenticated 
 - **Config properties** (`application.yml` or env vars): `python.rec-service.base-url` (default `http://localhost:8000`), `python.rec-service.timeout` (default 5000ms), `python.rec-service.read-timeout` (default 10000ms), `jwt.header` (default `Authorization`).
 - **Behavior tracking feeds recommendation**: POST `/api/behavior` writes to `behavior_log` (actions: `click`, `favorite`, `read`). `feature_builder.py` builds user vectors via weighted pooling: click=0.5, read=1.0, favorite=2.0, plus reading duration bonus (+0.5 per 60s, max +2.0). PaperDetail tracks real reading duration via `enterTime` → `onBeforeUnmount` delta.
 - **Collaborator recommendations**: `PrivateMessageServiceImpl.getRecommendedCollaborators()` parses each user's `researchInterests` comma-separated string into a Set, computes intersection overlap between same-role users, returns top 2 by overlap descending, excluding existing contacts and self.
-- **Community post likes**: `post_like` table (user_id + post_id unique constraint). `PostItem.liked` field is backfilled from `PostLikeMapper.findLikedPostIds()` during `listPosts()`. Toggle endpoint creates or deletes the like row and increments/decrements `post.like_count`.
+- **Community post likes**: `post_like` table (user_id + post_id unique constraint). `PostItem.liked` field is backfilled from `PostLikeMapper.findLikedPostIds()` during `listPosts()`. Toggle endpoint creates or deletes the like row. Like counts are computed via `batchCountLikes()` rather than stored in a `post.like_count` column.
 - **Paper search filters**: `/api/paper/search` accepts `yearFrom` (int year) and `sortBy` (`relevance` / `newest` / `cited`). These are applied in both the MyBatis SQL path and the Neo4j fallback path.
 - **Tune recommender** via `rl-service/config.py:default_config`, not scattered constants. Config includes MySQL connection (`MYSQL_HOST`, `MYSQL_PORT` env vars), Neo4j connection (`GRAPH_NEO4J_URI`, `GRAPH_NEO4J_USERNAME`, `GRAPH_NEO4J_PASSWORD` env vars), and RL hyperparameters.
 - **Python service data sources**: MySQL for user behavior/interest history (`data/mysql_data.py`), Neo4j for paper graph and KG embeddings (`knowledge_graph/`). Data flow: `behavior_log` + `user_interest_history` → feature building → MySQL-backed `user_feature_snapshot` cache; Paper pool and KG from Neo4j, embeddings computed from graph structure at runtime.
 - **Frontend stack**: Vue 3 + Vite + Element Plus + Pinia. `@` alias maps to `src/`. Vite dev server proxies `/api` → `http://localhost:8080`. CORS on backend permits `http://localhost:*` and `http://127.0.0.1:*`.
 - **WebSocket auth**: `MessageWebSocketController` validates JWT from STOMP message body, not headers. The `/ws-messages/**` path is in the Spring Security whitelist (auth happens at STOMP CONNECT).
-- **Database**: MySQL 8.0 (`research_db`, user=root, pass=qwer1234). Current tables (13): `user`, `paper`, `behavior_log`, `private_messages`, `user_contacts`, `post`, `post_like`, `comment`, `user_interest_history`, `favourite`, `user_feature_snapshot`, `rl_training_log`, `paper_author_claim`. Removed tables (2026-05-15): `board`, `browse_history`, `notification`, `kg_relation`.
+- **Database**: MySQL 8.0 (`research_db`, user=root, pass=qwer1234). Current tables (13): `user`, `paper`, `behavior_log`, `private_messages`, `user_contacts`, `post`, `post_like`, `comment`, `user_interest_history`, `favourite`, `user_feature_snapshot`, `rl_training_log`, `paper_author_claim`. Removed tables (2026-05-15): `board`, `browse_history`, `notification`, `kg_relation`. Schema migrations: `backend/src/main/resources/db_migration.sql` (adds FKs, drops `post.like_count`/`post.reply_count`).
 - **Neo4j**: `bolt://localhost:7687`, user=neo4j, pass=seeworld123. Stores Paper nodes and 5 relationship types (HAS_KEYWORD, AUTHOR_OF, CITE, PUBLISH_IN, CO_AUTHOR). KG data flows through Python service — backend no longer uses MySQL `kg_entity`/`kg_relation` tables.
 - **KnowledgeGraph edges**: Python `path_builder.to_dict()` outputs `src`/`dst`, but 3D force-graph expects `source`/`target`. The frontend normalizes edges with `l.src || l.source` / `l.dst || l.target` fallback. Keep both field forms when modifying the graph pipeline.
 - **MCP config**: `.mcp.json` at repo root configures two MCP servers — `refactor` (regex-based code search/replace via `@myuon/refactor-mcp`) and `drawio` (JGraph draw.io diagram generation via `@drawio/mcp`).

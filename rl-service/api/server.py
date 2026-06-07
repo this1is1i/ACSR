@@ -219,11 +219,15 @@ async def trigger_train(
             config = copy.copy(default_config)
             if request.episodes:
                 config.max_episodes = request.episodes
-            train(config)
+            _, metrics = train(config)
             if _service:
                 _service.reload_model()
-            _training_status["last_episode"] = config.max_episodes
-            logger.info("后台训练完成，模型已热重载")
+            _training_status["last_episode"] = metrics["total_episodes"]
+            _training_status["best_reward"] = metrics["best_reward"]
+            logger.info(
+                f"后台训练完成，best_reward={metrics['best_reward']:.4f}, "
+                f"模型已热重载"
+            )
         except Exception as e:
             logger.exception(f"训练失败: {e}")
         finally:
