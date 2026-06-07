@@ -8,16 +8,18 @@
 |------|---------|---------|------|
 | `docs/QA_2026-05-16_2026-06-02_v1.md` | Q0 – Q16 | 2026-05-16 → 2026-06-02 | 活跃 |
 | `docs/QA_2026-06-02_2026-06-05_v2.md` | Q17 – Q37 | 2026-06-02 → 2026-06-07 | 活跃 |
+| `docs/QA_2026-06-07_2026-06-08_v3.md` | Q38 – Q43 | 2026-06-07 → 2026-06-08 | 活跃 |
 
 ## 模块 → Q# 映射（粗略）
 
 | 代码路径 | 关联 Q# |
 |---------|--------|
-| `rl-service/recommender/ranker.py` | Q16, Q22, Q23, Q24 |
-| `rl-service/models/actor.py` | Q2, Q5, Q20, Q24, Q25, Q26, Q38 |
+| `rl-service/recommender/ranker.py` | Q16, Q22, Q23, Q24, Q42, Q43 |
+| `rl-service/recommender/candidate_generator.py` | Q42, Q43 |
+| `rl-service/models/actor.py` | Q2, Q5, Q20, Q24, Q25, Q26, Q38, Q42 |
 | `rl-service/models/critic.py` | Q38 |
 | `rl-service/agent.py` | Q38 |
-| `rl-service/features/feature_builder.py` | Q18, Q33, Q36 |
+| `rl-service/features/feature_builder.py` | Q18, Q33, Q36, Q42, Q43 |
 | `rl-service/knowledge_graph/` | Q7, Q19, Q27, Q28, Q39 |
 | `rl-service/learning_path/path_builder.py` | Q39 |
 | `rl-service/learning_path/propagation.py` | Q39 |
