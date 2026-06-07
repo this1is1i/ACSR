@@ -6,9 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "serve:design": "vite",
-    "mcp:playwright": "npx playwright test"
+    "preview": "vite preview"
   },
   "dependencies": {
     "3d-force-graph": "^1.80.0",
@@ -24,7 +22,6 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
     "@vitejs/plugin-vue": "^6.0.5",
     "vite": "^8.0.1"
   }

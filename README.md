@@ -344,16 +344,16 @@ proxy: {
 mvn -f backend test
 mvn -f backend -Dtest=ClassName#methodName test
 
-# Python
+# Python（暂无测试）
 cd rl-service
-python -m unittest tests.test_runtime_fixes
+# 暂无已配置的测试
 
-# 前端烟雾测试
+# 前端（暂无测试）
 cd frontend
-npx playwright test tests/design.spec.js
+# 暂无已配置的测试
 ```
 
-当前测试覆盖有限，建议为推荐链路（特征构建→候选召回→排序→解释）添加集成测试。
+当前测试覆盖有限（后端 4 个单元测试），建议为推荐链路（特征构建→候选召回→排序→解释）添加集成测试。
 
 ## 引用与复刻规范
 

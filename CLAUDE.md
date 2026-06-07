@@ -14,8 +14,6 @@ cd frontend && npm install
 npm run dev            # Dev server on :5173, proxies /api -> :8080
 npm run build          # Production build
 npm run preview        # Preview built app
-npm run mcp:playwright # Playwright smoke test via MCP
-npx playwright test tests/design.spec.js   # Single smoke test
 ```
 
 ### Backend (`backend/`)
@@ -31,13 +29,11 @@ mvn -f backend -Dtest=FullyQualifiedClassName#methodName test
 cd rl-service
 uvicorn api.server:app --reload --host 0.0.0.0 --port 8000
 python train.py
-python -m unittest tests.test_runtime_fixes
-python -m unittest tests.test_runtime_fixes.RuntimeFixesTest.test_config_reads_neo4j_settings_from_environment
 ```
 
 Startup order: 1. RL service (:8000) → 2. Backend (:8080) → 3. Frontend (:5173)
 
-Seed test data: `backend/src/main/resources/seed_test_data.sql` populates all tables with representative data for development.
+Seed test data: `backend/src/main/resources/seed_claim_test_data.sql` populates paper-author claim test data for development.
 
 No dedicated lint/checkstyle is configured for any service.
 
@@ -46,7 +42,7 @@ No dedicated lint/checkstyle is configured for any service.
 ### Recommendation flow
 `frontend GET /api/recommend` → `RecommendController` → `RecommendServiceImpl` → `PythonRecClient` → Python `POST /recommend`. The backend converts local paper IDs to AMiner IDs before calling Python, then maps returned AMiner IDs back to local `Paper` rows. Falls back to local popular papers if Python service is unavailable.
 
-**PythonRecClient** exposes five endpoints: `POST /recommend`, `POST /train`, `GET /model/info`, `GET /health`, `POST /learning-path`. All calls have try/catch degradation — failures return null/false, never propagate exceptions. The learning-path endpoint returns path nodes with mastery, color, and glowIntensity for frontend 3D visualization.
+**PythonRecClient** wraps five Python endpoints: `POST /recommend`, `POST /train`, `GET /model/info`, `GET /health`, `POST /learning-path`. Python API also exposes `POST /model/reload` for hot-reloading model weights without restart. All calls have try/catch degradation — failures return null/false, never propagate exceptions. The learning-path endpoint returns path nodes with mastery, color, and glowIntensity for frontend 3D visualization.
 
 **Training flow**: `train.py` returns `(agent, metrics)` including `best_reward`, `total_episodes`, and `model_version`. The API server polls `_training_status` during training; frontend `AdminConsole` has a "模型训练" tab that triggers training and polls `GET /model/info` every 2s until completion, then displays the results dialog.
 
@@ -63,7 +59,7 @@ No dedicated lint/checkstyle is configured for any service.
 - `data/` — `mysql_data.py` (MySQL access layer for behavior_log, user_interest_history), `mock_data.py` (training-only mock data generator)
 - `knowledge_graph/` — KG construction (`kg_builder.py`), embedding (`kg_embedder.py`), Neo4j queries (`graph_query.py`), storage abstraction (`graph_storage.py`)
 - `learning_path/` — path building and propagation
-- `api/` — FastAPI server (recommend, train, model management, learning-path, health)
+- `api/` — FastAPI server (recommend, train, model/info, model/reload, learning-path, health)
 - `utils/text_utils.py` — text cleaning/tokenization utilities
 
 Everything is driven from `config.py:default_config` — a single `@dataclass` with state dims, KG settings, network structure, training hyperparameters, and reward weights.
@@ -114,7 +110,7 @@ Key numbers in `rl-service/config.py`:
 | `action_num` | 50 | Max candidates per request |
 | `top_k` | 10 | Default recommendation count (overridden by request param `k`) |
 | `kg_embedding_dim` | 32 | KG embedding dimension |
-| `state_dim` | 96 (=64+32) | Full actor/critic input |
+| `state_dim` | 96 (=64+32, dynamic) | Full actor/critic input; computed as `base_state_dim + (kg_embedding_dim if use_kg else 0)` — 64 when KG disabled |
 | `actor_hidden` | 128 | Actor hidden layer width |
 | `critic_hidden` | 128 | Critic hidden layer width |
 | `max_episodes` | 300 | Training episodes (overridden by request param) |
@@ -154,6 +150,13 @@ Standard Spring Boot layered architecture:
 | `/api/community/posts` | Auth* | GET list (optional auth); POST create |
 | `/api/community/posts/{id}/comments` | Auth* | GET list (optional auth); POST create |
 | `/api/community/posts/{postId}/like` | Auth | POST toggle like (creates/deletes `post_like` row) |
+| `/api/community/posts/search` | Auth* | GET search posts by keyword |
+| `/api/community/posts/my` | Auth | GET current user's own posts |
+| `/api/community/posts/{postId}` | Auth | PUT update own post; DELETE remove own post |
+| `/api/user/password` | Auth | PUT change password |
+| `/api/knowledge/keywords` | Public | GET keyword tags for registration selector |
+| `/api/paper/claim` | Auth | POST claim authorship of a paper |
+| `/api/paper/claims` | Auth | GET list own author claims |
 | `/api/message/recommended-collaborators` | Auth | Researcher collaborator recommendations (shared-interest overlap, top 2, excludes contacts/self) |
 | `/api/user/search` | Auth | Search users by username or research_interests, query params `q` + `limit` |
 | `/api/user/favorites` | Auth | Papers favorited by current user (from `behavior_log`, not `favourite` table) |
@@ -230,7 +233,7 @@ Router guards check `public` meta and `roles` meta, redirecting unauthenticated 
 | `13-16-*-BPD.drawio` | Business process diagrams: recommend, learning-path, collaborator-matching, forum-judge |
 
 ## Known Limitations
-- The repo contains a Playwright smoke test (`tests/design.spec.js`) but no comprehensive test suite for any service.
+- No test suite for any service. Backend has 4 unit tests; RL service and frontend have no tests.
 - Python service must be running for KG, visualization, and recommendation features to work with real data (no in-process fallback for KG/learning-path).
-- `VisualizationServiceImpl` was slimmed to a single method (`buildKnowledgeGraph`); all stats/chart/trend endpoints are gone — the profile page now gets visualization data from the KG endpoint only.
+- `VisualizationServiceImpl` was slimmed to a single method (`getVisualizationData`); all stats/chart/trend endpoints are gone — the profile page now gets visualization data from the KG endpoint only.
 - The `favourite` table exists in MySQL but has no dedicated Java mapper/service — favorites are tracked via `behavior_log` (action=`favorite`) and queried through `BehaviorLogMapper.findFavoritesByUserId()`.
