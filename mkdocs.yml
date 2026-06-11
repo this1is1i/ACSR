@@ -1,5 +1,6 @@
 site_name: ACScientificRecommendation 技术文档
 site_description: 基于知识图谱与强化学习的科研成果推荐系统 — 技术问答与架构文档
+site_url: https://this1is1i.github.io/ACSR/
 repo_url: https://github.com/this1is1i/ACSR
 docs_dir: docs
 theme:
