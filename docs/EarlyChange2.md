@@ -160,3 +160,34 @@
 2. **Git 追踪 18 个 .bkp 死文件** — 已 `git rm` 全部 21 个备份文件
 3. **`evaluate.py` 路径散乱** — 从根目录移至 `scripts/` 统一管理
 4. **`db_migration.sql` 造成 schema 双源** — 删除后以 `research_db.sql` 为唯一权威
+
+---
+
+## 2026-06-11（续）
+
+### 核心目标
+QA 文档知识库建设：Obsidian 标签 + wikilink + MOC 索引 + MkDocs 静态站配置。
+
+### 文档知识库建设
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 新增 | `scripts/tag_qa.py` | 批量为 4 个 QA 文件（Q0-Q51）的每个 Q# 标题添加 `**标签**` + `**关联**` wikilink 元数据 |
+| 新增 | `docs/索引.md` | MOC 内容地图，14 个主题簇（架构/推荐/RL训练/特征工程/KG/学习路径/DB/前端/私信/安全/异步/评估/审计/理论） |
+| 新增 | `mkdocs.yml` | MkDocs Material 配置，含搜索、导航、深色模式；`mkdocs build` 即生成静态文档站 |
+
+### Obsidian 使用方式
+
+1. 用 Obsidian 打开 `docs/` 作为 Vault
+2. 图视图可展示 Q# 间的引用网络（每个 Q 的 `**关联**` wikilink 自动生成连线）
+3. `Ctrl+O` 搜索任意 Q# 或主题标签
+4. 标签格式 `#推荐 #Actor-Critic` 会被 Obsidian 识别为可搜索标签
+
+### MkDocs 静态站构建
+
+```bash
+pip install mkdocs-material
+cd ACScientificRecommendation
+mkdocs build          # 生成 site/ 目录，可部署到任意静态托管
+mkdocs serve          # 本地预览 http://localhost:8000
+```

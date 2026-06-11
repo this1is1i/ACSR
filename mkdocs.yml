@@ -1,0 +1,55 @@
+site_name: ACScientificRecommendation 技术文档
+site_description: 基于知识图谱与强化学习的科研成果推荐系统 — 技术问答与架构文档
+repo_url: https://github.com/this1is1i/ACSR
+docs_dir: docs
+theme:
+  name: material
+  language: zh
+  features:
+    - navigation.tracking
+    - navigation.indexes
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 深色模式
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 浅色模式
+
+plugins:
+  - search:
+      lang: [zh, en]
+      separator: '[\s\-\_\.\!\?\#\:\+]+'
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: true
+  - admonition
+  - footnotes
+  - md_in_html
+
+nav:
+  - 首页: 索引.md
+  - QA v1 (Q0-Q16): QA_2026-05-16_2026-06-02_v1.md
+  - QA v2 (Q17-Q37): QA_2026-06-02_2026-06-05_v2.md
+  - QA v3 (Q38-Q46): QA_2026-06-07_2026-06-08_v3.md
+  - QA v4 (Q47-Q51): QA_2026-06-08_v4.md
+  - 变更记录 v1: EarlyChange.md
+  - 变更记录 v2: EarlyChange2.md
+  - 项目运行说明: 说明文档.md
