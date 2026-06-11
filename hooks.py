@@ -1,105 +1,37 @@
 """
-MkDocs 构建钩子：两步处理——
-  1. 给所有 `## Q42: ...` 标题行追加 `{#q42}` 显式锚点 ID
-  2. 将所有 `[[Q42]]` wikilink 替换为标准 markdown 链接
+MkDocs 构建钩子：转换 Obsidian 格式到 MkDocs 格式。
+  1. 标题行的 ^qN 块锚点 → {#qN} MkDocs 锚点
+  2. [[file#^qN|QN]] wikilink → [QN](file.md#qN) 标准链接
 
-源文件保持 Obsidian 兼容的 [[wikilink]] 格式不变，
-锚点 ID 和链接转换仅在 mkdocs build/serve 时生效。
+源文件保持 Obsidian 兼容，仅在构建时转换。
 """
 import re
 
-# Q# → 所在文件名
-QA_FILE_MAP = {
-    "Q0":  "QA_2026-05-16_2026-06-02_v1.md",
-    "Q2":  "QA_2026-05-16_2026-06-02_v1.md",
-    "Q3":  "QA_2026-05-16_2026-06-02_v1.md",
-    "Q4":  "QA_2026-05-16_2026-06-02_v1.md",
-    "Q5":  "QA_2026-05-16_2026-06-02_v1.md",
-    "Q6":  "QA_2026-05-16_2026-06-02_v1.md",
-    "Q7":  "QA_2026-05-16_2026-06-02_v1.md",
-    "Q8":  "QA_2026-05-16_2026-06-02_v1.md",
-    "Q9":  "QA_2026-05-16_2026-06-02_v1.md",
-    "Q10": "QA_2026-05-16_2026-06-02_v1.md",
-    "Q11": "QA_2026-05-16_2026-06-02_v1.md",
-    "Q12": "QA_2026-05-16_2026-06-02_v1.md",
-    "Q13": "QA_2026-05-16_2026-06-02_v1.md",
-    "Q14": "QA_2026-05-16_2026-06-02_v1.md",
-    "Q16": "QA_2026-05-16_2026-06-02_v1.md",
-    "Q17": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q18": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q19": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q20": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q21": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q22": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q23": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q24": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q25": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q26": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q27": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q28": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q29": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q30": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q31": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q32": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q33": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q34": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q35": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q36": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q37": "QA_2026-06-02_2026-06-05_v2.md",
-    "Q38": "QA_2026-06-07_2026-06-08_v3.md",
-    "Q39": "QA_2026-06-07_2026-06-08_v3.md",
-    "Q40": "QA_2026-06-07_2026-06-08_v3.md",
-    "Q41": "QA_2026-06-07_2026-06-08_v3.md",
-    "Q42": "QA_2026-06-07_2026-06-08_v3.md",
-    "Q43": "QA_2026-06-07_2026-06-08_v3.md",
-    "Q44": "QA_2026-06-07_2026-06-08_v3.md",
-    "Q45": "QA_2026-06-07_2026-06-08_v3.md",
-    "Q46": "QA_2026-06-07_2026-06-08_v3.md",
-    "Q47": "QA_2026-06-08_v4.md",
-    "Q48": "QA_2026-06-08_v4.md",
-    "Q49": "QA_2026-06-08_v4.md",
-    "Q50": "QA_2026-06-08_v4.md",
-    "Q51": "QA_2026-06-08_v4.md",
-}
-
-# 匹配 heading 行：## Q数字: ...
-HEADING_RE = re.compile(r'^(#{1,6}\s+)(Q\d+(?:追问)?)([：:].+)$', re.MULTILINE)
-# 匹配 wikilink：[[Q42]] 或 [[Q5追问]]
-WIKILINK_RE = re.compile(r'\[\[(Q\d+(?:追问)?)\]\]')
-
-
-def _anchored_heading(m):
-    """为 Q# 标题注入显式锚点 ID。"""
-    prefix = m.group(1)    # "## "
-    q_id = m.group(2)      # "Q42"
-    rest = m.group(3)      # ": 推荐链路..."
-    # 锚点用小写 q+数字，追问用 q5zhuizhui 避免中文
-    anchor = q_id.lower().replace('追问', '追问')
-    # 为 Q5追问 生成纯 ASCII 锚点（不能含中文）
-    if '追问' in q_id:
-        anchor = 'q5-ask'
-    return f'{prefix}{q_id}{rest} {{#{anchor}}}'
-
-
-def _wikilink_to_link(m):
-    """将 [[wikilink]] 转为标准 markdown 链接。"""
-    q_id = m.group(1)
-    if q_id not in QA_FILE_MAP:
-        return m.group(0)  # 保持原样
-    target = QA_FILE_MAP[q_id]
-    # 锚点：Q5追问 用 q5-ask，其余用小写 q+数字
-    anchor = 'q5-ask' if '追问' in q_id else q_id.lower()
-    return f'[{q_id}]({target}#{anchor})'
+# [[file#^anchor|display]]
+WIKILINK_RE = re.compile(r'\[\[([a-zA-Z0-9_./-]+)#\^([a-zA-Z0-9_-]+)\|([^\]]+)\]\]')
+# ^block-id at end of heading line
+BLOCK_ANCHOR_RE = re.compile(r'\s*\^([a-zA-Z0-9_-]+)\s*$', re.MULTILINE)
 
 
 def on_page_markdown(markdown, page, config, files):
-    """
-    page 渲染前：注入锚点 ID + 转换 wikilink。
-    这一步在 MkDocs 内置的 toc 锚点生成之前执行，
-    所以 `{#q42}` 会覆盖自动生成的锚点。
-    """
-    # Step 1: 给 Q# 标题添加 {#q42} 显式锚点
-    markdown = HEADING_RE.sub(_anchored_heading, markdown)
-    # Step 2: [[Q42]] → [Q42](file#q42)
-    markdown = WIKILINK_RE.sub(_wikilink_to_link, markdown)
+    """在 MkDocs 处理 markdown 之前执行。"""
+
+    # Step 1: ^q5 → {#q5}
+    def replace_block_anchor(m):
+        anchor = m.group(1)
+        return f' {{#{anchor}}}'
+
+    markdown = BLOCK_ANCHOR_RE.sub(replace_block_anchor, markdown)
+
+    # Step 2: [[file#^anchor|text]] → [text](file.md#anchor)
+    def replace_wikilink(m):
+        fname = m.group(1)
+        anchor = m.group(2)
+        text = m.group(3)
+        if not fname.endswith('.md'):
+            fname += '.md'
+        return f'[{text}]({fname}#{anchor})'
+
+    markdown = WIKILINK_RE.sub(replace_wikilink, markdown)
+
     return markdown
