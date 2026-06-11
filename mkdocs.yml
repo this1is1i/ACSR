@@ -27,6 +27,9 @@ theme:
         icon: material/brightness-4
         name: 浅色模式
 
+hooks:
+  - hooks.py
+
 plugins:
   - search:
       lang: [zh, en]
