@@ -117,12 +117,38 @@ def mk_obsidian_link(q_id):
 # ── 处理单个文件 ────────────────────────────────────────────────────────
 HEADING_RE = re.compile(r'^(#{1,6}\s+)(Q\d+(?:追问)?)([：:]\s*.+)$')
 META_LINE_RE = re.compile(r'^\*\*(?:标签|关联)\*\*:')
+# 文件内 TOC 目录行: - [QN: desc](#long-mkdocs-anchor)
+TOC_LINE_RE = re.compile(r'^-\s+\[(Q\d+(?:追问)?):\s*([^\]]+)\]\(#[^)]+\)$')
+
+
+def fix_toc_section(lines, q_ids_in_file):
+    """将文件内 ## 索引 区域的 markdown 链接转为 Obsidian [[#^qN|QN: desc]]。"""
+    in_toc = False
+    for i, line in enumerate(lines):
+        if line.strip().startswith('## 索引'):
+            in_toc = True
+            continue
+        if in_toc and line.strip().startswith('---'):
+            break
+        if in_toc:
+            m = TOC_LINE_RE.match(line.strip())
+            if m:
+                q_id = m.group(1)
+                desc = m.group(2)
+                anchor = 'q5-ask' if '追问' in q_id else q_id.lower()
+                lines[i] = f'- [[#^{anchor}|{q_id}: {desc}]]'
+
 
 def process_file(filepath):
     with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
     lines = content.split("\n")
+
+    # Fix TOC first (pass — q_ids detected from headings later)
+    # We do a pre-pass to fix the index section lines
+    fix_toc_section(lines, set())
+
     out = []
     i = 0
     while i < len(lines):
