@@ -109,6 +109,7 @@ ACScientificRecommendation/
 │   │   ├── generate_paper_embeddings.py  # 论文向量离线生成
 │   │   ├── migrate_to_neo4j.py      # MySQL→Neo4j 迁移
 │   │   ├── backfill_mysql_shadow_papers.py  # Neo4j→MySQL 回填
+│   │   ├── evaluate.py              # 离线评估（HR@K/Precision/Recall/MRR/Coverage）
 │   │   └── neo4j_schema.cypher      # Neo4j 约束与索引
 │   ├── config.py                    # 全局配置（维度/超参/连接）
 │   └── train.py                     # 训练入口
@@ -192,9 +193,6 @@ ACScientificRecommendation/
 ```sql
 -- 执行建表脚本（含 embedding_raw 列）
 mysql -u root -p < backend/src/main/resources/research_db.sql
-
--- 已有数据库需追加迁移脚本
-mysql -u root -p < backend/src/main/resources/db_migration.sql
 ```
 
 ### 2. Neo4j 启动与数据迁移
@@ -250,7 +248,7 @@ python train.py
 | 调整用户特征构建 | `rl-service/features/feature_builder.py` | 加权池化权重、向量维度 |
 | 修改论文向量生成 | `rl-service/scripts/generate_paper_embeddings.py` | 10维特征选择、投影维度 |
 | 调整 Actor 网络结构 | `rl-service/models/actor.py:__init__()` | hidden_dim、层数、dropout |
-| 数据库 DDL 变更 | `backend/.../resources/db_migration.sql` | FK 约束、删冗余列、字段可空 |
+
 | 用户认证与改密 | `backend/.../controller/UserController.java` | `PUT /api/user/password` |
 | 前端推荐卡片样式 | `frontend/src/components/PaperCard.vue` | 卡片布局、信息展示 |
 | 前端资料编辑+改密 | `frontend/src/views/EditProfile.vue` | 双卡片布局、密码修改表单 |
@@ -268,6 +266,11 @@ python train.py
 | `docs/draw/11-er-diagram.drawio` | 数据库 ER 图（中文，1/N 基数） |
 | `docs/draw/12-neo4j-graph.drawio` | Neo4j 图模型（5 关系类型） |
 | `docs/draw/13-16-*-BPD.drawio` | 业务流程：推荐/学习路径/合作者/论坛审核 |
+| `docs/draw/17-commend.drawio` | 推荐表扬图 |
+| `docs/draw/18-ac-training-flow.drawio` | AC 训练流程图 |
+| `docs/draw/19-learning-path-flow.drawio` | 学习路径流程图 |
+| `docs/draw/20-mastery-propagation-flow.drawio` | 掌握度传播流程图 |
+| `docs/draw/architecture_dependency.drawio` | 架构依赖图 |
 
 ## 个性化配置
 
@@ -344,9 +347,9 @@ proxy: {
 mvn -f backend test
 mvn -f backend -Dtest=ClassName#methodName test
 
-# Python（暂无测试）
+# Python 离线评估
 cd rl-service
-# 暂无已配置的测试
+python scripts/evaluate.py       # HR@K, Precision@K, Recall@K, MRR, Coverage
 
 # 前端（暂无测试）
 cd frontend

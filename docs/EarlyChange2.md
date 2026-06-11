@@ -114,3 +114,49 @@
 - **Neo4j**: `bolt://localhost:7687`, user=neo4j, pass=seeworld123
 - **MySQL**: `research_db`, user=root, pass=qwer1234
 - **测试账号密码**: 老用户 `admin123`（id 1-10），认领用户 `123456`（id 11-16），注册用户 `qwer1234`（id 17）
+
+---
+
+## 2026-06-11
+
+### 核心目标
+项目整理：死文件清理、数据库 schema 回归单一来源、测试脚本归位、文档补全。
+
+### 数据库 schema 整理
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 删除 | `resources/db_migration.sql` | 迁移脚本已整合入 `research_db.sql`，消除 schema 双源问题 |
+| 删除 | `resources/seed_claim_test_data.sql` | 测试种子数据脚本，非生产用途 |
+
+### 脚本归位
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 迁移 | `evaluate.py` → `scripts/evaluate.py` | 离线评估脚本归入 scripts/ 目录，与其他工具脚本统一管理 |
+
+### 死文件清理
+
+| 类别 | 数量 | 说明 |
+|------|------|------|
+| draw.io 自动备份 | 21 | `docs/draw/.$*.drawio.bkp` — Office 编辑产生的临时文件 |
+| 孤儿字节码 | ~60 | `rl-service/**/__pycache__/` — 含已删除模块 `data_importer.py`/`preprocess.py`/`explain.py` 的残留 `.pyc` |
+| 空目录 | 3 | `frontend/src/assets/`、`components/community/`、`components/profile/` |
+
+### 文档建设
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 新增 | `docs/说明文档.md` | 12 章从零部署指南（前置依赖→数据库→Neo4j→三端启动→验证→FAQ） |
+| 新增 | `docs/说明文档.docx` | pandoc 转换的 Word 版本 |
+| 新增 | `docs/draw/21-forum-flow.drawio` | 论坛功能流转图（三泳道：普通用户/管理员/系统层） |
+| 新增 | `docs/draw/22-admin-functions.drawio` | 管理员四大功能模块图（帖子审核/用户管理/论文导入/模型训练） |
+| 更新 | `CLAUDE.md` | DB 表数 14→13、删除 seed/migration 引用、evaluate.py 路径更新、drawio 图 16→21、收藏双写说明 |
+| 更新 | `README.md` | 同上同步 + 新增 drawio 图表索引 + evaluate.py 路径 |
+
+### 已修复 Bug（按发现顺序）
+
+1. **CLAUDE.md 表计数错误** — `research_db.sql` 实际 13 张表，误写为 14
+2. **Git 追踪 18 个 .bkp 死文件** — 已 `git rm` 全部 21 个备份文件
+3. **`evaluate.py` 路径散乱** — 从根目录移至 `scripts/` 统一管理
+4. **`db_migration.sql` 造成 schema 双源** — 删除后以 `research_db.sql` 为唯一权威
