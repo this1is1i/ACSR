@@ -150,6 +150,8 @@ class LearningPathResponse(BaseModel):
     topic: str
     estimated_hours: float
     coverage: float
+    best_path: List[str] = []
+    best_path_ids: List[str] = []
     nodes: List[LearningPathNodeResponse]
     edges: List[dict]
 

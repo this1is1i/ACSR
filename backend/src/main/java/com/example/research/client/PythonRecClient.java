@@ -230,6 +230,10 @@ public class PythonRecClient {
         @JsonProperty("estimated_hours")
         private double estimatedHours;
         private double coverage;
+        @JsonProperty("best_path")
+        private List<String> bestPath;
+        @JsonProperty("best_path_ids")
+        private List<String> bestPathIds;
         private List<PathNode> nodes;
         private List<Map<String, Object>> edges;
     }

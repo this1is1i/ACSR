@@ -96,11 +96,17 @@ public class VisualizationServiceImpl implements VisualizationService {
         learningPath.put("topic", pyResp.getTopic());
         learningPath.put("estimatedHours", pyResp.getEstimatedHours());
         learningPath.put("coverage", pyResp.getCoverage());
+        // 最优路径 ID 优先作为 route（三节点），否则回退到全部节点
         List<Object> route = new ArrayList<>();
-        for (var pn : pyResp.getNodes()) {
-            route.add(pn.getNodeId());
+        if (pyResp.getBestPathIds() != null && !pyResp.getBestPathIds().isEmpty()) {
+            route.addAll(pyResp.getBestPathIds());
+        } else {
+            for (var pn : pyResp.getNodes()) {
+                route.add(pn.getNodeId());
+            }
         }
         learningPath.put("route", route);
+        learningPath.put("bestPath", pyResp.getBestPath() != null ? pyResp.getBestPath() : List.of());
 
         Map<String, Object> knowledge = new HashMap<>();
         knowledge.put("nodes", pathNodes);
@@ -115,7 +121,7 @@ public class VisualizationServiceImpl implements VisualizationService {
         Map<String, Object> knowledge = new HashMap<>();
         knowledge.put("nodes", List.of());
         knowledge.put("edges", List.of());
-        knowledge.put("learningPath", Map.of("topic", "", "estimatedHours", 0, "coverage", 0, "route", List.of()));
+        knowledge.put("learningPath", Map.of("topic", "", "estimatedHours", 0, "coverage", 0, "route", List.of(), "bestPath", List.of()));
         knowledge.put("pathNodes", List.of());
         knowledge.put("pathEdges", List.of());
         return knowledge;

@@ -189,7 +189,8 @@ function restoreSearchState() {
 
 function getFilterParams() {
   const params = {}
-  const timeMap = { '近一年': 2025, '近三年': 2023, '近五年': 2021 }
+  const y = new Date().getFullYear()
+  const timeMap = { '近一年': y - 1, '近三年': y - 3, '近五年': y - 5 }
   const sortMap = { '相关度': 'relevance', '引用次数': 'citation', '发表时间': 'year', '影响力': 'cited' }
   if (filters.value.time && timeMap[filters.value.time]) params.yearFrom = timeMap[filters.value.time]
   if (filters.value.sort && sortMap[filters.value.sort]) params.sortBy = sortMap[filters.value.sort]
@@ -230,6 +231,10 @@ function updateFilter(key, value) {
   filters.value = {
     ...filters.value,
     [key]: value,
+  }
+  // 筛选条件变化即时触发重新搜索
+  if (keyword.value.trim()) {
+    handleSearch()
   }
 }
 

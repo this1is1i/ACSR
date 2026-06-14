@@ -72,6 +72,18 @@ export function buildLearningPathSummary(visualization = {}) {
     .filter((step) => step.type !== 'paper' && step.group !== 'foundation')
     .slice(0, 3)
 
+  // 最优路径：优先取 Python 计算的标签，否则从 route ID 反查节点名
+  const bestPathChain = Array.isArray(learningPath.bestPath) && learningPath.bestPath.length
+    ? learningPath.bestPath
+    : (() => {
+        const routeIds = Array.isArray(learningPath.route) ? learningPath.route : []
+        const idToLabel = new Map(nodes.map(n => [String(n.id), String(n.name)]))
+        return routeIds.map(id => idToLabel.get(String(id)) || '').filter(Boolean)
+      })()
+
+  // route 即最优路径 ID（Python 已精简为 best_path_ids）
+  const bestPathIds = Array.isArray(learningPath.route) ? learningPath.route : []
+
   return {
     topic: learningPath.topic || '个性化学习路径',
     headline: learningPath.topic
@@ -94,5 +106,8 @@ export function buildLearningPathSummary(visualization = {}) {
     resourcePapers,
     paperCount: resourcePapers.length,
     focusAreas,
+    bestPathChain,
+    bestPathDisplay: bestPathChain.length ? bestPathChain.join(' → ') : '',
+    bestPathIds,
   }
 }

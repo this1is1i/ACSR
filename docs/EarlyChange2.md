@@ -190,4 +190,57 @@ pip install mkdocs-material
 cd ACScientificRecommendation
 mkdocs build          # 生成 site/ 目录，可部署到任意静态托管
 mkdocs serve          # 本地预览 http://localhost:8000
+
+---
+
+## 2026-06-14
+
+### 核心目标
+搜索筛选修复、实时私信在线状态实装、学习路径最优三节点播放、首页路径卡片同步。
+
+### 搜索筛选修复
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `frontend/src/views/Search.vue` | `updateFilter()` 改为筛选变化后自动触发 `handleSearch()` 重新请求 API（之前只改本地状态不搜索）; `timeMap` 改为动态计算 `new Date().getFullYear()` |
+| 修改 | `frontend/src/components/search/SearchFilterRail.vue` | 排序下拉补上缺失的 `影响力` 选项 |
+| 修改 | `backend/.../service/impl/PaperServiceImpl.java` | 图谱搜索路径 `sortBy` 补齐 `"relevance"`（保持原序）和 `"cited"`（按引用数）处理 |
+| 修改 | `backend/.../repository/PaperMapper.java` | SQL 中 `sortBy='relevance'` 改为用 MySQL fulltext MATCH 分数排序; `'cited'` 与 `'citation'` 统一 |
+
+### 实时私信在线状态
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 重写 | `backend/.../controller/MessageWebSocketController.java` | 新增 `ConcurrentHashMap<Long,String> onlineUsers` 在线用户表; `/user-online` 记录 sessionId 并广播状态; 新增 `@EventListener SessionDisconnectEvent` 处理断线广播离线; 初始在线列表改为 `/topic/user-status` 公共频道广播 `init_snapshot` 解决 `convertAndSendToUser` 无 STOMP Principal 问题 |
+| 修改 | `backend/.../controller/MessageWebSocketController.java` | `handlePrivateMessage` 移除重复 DB 保存（仅负责实时转发）; 转发消息补 `senderId` + `time` 字段 |
+| 修改 | `frontend/src/views/RealtimeChat.vue` | 在线文案改为"同步协作中，在线消息模式"/"异步协作中，离线消息模式"; 去掉冗余的第二颗 pill; `handleIncoming` 新增去重检查; `/topic/user-status` 处理器统一处理 `init_snapshot` 批量填充 |
+| 修改 | `frontend/src/components/chat/ConversationRail.vue` | 在线文案改为"同步协作中"/"离线" |
+| 修改 | `frontend/vite.config.js` | 新增 `/ws-messages` WebSocket 代理到 `:8080`（`ws: true`） |
+| 修改 | `frontend/src/router/index.js` | `beforeEach` 跳过 `/ws-messages/iframe.html` 等 SockJS 内部路径 |
+
+### 学习路径最优三节点
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `rl-service/learning_path/path_builder.py` | `LearningPath` 新增 `best_path`（label 链）+ `best_path_ids`（ID 链）; 新增 `get_best_path_chain()` 方法: BFS（需 ≥3 个 kw_* 节点才采纳）+ 层级回退（始终 3 节点去重）; `to_dict()` 输出两字段 |
+| 修改 | `rl-service/api/server.py` | `LearningPathResponse` 新增 `best_path` + `best_path_ids` |
+| 修改 | `rl-service/knowledge_graph/graph_query.py` | `shortest_path()` 改为双向 BFS（同时遍历 `_adj` + `_rev_adj`），使 keyword 节点能通过入边逆向行走 |
+| 修改 | `backend/.../client/PythonRecClient.java` | `LearningPathResponse` 新增 `bestPath` + `bestPathIds` |
+| 修改 | `backend/.../service/impl/VisualizationServiceImpl.java` | `route` 优先取 `bestPathIds`（3 个），为空回退全部节点; 传递 `bestPath` |
+| 修改 | `frontend/src/utils/path.js` | `buildLearningPathSummary` 新增 `bestPathChain`/`bestPathDisplay`/`bestPathIds`; `bestPathChain` 优先 Python 标签，兜底从 route ID 反查节点名 |
+| 修改 | `frontend/src/components/path/PathInsightRail.vue` | 第一个卡片新增"当前学习路径"文字链显示（如 `RL → Deep Learning → Transfer Learning`），空状态显示引导提示; 推进节奏/关键资源在未选主题时隐藏 |
+| 修改 | `frontend/src/views/KnowledgeGraph.vue` | `onMounted` 从 sessionStorage 恢复已选主题; `onSelectTargetTopic` 写入 sessionStorage 持久化 |
+
+### 首页路径卡片
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `frontend/src/views/Home.vue` | 从 sessionStorage 读取 `kg_selected_topic` 并传给可视化 API; 新增 `currentTargetTopic` ref 传给 `LearningPathPanel` |
+| 修改 | `frontend/src/components/home/LearningPathPanel.vue` | 未选主题时显示 🎯"请选择要学习的目标" 引导提示（含知识图谱页链接），已选时渲染完整路径卡片 |
+
+### CLAUDE.md 更新
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 修改 | `CLAUDE.md` | 新增 Docs 命令（`mkdocs serve/build`、QA 脚本）; CI/CD 节（GitHub Actions）; Obsidian↔MkDocs 管线架构; 已知限制条目标注 Q52 前向引用; MCP 配置扩展 |
 ```

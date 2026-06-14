@@ -23,6 +23,11 @@ const router = createRouter({
 
 // 未登录跳转 login
 router.beforeEach((to) => {
+  // SockJS 内部传输路径（iframe.html 等），放行不做路由拦截
+  if (to.path.startsWith('/ws-messages/')) {
+    return
+  }
+
   const token = getStoredToken()
   const userInfo = getStoredUserInfo()
 

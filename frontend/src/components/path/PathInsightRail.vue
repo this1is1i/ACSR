@@ -19,29 +19,36 @@
           </div>
         </div>
 
-        <div class="path-insight-rail__spotlight">
-          <section class="path-insight-rail__spotlight-main">
-            <span class="path-insight-rail__label">当前主线</span>
-            <strong>{{ summary.topic }}</strong>
-            <p>{{ summary.nextStepCaption }}</p>
-          </section>
-
-          <div class="path-insight-rail__highlight-stack">
-            <article class="path-insight-rail__highlight">
-              <span>当前聚焦</span>
-              <strong>{{ activeNodeLabel }}</strong>
-              <small>{{ activeNodeMeta }}</small>
-            </article>
-            <article class="path-insight-rail__highlight">
-              <span>路径锚点</span>
-              <strong>{{ summary.paperCount }}</strong>
-              <small>{{ summary.paperCount ? '篇关键论文已纳入本轮路径' : '等待关键论文加入路径' }}</small>
-            </article>
+        <template v-if="!currentTargetTopic">
+          <div class="path-insight-rail__empty-state">
+            <p class="path-insight-rail__empty-icon">🎯</p>
+            <strong>请选择要学习的目标</strong>
+            <p class="path-insight-rail__empty-hint">在下方「切换目标专题」中选择一个研究方向，系统将为你生成个性化学习路径</p>
           </div>
-        </div>
+        </template>
+
+        <template v-else>
+          <div class="path-insight-rail__spotlight">
+            <section class="path-insight-rail__spotlight-main">
+              <span class="path-insight-rail__label">当前主线</span>
+              <strong>{{ summary.topic }}</strong>
+              <p>{{ summary.nextStepCaption }}</p>
+            </section>
+
+            <div class="path-insight-rail__highlight-stack">
+              <article class="path-insight-rail__highlight">
+                <span>当前学习路径</span>
+                <strong class="path-insight-rail__path-chain">
+                  {{ summary.bestPathDisplay || '继续浏览论文以生成学习路径' }}
+                </strong>
+              </article>
+            </div>
+          </div>
+        </template>
       </section>
 
       <section
+        v-if="currentTargetTopic"
         class="path-insight-rail__card path-insight-rail__card--focus"
         data-testid="path-insight-card-focus"
       >
@@ -81,6 +88,7 @@
       </section>
 
       <section
+        v-if="currentTargetTopic"
         class="path-insight-rail__card path-insight-rail__card--resources"
         data-testid="path-insight-card-resources"
       >
@@ -175,7 +183,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { formatMastery, getPathStepMeta } from '@/utils/path'
+import { getPathStepMeta } from '@/utils/path'
 
 const router = useRouter()
 
@@ -231,6 +239,8 @@ const props = defineProps({
       paperCount: 0,
       foundationCount: 0,
       masteredFoundations: 0,
+      bestPathChain: [],
+      bestPathDisplay: '',
     }),
   },
   recommendations: {
@@ -242,18 +252,6 @@ const props = defineProps({
     default: null,
   },
 })
-
-const activeNodeLabel = computed(() => (
-  props.activeNode?.name
-    || (props.summary.isComplete ? '当前路径已完成' : props.summary.nextStep?.name)
-    || '等待路径生成'
-))
-
-const activeNodeMeta = computed(() => (
-  props.activeNode
-    ? getPathStepMeta(props.activeNode)
-    : props.summary.nextStepCaption
-))
 
 function recommendationMeta(paper) {
   const parts = [paper.venue, paper.year].filter(Boolean)
@@ -372,6 +370,14 @@ function recommendationMeta(paper) {
 .path-insight-rail__item strong,
 .path-insight-rail__route-item strong {
   color: var(--color-text-primary);
+}
+
+.path-insight-rail__path-chain {
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--color-accent-secondary);
+  word-break: break-word;
 }
 
 .path-insight-rail__metrics {
@@ -524,6 +530,31 @@ function recommendationMeta(paper) {
   text-align: center;
   padding: var(--space-4) 0;
   width: 100%;
+}
+
+.path-insight-rail__empty-state {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+}
+
+.path-insight-rail__empty-state strong {
+  font-size: 1.1rem;
+  color: var(--color-text-primary);
+}
+
+.path-insight-rail__empty-icon {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.path-insight-rail__empty-hint {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  max-width: 24ch;
 }
 
 .path-insight-rail__route-item {

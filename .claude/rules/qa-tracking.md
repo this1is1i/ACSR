@@ -17,16 +17,16 @@
 |---------|--------|
 | `rl-service/recommender/ranker.py` | Q16, Q22, Q23, Q24, Q42, Q43 |
 | `rl-service/recommender/candidate_generator.py` | Q42, Q43 |
-| `rl-service/models/actor.py` | Q2, Q5, Q20, Q24, Q25, Q26, Q38, Q42 |
-| `rl-service/models/critic.py` | Q38 |
-| `rl-service/agent.py` | Q38 |
-| `rl-service/features/feature_builder.py` | Q18, Q33, Q36, Q42, Q43 |
+| `rl-service/models/actor.py` | Q2, Q5, Q20, Q24, Q25, Q26, Q38, Q42, Q52 |
+| `rl-service/models/critic.py` | Q38, Q52 |
+| `rl-service/agent.py` | Q38, Q52 |
+| `rl-service/features/feature_builder.py` | Q18, Q33, Q36, Q42, Q43, Q52 |
 | `rl-service/knowledge_graph/` | Q7, Q19, Q27, Q28, Q39 |
 | `rl-service/learning_path/path_builder.py` | Q39 |
 | `rl-service/learning_path/propagation.py` | Q39 |
-| `rl-service/train.py` | Q20, Q31, Q32, Q38 |
-| `rl-service/env/rec_env.py` | Q38 |
-| `rl-service/utils/reward.py` | Q38 |
+| `rl-service/train.py` | Q20, Q31, Q32, Q38, Q52 |
+| `rl-service/env/rec_env.py` | Q38, Q52 |
+| `rl-service/utils/reward.py` | Q38, Q52 |
 | `backend/.../controller/PrivateMessageController.java` | Q40 |
 | `backend/.../controller/MessageWebSocketController.java` | Q40 |
 | `backend/.../service/impl/PrivateMessageServiceImpl.java` | Q40 |

@@ -29,8 +29,11 @@ public interface PaperMapper extends BaseMapper<Paper> {
               <if test="yearFrom != null">AND year >= #{yearFrom}</if>
             ORDER BY
               <choose>
-                <when test="sortBy == 'citation'">citation_count DESC, year DESC</when>
+                <when test="sortBy == 'citation' or sortBy == 'cited'">citation_count DESC, year DESC</when>
                 <when test="sortBy == 'year'">year DESC, citation_count DESC</when>
+                <when test="sortBy == 'relevance'">
+                  MATCH(title, abstract) AGAINST(#{keyword} IN BOOLEAN MODE) DESC, citation_count DESC
+                </when>
                 <otherwise>citation_count DESC, year DESC</otherwise>
               </choose>
             LIMIT #{limit}

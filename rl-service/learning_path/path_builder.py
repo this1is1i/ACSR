@@ -35,6 +35,8 @@ class LearningPath:
     topic: str = ""                 # 学习主题
     estimated_hours: float = 0.0    # 预估学习时长（小时）
     coverage: float = 0.0           # 领域覆盖率
+    best_path: List[str] = field(default_factory=list)       # 最优单路径（label 链）
+    best_path_ids: List[str] = field(default_factory=list)   # 最优单路径（node ID 链）
 
 
 class PathBuilder:
@@ -118,6 +120,12 @@ class PathBuilder:
             estimated_hours=estimated_hours,
             coverage=coverage,
         )
+        # 计算最优单路径（基于掌握度+KG最短路径）
+        path.best_path = self.get_best_path_chain(path)
+        # 将 label 映射回 node ID
+        label_to_id = {n.label: n.node_id for n in path_nodes}
+        path.best_path_ids = [label_to_id.get(label, '') for label in path.best_path]
+        path.best_path_ids = [nid for nid in path.best_path_ids if nid]  # 过滤空值
         logger.info(
             f"学习路径生成完成：{len(path_nodes)} 个节点，"
             f"预估学习时长 {estimated_hours:.1f} 小时"
@@ -223,6 +231,86 @@ class PathBuilder:
                         break
         return edges
 
+    # ── 最优单路径 ──────────────────────────────────────────────
+
+    def get_best_path_chain(self, path: LearningPath) -> List[str]:
+        """
+        计算单条最可能学会的路径（基于掌握度 + KG 最短路径）。
+        始终返回 3 个节点 label，如 ["RL", "MLP", "Deep Learning"]。
+
+        算法：
+            1. 从已知关键词（depth=0）中选 mastery 最高者作为起点
+            2. 尝试 BFS 最短路径到目标关键词（depth=2）
+            3. BFS 路径必须有 ≥3 个 kw_* 节点才采纳，否则回退
+            4. 回退：depth=0 最高 mastery + depth=1 最高 co-occurrence + depth=2 目标
+        """
+        chain: List[str] = []
+        nodes_by_depth: dict = {}
+        for n in path.nodes:
+            nodes_by_depth.setdefault(n.depth, []).append(n)
+
+        known_kws = nodes_by_depth.get(0, [])
+        related_kws = nodes_by_depth.get(1, [])
+        target_kws = nodes_by_depth.get(2, [])
+
+        # 1. 起点：已知关键词中 mastery 最高的
+        start_node = max(known_kws, key=lambda n: n.mastery) if known_kws else None
+        target_node = target_kws[0] if target_kws else None
+
+        # 2. 尝试 BFS 最短路径（需要 ≥3 个关键词节点才采纳）
+        if start_node and target_node and self.query:
+            sp = self.query.shortest_path(
+                start_node.node_id, target_node.node_id,
+                max_hops=6,
+            )
+            if sp and len(sp) >= 2:
+                bfs_chain = []
+                for nid in sp:
+                    if nid.startswith("kw_"):
+                        node = self.kg.nodes.get(nid)
+                        if node:
+                            bfs_chain.append(node.label)
+                if len(bfs_chain) >= 3:  # 必须 ≥3 个关键词，否则回退
+                    logger.info(f"BFS 最优路径（{len(bfs_chain)} 节点）：{' → '.join(bfs_chain)}")
+                    return bfs_chain
+                else:
+                    logger.info(f"BFS 仅找到 {len(bfs_chain)} 个关键词节点（需要 ≥3），回退层级策略")
+
+        # 3. 回退：始终组装 3 节点路径
+        logger.info("使用层级回退策略组装三节点路径")
+        if start_node:
+            chain.append(start_node.label)
+
+        # 选一个与起点不同的中间节点
+        middle = None
+        if related_kws:
+            # 优先选不在 chain 中的
+            for kw in related_kws:
+                if kw.label not in chain:
+                    middle = kw
+                    break
+            if not middle:
+                middle = related_kws[0]
+        if middle:
+            chain.append(middle.label)
+
+        # 目标关键词（确保不与已选重复）
+        if target_node and target_node.label not in chain:
+            chain.append(target_node.label)
+        elif target_node:
+            pass  # 已在 chain 中，不重复添加
+
+        # 不足 3 个且有更多 related_kws 可补
+        if len(chain) < 3 and len(related_kws) > 1:
+            for kw in related_kws:
+                if kw.label not in chain:
+                    chain.append(kw.label)
+                    if len(chain) >= 3:
+                        break
+
+        logger.info(f"最终路径（{len(chain)} 节点）：{' → '.join(chain) if chain else '(空)'}")
+        return chain
+
     def to_dict(self, path: LearningPath) -> dict:
         """序列化学习路径为 JSON 格式（供前端三维可视化使用）。"""
         return {
@@ -230,6 +318,8 @@ class PathBuilder:
             "topic": path.topic,
             "estimated_hours": path.estimated_hours,
             "coverage": round(path.coverage, 4),
+            "best_path": path.best_path,
+            "best_path_ids": path.best_path_ids,
             "nodes": [
                 {
                     "node_id":   n.node_id,

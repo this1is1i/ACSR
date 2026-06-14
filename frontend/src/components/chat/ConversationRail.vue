@@ -99,7 +99,7 @@
               <span v-if="contact.unreadCount" class="conversation-badge">{{ contact.unreadCount }}</span>
             </div>
             <p>{{ contact.lastMessage || '等待第一条协作消息' }}</p>
-            <small :class="{ online: isOnline(contact.id) }">{{ isOnline(contact.id) ? '在线协作中' : '异步协作中' }}</small>
+            <small :class="{ online: isOnline(contact.id) }">{{ isOnline(contact.id) ? '同步协作中' : '离线' }}</small>
           </div>
         </button>
       </div>

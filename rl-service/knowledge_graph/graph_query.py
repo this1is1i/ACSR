@@ -181,7 +181,7 @@ class GraphQuery:
         relation_filter: Optional[List[str]] = None,
     ) -> Optional[List[str]]:
         """
-        BFS 最短路径查询（用于学习路径生成）。
+        双向 BFS 最短路径查询（同时遍历出边和入边）。
 
         Args:
             src_id:          起点节点 ID
@@ -200,24 +200,39 @@ class GraphQuery:
         visited = {src_id: None}
         queue = deque([src_id])
 
+        def _try_edge(nxt, cur, relation):
+            """尝试扩展一条边，若到达目标则回溯返回路径，否则加入队列。"""
+            if relation_filter and relation not in relation_filter:
+                return None
+            if nxt in visited:
+                return None
+            visited[nxt] = cur
+            if nxt == dst_id:
+                path = []
+                node = nxt
+                while node is not None:
+                    path.append(node)
+                    node = visited[node]
+                return list(reversed(path))
+            if len(visited) <= max_hops * 1000:
+                queue.append(nxt)
+            return None
+
         while queue:
             cur = queue.popleft()
+
+            # 遍历出边（cur → dst）
             for edge in self.kg._adj.get(cur, []):
-                if relation_filter and edge.relation not in relation_filter:
-                    continue
-                nxt = edge.dst_id
-                if nxt not in visited:
-                    visited[nxt] = cur
-                    if nxt == dst_id:
-                        # 回溯路径
-                        path = []
-                        node = nxt
-                        while node is not None:
-                            path.append(node)
-                            node = visited[node]
-                        return list(reversed(path))
-                    if len(visited) <= max_hops * 1000:
-                        queue.append(nxt)
+                result = _try_edge(edge.dst_id, cur, edge.relation)
+                if result:
+                    return result
+
+            # 遍历入边（src → cur），逆向行走 keyword → paper
+            for edge in self.kg._rev_adj.get(cur, []):
+                result = _try_edge(edge.src_id, cur, edge.relation)
+                if result:
+                    return result
+
         return None
 
     # ── 推荐解释增强 ──────────────────────────────────────────────

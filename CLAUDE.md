@@ -36,6 +36,18 @@ Startup order: 1. RL service (:8000) → 2. Backend (:8080) → 3. Frontend (:51
 
 No dedicated lint/checkstyle is configured for any service.
 
+### Docs (`docs/`)
+```bash
+mkdocs serve              # Local preview (requires pip install mkdocs-material)
+mkdocs build              # Static site generation
+python scripts/build_qa_metadata.py   # Rebuild QA anchors + tags + index (idempotent)
+python scripts/fix_obsidian_links.py  # Fix Obsidian wikilinks + rebuild index
+```
+
+### CI/CD
+- `.github/workflows/docs.yml` — auto-builds & deploys MkDocs site to GitHub Pages on push to `main` when `docs/**`, `mkdocs.yml`, or the workflow itself changes. Also supports manual `workflow_dispatch` trigger.
+- Site URL: `https://this1is1i.github.io/ACSR/`
+
 ## Architecture
 
 ### Recommendation flow
@@ -215,12 +227,12 @@ Router guards check `public` meta and `roles` meta, redirecting unauthenticated 
 - **Database**: MySQL 8.0 (`research_db`, user=root, pass=qwer1234). Current tables (13): `user`, `paper`, `behavior_log`, `private_messages`, `user_contacts`, `post`, `post_like`, `comment`, `user_interest_history`, `favourite`, `user_feature_snapshot`, `rl_training_log`, `paper_author_claim`. Removed tables (2026-05-15): `board`, `browse_history`, `notification`, `kg_relation`.
 - **Neo4j**: `bolt://localhost:7687`, user=neo4j, pass=seeworld123. Stores Paper nodes and 5 relationship types (HAS_KEYWORD, AUTHOR_OF, CITE, PUBLISH_IN, CO_AUTHOR). KG data flows through Python service — backend no longer uses MySQL `kg_entity`/`kg_relation` tables.
 - **KnowledgeGraph edges**: Python `path_builder.to_dict()` outputs `src`/`dst`, but 3D force-graph expects `source`/`target`. The frontend normalizes edges with `l.src || l.source` / `l.dst || l.target` fallback. Keep both field forms when modifying the graph pipeline.
-- **MCP config**: `.mcp.json` at repo root configures two MCP servers — `refactor` (regex-based code search/replace via `@myuon/refactor-mcp`) and `drawio` (JGraph draw.io diagram generation via `@drawio/mcp`).
+- **MCP servers**: `.mcp.json` at repo root defines `refactor` (regex code search/replace, `@myuon/refactor-mcp`) and `drawio` (diagram generation, `@drawio/mcp`). Project settings (`.claude/settings.local.json`) enable `enableAllProjectMcpServers: true` with `effortLevel: xhigh`; `refactor` is the primary server in `enabledMcpjsonServers`.
 - **Avatar uploads**: Frontend dev server proxies `/uploads` → `http://localhost:8080` for avatar image loading.
 
 ## Architecture Diagrams
 
-`docs/draw/` contains 21 draw.io diagrams (open with draw.io desktop or VS Code extension):
+`docs/draw/` contains 23 draw.io diagrams (open with draw.io desktop or VS Code extension):
 
 | File | Content |
 |------|---------|
@@ -234,9 +246,40 @@ Router guards check `public` meta and `roles` meta, redirecting unauthenticated 
 | `18-ac-training-flow.drawio` | AC training process flowchart |
 | `19-learning-path-flow.drawio` | Learning path flowchart |
 | `20-mastery-propagation-flow.drawio` | Mastery propagation flowchart |
+| `21-forum-flow.drawio` | Forum/community interaction flowchart |
+| `22-admin-functions.drawio` | Admin console functions diagram |
 | `architecture_dependency.drawio` | Architecture dependency diagram |
+
+## Documentation Site (MkDocs)
+
+Technical docs in `docs/` are published as a static site via MkDocs Material:
+
+- **Config**: `mkdocs.yml` at repo root — Material theme (Chinese), search, 8 nav entries
+- **Setup guide**: `docs/说明文档.md` — step-by-step Windows setup from scratch (JDK, Maven, Node, Python, MySQL, Neo4j)
+- **QA files**: 4 volumes — `QA_2026-05-16_2026-06-02_v1.md` (Q0–Q16), `QA_2026-06-02_2026-06-05_v2.md` (Q17–Q37), `QA_2026-06-07_2026-06-08_v3.md` (Q38–Q46), `QA_2026-06-08_v4.md` (Q47–Q51)
+- **MOC index**: `docs/索引.md` is the topic-based map of content with wikilinks to all Q# entries
+
+### Obsidian ↔ MkDocs pipeline
+
+Source files use Obsidian wikilink syntax. The build chain converts them for MkDocs:
+
+```
+Obsidian source (.md)  →  hooks.py (build-time)   →  MkDocs HTML
+  [[file#^qN|QN]]           →  [QN](file.md#qN)
+  ## Q42: title ^q42        →  ## Q42: title {#q42}
+```
+
+**Maintenance scripts** (repo root `scripts/`):
+
+| Script | Purpose |
+|--------|---------|
+| `build_qa_metadata.py` | **One-stop**: add `^qN` block anchors to headings, insert `**标签**` / `**关联**` metadata, convert `- [QN: desc](#…)` TOC lines to wikilinks, rebuild `索引.md`. Idempotent — safe to re-run. |
+| `fix_obsidian_links.py` | Add `^qN` anchors + fix bare `[[QN]]` → `[[file#^qN\|QN]]` + rebuild `索引.md` |
+
+Run `python scripts/build_qa_metadata.py` after adding or editing Q# entries to keep anchors and index in sync.
 
 ## Known Limitations
 - No test suite for any service. Backend has 4 unit tests; RL service has an offline evaluation script (`scripts/evaluate.py`) but no unit tests; frontend has no tests.
 - Python service must be running for KG, visualization, and recommendation features to work with real data (no in-process fallback for KG/learning-path).
 - `VisualizationServiceImpl` was slimmed to a single method (`getVisualizationData`); all stats/chart/trend endpoints are gone — the profile page now gets visualization data from the KG endpoint only.
+- The module→Q# mapping in `.claude/rules/qa-tracking.md` references Q52 for several modules (`actor.py`, `critic.py`, `agent.py`, `feature_builder.py`, `train.py`, `rec_env.py`, `reward.py`), but Q52 does not yet exist (v4 goes up to Q51). This is a planned forward reference for a future QA volume.

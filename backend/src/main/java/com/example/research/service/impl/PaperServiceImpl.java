@@ -80,11 +80,12 @@ public class PaperServiceImpl implements PaperService {
                     stream = stream.filter(p -> p.getYear() != null && p.getYear() >= yearFrom);
                 }
                 List<Paper> results = stream.collect(Collectors.toList());
-                if ("citation".equals(sortBy)) {
+                if ("citation".equals(sortBy) || "cited".equals(sortBy)) {
                     results.sort(Comparator.comparing(Paper::getCitationCount, Comparator.nullsLast(Comparator.reverseOrder())));
                 } else if ("year".equals(sortBy)) {
                     results.sort(Comparator.comparing(Paper::getYear, Comparator.nullsLast(Comparator.reverseOrder())));
                 }
+                // "relevance" — 保持图谱搜索返回的原始顺序
                 if (!results.isEmpty()) {
                     return results.stream().limit(limit).collect(Collectors.toList());
                 }

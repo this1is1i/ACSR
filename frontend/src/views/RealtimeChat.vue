@@ -32,9 +32,8 @@
             </div>
             <div class="thread-pills">
               <span class="thread-pill" :class="{ online: selectedContact && onlineSet.has(selectedContact.id) }">
-                {{ selectedContact ? (onlineSet.has(selectedContact.id) ? '在线协作中' : '异步协作中') : '等待选择联系人' }}
+                {{ selectedContact ? (onlineSet.has(selectedContact.id) ? '同步协作中，在线消息模式' : '异步协作中，离线消息模式') : '等待选择联系人' }}
               </span>
-              <span class="thread-pill" :class="{ online: connected }">{{ connected ? '实时同步已连接' : '离线消息模式' }}</span>
             </div>
           </div>
 
@@ -261,9 +260,16 @@ async function connect() {
           try { const d = JSON.parse(msg.body); handleIncoming(d) } catch(e) { console.debug(e) }
         })
         client.subscribe('/topic/user-status', msg => {
-          try { const d = JSON.parse(msg.body); if (d?.userId) {
-            if (d.status === 'online') onlineSet.value.add(Number(d.userId)); else onlineSet.value.delete(Number(d.userId))
-          }} catch(e) {}
+          try {
+            const d = JSON.parse(msg.body)
+            if (d?.type === 'init_snapshot' && Array.isArray(d.userIds)) {
+              // 初始在线用户快照：批量填充
+              d.userIds.forEach(id => onlineSet.value.add(Number(id)))
+            } else if (d?.userId) {
+              if (d.status === 'online') onlineSet.value.add(Number(d.userId))
+              else onlineSet.value.delete(Number(d.userId))
+            }
+          } catch(e) {}
         })
         client.publish({ destination: '/app/user-online', body: JSON.stringify({ token }) })
 
@@ -287,7 +293,13 @@ function handleIncoming(data) {
   const other = (from === meId) ? to : from
   if (!messages[other]) messages[other] = []
 
-  const msg = { id: data.id || data.messageId || `s_${Date.now()}`, from, to, content: data.content || data.message || '', time: data.time || new Date().toLocaleTimeString(), isRead: !!data.isRead }
+  // 去重：相同内容+发送者+相近时间的消息不重复添加
+  const content = data.content || data.message || ''
+  const time = data.time || new Date().toLocaleTimeString()
+  const dup = messages[other].find(m => m.from === from && m.content === content && m.time === time)
+  if (dup) return
+
+  const msg = { id: data.id || data.messageId || `s_${Date.now()}`, from, to, content, time, isRead: !!data.isRead }
   messages[other].push(msg)
 
   // update contact unread counts

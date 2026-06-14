@@ -14,6 +14,7 @@
         <LearningPathPanel
           :loading="loading"
           :summary="pathSummary"
+          :current-target-topic="currentTargetTopic"
         />
       </div>
     </main>
@@ -36,14 +37,19 @@ const loading = ref(false)
 const visualizationData = ref({})
 const loadError = ref('')
 
+const SESSION_KEY = 'kg_selected_topic'
+const currentTargetTopic = ref(sessionStorage.getItem(SESSION_KEY) || '')
+
 const pathSummary = computed(() => buildLearningPathSummary(visualizationData.value))
 async function loadHomeHub() {
   loading.value = true
   loadError.value = ''
+  // 同步 sessionStorage 最新值
+  currentTargetTopic.value = sessionStorage.getItem(SESSION_KEY) || ''
   try {
     const [recommendResult, visualizationResult] = await Promise.allSettled([
       getRecommendations(10),
-      getVisualizationData(),
+      getVisualizationData(currentTargetTopic.value || undefined),
     ])
 
     recommendations.value = recommendResult.status === 'fulfilled'

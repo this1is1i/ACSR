@@ -43,6 +43,7 @@
           <option>相关度</option>
           <option>引用次数</option>
           <option>发表时间</option>
+          <option>影响力</option>
         </select>
       </div>
     </section>

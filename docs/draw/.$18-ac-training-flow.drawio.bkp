@@ -1,0 +1,115 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36" version="27.0.9">
+  <diagram id="ac-train" name="AC网络单轮训练流程">
+    <mxGraphModel dx="668" dy="427" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="750" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="start" value="开始: env.reset()" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=0;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="320" y="10" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="reset" value="随机采样用户构建状态 s(96维)&lt;br&gt;生成候选 F(50×32) + 过滤已读" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="320" y="70" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;fontSize=14;" parent="1" source="start" target="reset" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" source="reset" target="step1a" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="step1a" value="Actor(s, F) → softmax → 采样a" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="190" y="170" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step2a" value="&lt;font&gt;env.step(a)&lt;br&gt;&amp;nbsp;cos=dot(interest,paper_vec)&lt;br&gt;  → 模拟 click/fav/read (概率采样)&lt;/font&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="175" y="280" width="190" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" source="step1a" target="step2a" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="270" y="339.9999999999999" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" source="lSV9-O2tTNXb6Zu_E3IN-3" target="td" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="580" y="235" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="270" y="458" />
+              <mxPoint x="390" y="458" />
+              <mxPoint x="390" y="200" />
+              <mxPoint x="580" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="td" value="&lt;b&gt;δ = r + 0.99·V(s&#39;)·(1-done) - V(s)&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;fontFamily=Courier New;" parent="1" vertex="1">
+          <mxGeometry x="490" y="220" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="critic" value="Critic: min δ² → backward → clip_grad → step" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="510" y="290" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;fontSize=14;" parent="1" source="td" target="critic" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="actor" value="Actor: max logπ·sg(δ) + 0.01·H(π) → backward → clip → step" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470" y="375" width="220" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;fontSize=14;" parent="1" source="critic" target="actor" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="accum" value="epReward += r,  s = s&#39;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="505" y="440" width="150" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;fontSize=14;" parent="1" source="actor" target="accum" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="lSV9-O2tTNXb6Zu_E3IN-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;fontSize=14;" edge="1" parent="1" source="check" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="lSV9-O2tTNXb6Zu_E3IN-6" value="是" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=14;" vertex="1" connectable="0" parent="lSV9-O2tTNXb6Zu_E3IN-5">
+          <mxGeometry x="0.1363" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="check" value="到达训练步数？" style="rhombus;whiteSpace=wrap;html=1;fontStyle=0;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="505" y="485" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;fontSize=14;" parent="1" source="accum" target="check" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontSize=14;" parent="1" source="check" target="step1a" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="720" y="515" />
+              <mxPoint x="720" y="180" />
+            </Array>
+            <mxPoint x="650" y="510" as="sourcePoint" />
+            <mxPoint x="430" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lSV9-O2tTNXb6Zu_E3IN-7" value="&lt;font&gt;否&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=14;" vertex="1" connectable="0" parent="e12">
+          <mxGeometry x="-0.1331" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="end" value="返回 (R_ep, avg_L_A, avg_δ)" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=0;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="200" y="495" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="save" value="R_ep &amp;gt; best? → 保存 ac_model.pth" style="rounded=1;whiteSpace=wrap;html=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="290" y="580" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;fontSize=14;" parent="1" source="end" target="save" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="lSV9-O2tTNXb6Zu_E3IN-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;fontSize=14;" edge="1" parent="1" source="step2a" target="lSV9-O2tTNXb6Zu_E3IN-3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="270" y="360" as="sourcePoint" />
+            <mxPoint x="480" y="248" as="targetPoint" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lSV9-O2tTNXb6Zu_E3IN-3" value="&lt;font&gt;&amp;nbsp; r = 6维加权奖励&lt;br&gt;&amp;nbsp;s&#39; = EMA平滑 + L2归一&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;align=left;spacingLeft=4;" vertex="1" parent="1">
+          <mxGeometry x="190" y="380" width="160" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
