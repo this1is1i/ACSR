@@ -275,6 +275,7 @@ Obsidian source (.md)  →  hooks.py (build-time)   →  MkDocs HTML
 |--------|---------|
 | `build_qa_metadata.py` | **One-stop**: add `^qN` block anchors to headings, insert `**标签**` / `**关联**` metadata, convert `- [QN: desc](#…)` TOC lines to wikilinks, rebuild `索引.md`. Idempotent — safe to re-run. |
 | `fix_obsidian_links.py` | Add `^qN` anchors + fix bare `[[QN]]` → `[[file#^qN\|QN]]` + rebuild `索引.md` |
+| `tag_qa.py` | Add Obsidian-compatible `**标签**`/`**关联**` metadata to each Q# entry + rebuild `索引.md` MOC index with 14 topic clusters |
 
 Run `python scripts/build_qa_metadata.py` after adding or editing Q# entries to keep anchors and index in sync.
 
